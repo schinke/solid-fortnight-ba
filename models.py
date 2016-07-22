@@ -17,72 +17,70 @@ class Visits(db.Model):
     def __repr__(self):
         return 'id {}'.format(self.id)
 
-# class Category(db.Model):
-#     #Product prototype
+class Category(db.Model):
+    #Product prototype
 
-# class Product(db.Model):
-#     __tablename__='product'
+class Product(db.Model):
+    __tablename__='product'
 
-#     id = db.Column(db.integer, primary_key=True)
-#     name = db.Column(db.String())
-#     specification = db.Column(db.String())
-#     synonyms=db.Column(db.sqlalchemy.types.ARRAY(db.String()))
-#     englishName=db.Column(db.String())
-#     frenchName=db.Column(db.String())
+    id = db.Column(db.integer, primary_key=True)
+    name = db.Column(db.String())
+    specification = db.Column(db.String())
+    synonyms=db.Column(db.sqlalchemy.types.ARRAY(db.String()))
+    englishName=db.Column(db.String())
+    frenchName=db.Column(db.String())
 
-#     # #Advanced
-#     # tags
-#     # alternatives
-#     # standardOrigin
-#     # possibleOrigins
-#     # productionMethods
-#     # productionMethodParameters
-#     # degreesOfProcessing
-#     # degreesOfProcessingParameters
-#     # preservationMethods
-#     # packaging
-#     # packagingParameters
-#     # packagingMethods
-#     # startOfLocalSeason
-#     # endOfLocalSeason
-#     # density
-#     # unitWeight
-#     # commentsOnDensityAndUnitWeight
-#     # referencesOndensityAndUnitWeight
-#     # Texture
-#     # Foodwaste
-#     # CommentsOnFoodwaste
-#     # Allergenes
+    #Advanced
+    tags
+    alternatives
+    standardOrigin
+    possibleOrigins
+    productionMethods
+    productionMethodParameters
+    degreesOfProcessing
+    degreesOfProcessingParameters
+    preservationMethods
+    packaging
+    packagingParameters
+    packagingMethods
+    startOfLocalSeason
+    endOfLocalSeason
+    density
+    unitWeight
+    commentsOnDensityAndUnitWeight
+    referencesOndensityAndUnitWeight
+    Texture
+    Foodwaste
+    CommentsOnFoodwaste
+    Allergenes
 
-#     # #Documentation
-#     # CO2CalculationPath
-#     # CalculationProcessDocumentation
-#     # InfoTextForCook
-#     # ReferencesForBasicCO2Value
-#     # OtherReferences
-#     # CommentsOnFoodwasteCO2CalculationPathForDifferentProductParameters
-#     # DataQualityEstimation
+    #Documentation
+    CO2CalculationPath
+    CalculationProcessDocumentation
+    InfoTextForCook
+    ReferencesForBasicCO2Value
+    OtherReferences
+    CommentsOnFoodwasteCO2CalculationPathForDifferentProductParameters
+    DataQualityEstimation
 
-# class FoodWasteCollection(db.Model)
-#     __tablename__ = 'foodwaste'
-#     product=db.Column(db.ForeignKey)
-#     productionAvoidable = db.Column(db.integer())
+class FoodWasteCollection(db.Model)
+    __tablename__ = 'foodwaste'
+    product=db.Column(db.ForeignKey)
+    productionAvoidable = db.Column(db.integer())
 
-# class Value(db.Model)
-#     __tablename__ = 'value'
+class Value(db.Model)
+    __tablename__ = 'value'
 
-# class ValueBase(Co2Value)
-#     __tablename__ = 'base'
+class ValueBase(Co2Value)
+    __tablename__ = 'base'
 
-# class ValueDerived(Co2Value)
-#     __tablename__ = 'derived'
+class ValueDerived(Co2Value)
+    __tablename__ = 'derived'
 
-# class Co2Value(Value)
+class Co2Value(Value)
 
-# class 
-
-# class Reference(db.Model)
-#     __tablename__ = 'reference'
+class Reference(db.Model)
+    __tablename__ = 'reference'
 
 #TODO: many to many Reference <-> Value
 

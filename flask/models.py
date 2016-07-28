@@ -30,10 +30,25 @@ class Tag_Product_association(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     tag_name= db.Column(db.String, db.ForeignKey('tag.name'), primary_key=True)
 
+class Product_alternative(db.Model):
+    __tablename__ = 'prod_alernatives'
+    product_id_1 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+    product_id_2 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+
 class Co2_Product_association(db.Model):
     __tablename__ = 'co2_prod_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     co2_id= db.Column(db.Integer, db.ForeignKey('co2.id'), primary_key=True)
+
+class Location(db.Model):
+    __tablename__='location'
+    id=db.Column(db.Integer, primary_key=True)
+    name=db.Column(db.String)
+
+class FoodWasteData(db.Model):
+    __tablename__='foodwaste'
+    product_id = Column(Integer, ForeignKey('product.id'))
+    product = relationship("Parent", back_populates="children")
 
 class Product(db.Model):
     __tablename__='product'
@@ -41,15 +56,18 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
     specification = db.Column(db.String())
-    # synonyms=db.Column(db.sqlalchemy.types.ARRAY(db.String()))
+    # synonym=relationship("Synonym", secondary="synonym_prod_association")
     englishName=db.Column(db.String())
     frenchName=db.Column(db.String())
+
+
     tags = relationship("Tag", secondary="tag_prod_association")
 
     def toDict(self):
         return {'id': self.id, 'name': self.name, 'specification': self.specification}
     # #Advanced
-    # alternatives
+    alternatives=relationship(synonym=relationship("Alternatives", secondary="prod_alternatives", primaryjoin=id==Product_alternative.product_id_1,
+                           secondaryjoin=id==Product_alternative.product_id_2))
     # standardOrigin
     # possibleOrigins
     # productionMethods
@@ -60,8 +78,8 @@ class Product(db.Model):
     # packaging
     # packagingParameters
     # packagingMethods
-    # startOfLocalSeason
-    # endOfLocalSeason
+    startOfLocalSeason=db.Colum(db.Date)
+    endOfLocalSeason=db.Colum(db.Date)
     # density
     # unitWeight
     # commentsOnDensityAndUnitWeight
@@ -94,7 +112,8 @@ class Co2Value(db.Model):
     __tablename__='co2'
     id=db.Column(db.Integer, primary_key=True)
     value=db.Column(db.String)
-    
+    product_id = Column(Integer, ForeignKey('product.id'))
+    parent = relationship("Parent", back_populates="children")
 
 # class CO2ValueDerived(Co2Value):
 

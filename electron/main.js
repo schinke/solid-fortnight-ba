@@ -12,14 +12,14 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function() {
-  // call python?
-  var subpy = require('child_process').spawn('./../venv/bin/python', ['../app.py']);
+  // call python to start server
+  var subpy = require('child_process').spawn('./../flask/venv/bin/python', ['../flask/app.py']);
   var rq = require('request-promise');
-  var mainAddr = 'http://localhost:5000';
+  var mainAddr = 'http://localhost:5000/products';
 
   var openWindow = function(){
     mainWindow = new BrowserWindow({width: 800, height: 600});
-    mainWindow.loadURL(`file://${__dirname}/indexNg.html`)
+    mainWindow.loadURL(`file://${__dirname}/views/viewproducts.html`)
     mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
       mainWindow = null;

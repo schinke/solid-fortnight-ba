@@ -46,8 +46,8 @@ class Product(db.Model):
     frenchName=db.Column(db.String())
     tags = relationship("Tag", secondary="tag_prod_association")
 
-    def __repr__(self):
-        return jsonpickle.encode(self.__dict__)
+    def toDict(self):
+        return {'id': self.id, 'name': self.name, 'specification': self.specification}
     # #Advanced
     # alternatives
     # standardOrigin
@@ -94,6 +94,7 @@ class Co2Value(db.Model):
     __tablename__='co2'
     id=db.Column(db.Integer, primary_key=True)
     value=db.Column(db.String)
+    
 
 # class CO2ValueDerived(Co2Value):
 

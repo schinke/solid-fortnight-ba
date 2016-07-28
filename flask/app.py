@@ -1,4 +1,5 @@
-from flask import Flask, request
+
+from flask import jsonify, Flask, request, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.httpauth import HTTPBasicAuth
 import json
@@ -20,8 +21,17 @@ def get_products():
     visit = Visits("/products")
     db.session.add(visit)
     db.session.commit()
+    intermediate = Product.query.all()
+    return jsonify([a.toDict() for a in intermediate])
 
-    return json.dumps(([str(a.__repr__()) for a in Product.query.all()]), indent = 4)
+@app.route('/product/<id>', methods=['GET'])
+def get_product(id):
+    #TODO: log visits automatically
+    visit = Visits("/product")
+    db.session.add(visit)
+    db.session.commit()
+    intermediate = Product.query.get(id)
+    return jsonify(intermediate.toDict())
 
 @app.route('/products', methods=['POST'])
 def post_product():
@@ -34,10 +44,11 @@ def post_product():
     db.session.commit()
 
 
+
 @app.route('/<name>')
 @auth.login_required
 def hello_name(name):
-	print(name)
+    print(name)
 
 
 

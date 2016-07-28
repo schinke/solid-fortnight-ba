@@ -14,10 +14,11 @@ function ContentController($scope) {
     xmlHttp.send(null);
   }
   var bla;
-  httpGetAsync('http://localhost:5000', function(response){
-  bla=response;
-  $scope.fromServer=JSON.parse(bla);
+  httpGetAsync('http://localhost:5000/products', function(response){
+
+  $scope.fromServer=angular.fromJson(response);
+  $scope.responseRaw=response;
+  $scope.parsedWJSON=JSON.parse(response);
   $scope.$apply();
   });
-  $scope.fromServer=bla;
 }

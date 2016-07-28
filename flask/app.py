@@ -26,7 +26,7 @@ def get_products():
 
 @app.route('/product/<id>', methods=['GET'])
 def get_product(id):
-    #TODO: log visits automatically
+
     visit = Visits("/product")
     db.session.add(visit)
     db.session.commit()

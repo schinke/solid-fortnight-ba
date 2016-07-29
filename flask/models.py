@@ -31,7 +31,7 @@ class TagProductAssociation(db.Model):
 class ProductAllergeneAssociation(db.Model):
     __tablename__ = 'prod_allergene_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    allergene_id= db.Column(db.Interger, db.ForeignKey('allergene.id'), primary_key=True)
+    allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key=True)
     product=relationship("Product", back_populates="allergenes")
     valueBase_id = db.Column(db.Integer, db.ForeignKey('value_base.id'))
     valueBase=relationship('ValueBase')
@@ -39,7 +39,7 @@ class ProductAllergeneAssociation(db.Model):
 class ProductNutrientAssociation(db.Model):
     __tablename__ = 'prod_nutrient_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    allergene_id= db.Column(db.Interger, db.ForeignKey('allergene.id'), primary_key=True)
+    allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key=True)
     product=relationship("Product", back_populates="nutrients")
     valueBase_id = db.Column(db.Integer, db.ForeignKey('value_base.id'))
     valueBase=relationship('ValueBase')
@@ -55,9 +55,9 @@ class LocationProductAssociation(db.Model):
     location_id= db.Column(db.Integer, db.ForeignKey('location.id'), primary_key=True)
 
 class LocationValueAssociation(db.Model): #possible origins
-    __tablename__ = 'location_valule_association'
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    location_id= db.Column(db.Integer, db.ForeignKey('value_base.id'), primary_key=True)
+    __tablename__ = 'location_value_association'
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'), primary_key=True)
+    value_base_id= db.Column(db.Integer, db.ForeignKey('value_base.id'), primary_key=True)
 
 class Location(db.Model):
     __tablename__='location'
@@ -69,7 +69,7 @@ class FoodWasteData(db.Model):
     __tablename__='foodwaste'
     id=db.Column(Integer, primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'))
-    product = relationship("Product", back_populates="foodWastes")
+    product = relationship("Product", back_populates="foodWasteData")
 
 class Product(db.Model):
     __tablename__='product'
@@ -85,8 +85,8 @@ class Product(db.Model):
     frenchName=db.Column(db.String())
     Co2Value=relationship("Co2Value", uselist=False, back_populates="product")
     tags = relationship("Tag", secondary="tag_prod_association")
-    nutrients=relationship("ProductNutrientAssociation", back_populates=product)
-    allergenes=relationship("ProductAllergeneAssociation", back_populates=product)
+    nutrients=relationship("ProductNutrientAssociation", back_populates="product")
+    allergenes=relationship("ProductAllergeneAssociation", back_populates="product")
     # #Advanced
     alternatives=relationship("Product", secondary="prod_alternatives", primaryjoin=id==ProductAlternative.product_id_1,
                            secondaryjoin=id==ProductAlternative.product_id_2)
@@ -143,7 +143,7 @@ class Tag(db.Model):
 class ValueBase(db.Model):
     __tablename__='value_base'
     id=db.Column(db.Integer, primary_key=True)
-    validCountries = relationship("Location", secondary="LocationValueAssociation")
+    validCountries = relationship("Location", secondary="location_value_association")
 
 class Co2Value(db.Model):
     __tablename__='co2'
@@ -155,5 +155,5 @@ class Co2Value(db.Model):
 
 class Reference(db.Model):
     __tablename__ = 'reference'
-
+    id=db.Column(db.Integer, primary_key=True)
 

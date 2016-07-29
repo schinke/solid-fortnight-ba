@@ -27,7 +27,6 @@ class TagProductAssociation(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     tag_name= db.Column(db.String, db.ForeignKey('tag.name'), primary_key=True)
 
-
 class ProductAllergeneAssociation(db.Model):
     __tablename__ = 'prod_allergene_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
@@ -78,6 +77,7 @@ class Product(db.Model):
         return {'id': self.id, 'name': self.name, 'specification': self.specification}
 
     id = db.Column(db.Integer, primary_key=True)
+    virtual=db.Column(db.Boolean())
     name = db.Column(db.String())
     specification = db.Column(db.String())
     # synonyms=relationship("Synonym", secondary="synonym_prod_association")
@@ -123,6 +123,11 @@ class Product(db.Model):
 class Process(db.Model):
     __tablename__='process'
     id=db.Column(db.Integer, primary_key=True)
+    #type
+    #productAssociation
+    #co2
+    #nutrient
+    #foodwaste?
 
 class Allergene(db.Model):#single allergene, not multiple allergenes
     __tablename__='allergene'

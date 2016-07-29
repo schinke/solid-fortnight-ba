@@ -22,31 +22,48 @@ class Visits(db.Model):
     def __repr__(self):
         return 'id {}'.format(self.id)
 
-class Tag_Product_association(db.Model):
+class TagProductAssociation(db.Model):
     __tablename__ = 'tag_prod_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     tag_name= db.Column(db.String, db.ForeignKey('tag.name'), primary_key=True)
 
-class Product_alternative(db.Model):
+
+class ProductAllergeneAssociation(db.Model):
+    __tablename__ = 'prod_allergene_association'
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+    allergene_id= db.Column(db.Interger, db.ForeignKey('allergene.id'), primary_key=True)
+    product=relationship("Product", back_populates="allergenes")
+    valueBase_id = db.Column(db.Integer, db.ForeignKey('value_base.id'))
+    valueBase=relationship('ValueBase')
+
+class ProductNutrientAssociation(db.Model):
+    __tablename__ = 'prod_nutrient_association'
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+    allergene_id= db.Column(db.Interger, db.ForeignKey('allergene.id'), primary_key=True)
+    product=relationship("Product", back_populates="nutrients")
+    valueBase_id = db.Column(db.Integer, db.ForeignKey('value_base.id'))
+    valueBase=relationship('ValueBase')
+
+class ProductAlternative(db.Model):
     __tablename__ = 'prod_alternatives'
     product_id_1 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     product_id_2 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
 
-class Co2_Product_association(db.Model):
-    __tablename__ = 'co2_prod_association'
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    co2_id= db.Column(db.Integer, db.ForeignKey('co2.id'), primary_key=True)
-
-class Location_Product_association(db.Model):
+class LocationProductAssociation(db.Model):
     __tablename__ = 'location_prod_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    location_id= db.Column(db.Integer, db.ForeignKey('location.id'))
+    location_id= db.Column(db.Integer, db.ForeignKey('location.id'), primary_key=True)
+
+class LocationValueAssociation(db.Model): #possible origins
+    __tablename__ = 'location_valule_association'
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+    location_id= db.Column(db.Integer, db.ForeignKey('value_base.id'), primary_key=True)
 
 class Location(db.Model):
     __tablename__='location'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)
-    possibleOrigins=relationship("Product", secondary="location_prod_association")
+    possibleProducts=relationship("Product", secondary="location_prod_association", back_populates="possibleLocations")
 
 class FoodWasteData(db.Model):
     __tablename__='foodwaste'
@@ -66,16 +83,16 @@ class Product(db.Model):
     # synonyms=relationship("Synonym", secondary="synonym_prod_association")
     englishName=db.Column(db.String())
     frenchName=db.Column(db.String())
-    Co2Values=relationship("Co2Value")
+    Co2Value=relationship("Co2Value", uselist=False, back_populates="product")
     tags = relationship("Tag", secondary="tag_prod_association")
-
-
+    nutrients=relationship("ProductNutrientAssociation", back_populates=product)
+    allergenes=relationship("ProductAllergeneAssociation", back_populates=product)
     # #Advanced
-    alternatives=relationship("Product", secondary="prod_alternatives", primaryjoin=id==Product_alternative.product_id_1,
-                           secondaryjoin=id==Product_alternative.product_id_2)
+    alternatives=relationship("Product", secondary="prod_alternatives", primaryjoin=id==ProductAlternative.product_id_1,
+                           secondaryjoin=id==ProductAlternative.product_id_2)
     standardOrigin_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     standardOrigin=relationship(Location, foreign_keys=standardOrigin_id)
-    possibleOrigins=relationship("Location", secondary="location_prod_association")
+    possibleLocations=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
     # productionMethods
     # productionMethodParameters
     # degreesOfProcessing
@@ -90,41 +107,53 @@ class Product(db.Model):
     # unitWeight
     # commentsOnDensityAndUnitWeight
     # referencesOndensityAndUnitWeight
-    # Texture
-    foodWastes=relationship("FoodWasteData")
-    # CommentsOnFoodwaste
-    # Allergenes
+    # texture
+    foodWasteData=relationship("FoodWasteData", back_populates="product")
+    # commentsOnFoodwaste
 
     # #Documentation
-    # CO2CalculationPath
-    # CalculationProcessDocumentation
-    # InfoTextForCook
-    # ReferencesForBasicCO2Value
-    # OtherReferences
-    # CommentsOnFoodwasteCO2CalculationPathForDifferentProductParameters
-    # DataQualityEstimation
+    # co2CalculationPath
+    # calculationProcessDocumentation
+    # infoTextForCook
+    # referencesForBasicCO2Value
+    # otherReferences
+    # commentsOnFoodwasteCO2CalculationPathForDifferentProductParameters
+    # dataQualityEstimation
 
-# class FoodWasteCollection(db.Model):
-#     __tablename__ = 'foodwaste'
-#     product=db.Column(db.ForeignKey)
-#     productionAvoidable = db.Column(db.integer())
+class Process(db.Model):
+    __tablename__='process'
+    id=db.Column(db.Integer, primary_key=True)
+
+class Allergene(db.Model):#single allergene, not multiple allergenes
+    __tablename__='allergene'
+    id=db.Column(db.Integer, primary_key=True)
+    name=db.Column(db.String)
+    shortname=db.Column(db.String)
+
+class Nutrient(db.Model):
+    __tablename__='nutrient'
+    id=db.Column(db.Integer, primary_key=True)
+    name=db.Column(db.String)
+    shortname=db.Column(db.String)
 
 class Tag(db.Model):
     __tablename__='tag'
-
     name=db.Column(db.String, primary_key=True)
+
+class ValueBase(db.Model):
+    __tablename__='value_base'
+    id=db.Column(db.Integer, primary_key=True)
+    validCountries = relationship("Location", secondary="LocationValueAssociation")
 
 class Co2Value(db.Model):
     __tablename__='co2'
     id=db.Column(db.Integer, primary_key=True)
     value=db.Column(db.String)
+    valueBase_id = db.Column(db.Integer, db.ForeignKey('value_base.id'))
     product_id = Column(Integer, ForeignKey('product.id'))
-    product = relationship("Product", back_populates="Co2Values")
+    product = relationship("Product", back_populates="Co2Value")
 
-# class CO2ValueDerived(Co2Value):
+class Reference(db.Model):
+    __tablename__ = 'reference'
 
-# class CO2ValueBase(Co2Value):
-
-# class Reference(db.Model)
-#     __tablename__ = 'reference'
 

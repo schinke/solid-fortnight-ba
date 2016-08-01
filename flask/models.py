@@ -43,7 +43,7 @@ class Location(db.Model):
     name=db.Column(db.String)
     possibleProducts=relationship("Product", secondary="location_prod_association", back_populates="possibleLocations")
 
-#A single product's Foodwaste data
+#A single product's single foodwaste number
 class FoodWasteData(Value):
     __tablename__='foodwaste'
     __mapper_args__ = {
@@ -147,6 +147,26 @@ class ProductNutrientAssociation(Value):
     nutrient_id= db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     product=relationship("Product", back_populates="nutrients")
 
+class ProductDensity(Value):
+    __tablename__ = 'density'
+    __mapper_args__ = {
+        'polymorphic_identity':'density',
+    }
+
+    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product=relationship("Product", back_populates="density")
+
+class ProductUnitWeight(Value):
+    __tablename__ = 'unit_weight'
+    __mapper_args__ = {
+        'polymorphic_identity':'unit_weight',
+    }
+
+    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product=relationship("Product", back_populates="unitWeight")
+
 #Associate one product to one alternative product
 class ProductAlternative(db.Model):
     __tablename__ = 'prod_alternatives'
@@ -192,6 +212,7 @@ class Product(db.Model):
     standardOrigin_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     standardOrigin=relationship(Location, foreign_keys=standardOrigin_id)
     possibleLocations=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
+    ##replace multiple fields with processes list
     # productionMethods
     # productionMethodParameters
     # degreesOfProcessing
@@ -201,20 +222,18 @@ class Product(db.Model):
     # packagingParameters
     # packagingMethods
     processes=relationship("ProductProcessNutritionAssociation", back_populates="product")
-    startOfLocalSeason=db.Column(db.Date)
-    endOfLocalSeason=db.Column(db.Date)
-    # density
-    # unitWeight
-    # commentsOnDensityAndUnitWeight
-    # referencesOndensityAndUnitWeight
-    # texture
+    startOfLocalSeason=db.Column(db.Date())
+    endOfLocalSeason=db.Column(db.Date())
+    density=relationship("ProductDensity", back_populates="product")
+    unitWeight=relationship("unitWeight", back_populates="product")
+    commentsOnDensityAndUnitWeight=db.Column(db.String())
+    texture=db.Column(db.String)
     foodWasteData=relationship("FoodWasteData", back_populates="product")
-    # commentsOnFoodwaste
-
+    infoTextForCook=db.Column(db.String())
     # #Documentation
     # co2CalculationPath
     # calculationProcessDocumentation
-    # infoTextForCook
+
     # referencesForBasicCO2Value
     # otherReferences
     # commentsOnFoodwasteCO2CalculationPathForDifferentProductParameters

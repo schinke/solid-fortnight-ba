@@ -30,7 +30,7 @@ def get_product(id):
     visit = Visits("/product")
     db.session.add(visit)
     db.session.commit()
-    intermediate = Product.query.get(id)
+    intermediate = EdbProduct.query.get(id)
     return jsonify(intermediate.toDict())
 
 @app.route('/products', methods=['POST'])

@@ -19,6 +19,7 @@ class Visits(db.Model):
     def __repr__(self):
         return 'id {}'.format(self.id)
 
+#general purpose value
 class Value(db.Model):
     __tablename__='scivalue'
 
@@ -29,16 +30,20 @@ class Value(db.Model):
     }
 
     id=db.Column(db.Integer, primary_key=True)
+    
     validCountries = relationship("Location", secondary="location_scivalue_association")
     reference_id=db.Column(db.Integer, db.ForeignKey('reference.id'))
-    reference=relationship("Reference", back_populates="scivalues")
+    base_value_id=db.Column(db.Integer, db.ForeignKey('scivalue.id'))
+    baseValue=relationship("Value", foreign_keys=base_value_id)
 
+#Countries for standard/possible origin attribute
 class Location(db.Model):
     __tablename__='location'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)
     possibleProducts=relationship("Product", secondary="location_prod_association", back_populates="possibleLocations")
 
+#A single product's Foodwaste data
 class FoodWasteData(Value):
     __tablename__='foodwaste'
     __mapper_args__ = {
@@ -48,54 +53,55 @@ class FoodWasteData(Value):
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", back_populates="foodWasteData")
 
+#A process, not tied to a product
 class Process(db.Model):
     __tablename__='process'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)
-    #type
-    #productAssociation
-    #co2
-    #nutrient
-    #foodwaste?
 
+#An allergene not tied to a product
 class Allergene(db.Model):#single allergene, not multiple allergenes
     __tablename__='allergene'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)
     shortname=db.Column(db.String)
 
+#A nutrient, not tied to a product
 class Nutrient(db.Model):
     __tablename__='nutrient'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)
     shortname=db.Column(db.String)
 
+#A Tag, to be connected with products
 class Tag(db.Model):
     __tablename__='tag'
     name=db.Column(db.String, primary_key=True)
 
+#A single product's CO2Value
 class Co2Value(Value):
     __tablename__='co2'
-
     __mapper_args__ = {
         'polymorphic_identity':'co2',
     }
-
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     scivalue=db.Column(db.String)
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", back_populates="Co2Value")
 
+#A reference, maybe for multiple values
 class Reference(db.Model):
     __tablename__ = 'reference'
     id=db.Column(db.Integer, primary_key=True)
     scivalues=relationship("Value", back_populates="reference")
 
+#Associate products with relevant tags for searching
 class TagProductAssociation(db.Model):
     __tablename__ = 'tag_prod_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     tag_name= db.Column(db.String, db.ForeignKey('tag.name'), primary_key=True)
 
+#Associate one allergene to a product
 class ProductAllergeneAssociation(Value):
     __tablename__ = 'prod_allergene_association'
     __mapper_args__ = {
@@ -106,7 +112,8 @@ class ProductAllergeneAssociation(Value):
     allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key=False)
     product=relationship("Product", back_populates="allergenes")
 
-class ProductProcessAssociation(Value):
+#Store how much one process changes one nutrient for one product
+class ProductProcessNutritionAssociation(Value):
     __tablename__ = 'prod_process_association'
     __mapper_args__ = {
         'polymorphic_identity':'prod_process_association',
@@ -114,8 +121,21 @@ class ProductProcessAssociation(Value):
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
+    nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     product=relationship("Product", back_populates="processes")
 
+#Store how much one process changes one product's CO2 Value
+class ProductProcessCO2Association(Value):
+    __tablename__ = 'prod_process_co2_association'
+    __mapper_args__ = {
+        'polymorphic_identity':'prod_process_co2_association',
+    }
+    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
+    product=relationship("Product", back_populates="processes")
+
+#Store how much of a nutrient one product has
 class ProductNutrientAssociation(Value):
     __tablename__ = 'prod_nutrient_association'
     __mapper_args__ = {
@@ -127,21 +147,25 @@ class ProductNutrientAssociation(Value):
     nutrient_id= db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     product=relationship("Product", back_populates="nutrients")
 
+#Associate one product to one alternative product
 class ProductAlternative(db.Model):
     __tablename__ = 'prod_alternatives'
     product_id_1 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     product_id_2 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
 
+#Associate one product with possible origin locations
 class LocationProductAssociation(db.Model):
     __tablename__ = 'location_prod_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
     location_id= db.Column(db.Integer, db.ForeignKey('location.id'), primary_key=True)
 
+#Associate onee value to the locations in which it is valid
 class LocationValueAssociation(db.Model): #valid for
     __tablename__ = 'location_scivalue_association'
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'), primary_key=True)
     scivalue_id= db.Column(db.Integer, db.ForeignKey('scivalue.id'), primary_key=True)
 
+#A food product
 class Product(db.Model):
     __tablename__='product'
     type = Column(db.String(50))
@@ -176,7 +200,7 @@ class Product(db.Model):
     # packaging
     # packagingParameters
     # packagingMethods
-    processes=relationship("ProductProcessAssociation", back_populates="product")
+    processes=relationship("ProductProcessNutritionAssociation", back_populates="product")
     startOfLocalSeason=db.Column(db.Date)
     endOfLocalSeason=db.Column(db.Date)
     # density
@@ -196,6 +220,7 @@ class Product(db.Model):
     # commentsOnFoodwasteCO2CalculationPathForDifferentProductParameters
     # dataQualityEstimation
 
+#A food product that's used in the eaternity calculator
 class EdbProduct(Product):
     __tablename__ = 'edb_product'
 
@@ -204,6 +229,7 @@ class EdbProduct(Product):
     }
     id = Column(db.Integer, ForeignKey('product.id'), primary_key=True)
 
+#A food product  prototype, can be seen as category
 class TemplateProduct(Product):
     __tablename__ = 'template'
     __mapper_args__ = {

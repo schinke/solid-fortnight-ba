@@ -58,17 +58,72 @@ def put_product():
             except:
                 pass
     if 'synonyms' in request.json:
-        for synonym in request.json['synonyms']:
-            pass
+        for synonymName in request.json['synonyms']:
+            try:
+                synonym=Synonym.query.get(synonymName)
+            except:
+                synonym=None
+            if not synonym:
+                synonym=Synonym(synonymName)
+                #side effect
+                db.session.add(synonym)
+            product.synonyms.append(synonym)
     if 'tags' in request.json:
-        for tag in request.json['tags']:
-            pass
+        for tagName in request.json['tags']:
+            try:
+                tag=Tag.query.get(tagName)
+            except:
+                tag=None
+            if not tag:
+                tag=Tag()
+                tag.name=tagName
+                #side effect
+                db.session.add(tag)
+            product.tags.append(tag)
     if 'nutrients' in request.json:
-        for nutrient in request.json['nutrients']:
-            pass
+        for nutrientDict in request.json['nutrients']:
+            if 'name' in nutrientDict and 'amount' in nutrientDict:
+                try:
+                    nutrient=Nutrient.query.filter(name==nutrientDict['name'])
+                except:
+                    nutrient=None
+                if not nutrient:
+                    nutrient=Nutrient()
+                    nutrient.name=nutrientDict['name']
+                    #side effect
+                    db.session.add(nutrient)
+                association=ProductNutrientAssociation()
+                db.session.add(association)
+                product.nutrients.append(association)
+                association.nutrient=nutrient
+                association.amount=nutrientDict['amount']
     if 'processes' in request.json:
-        for process in request.json['processes']:
-            pass
+        for processDict in request.json['processes']:
+            if 'name' in processDict and 'nutrient' in processDict\
+            and 'amount' in processDict:
+                try:
+                    process=Process.query.filter(name==processDict['name'])
+                except:
+                    process=None
+                if not process:
+                    process=Process()
+                    process.name=processDict['name']
+                    db.session.add(process)
+                try:
+                    nutrient=Nutrient.query.filter(name==processDict['nutrient'])
+                except:
+                    nutrient=None
+                if not nutrient:
+                    nutrient=Nutrient()
+                    nutrient.name=processDict['nutrient']
+                    db.session.add(nutrient)
+                association=ProductProcessNutritionAssociation()
+                association.process=process
+                association.product=product
+                association.nutrient=nutrient
+                association.amount=processDict['amount']
+                db.session.add(association)
+            #TODO: check if dict
     if 'possibleOrigins' in request.json:
         for origin in request.json['possibleOrigins']:
             pass

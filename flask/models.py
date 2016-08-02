@@ -141,6 +141,8 @@ class ProductProcessNutritionAssociation(Value):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
     nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id'))
+    nutrient=relationship("Nutrient")
+    process=relationship("Process")
     product=relationship("Product", back_populates="processes")
 
 #Store how much one process changes one product's CO2 Value
@@ -152,7 +154,7 @@ class ProductProcessCO2Association(Value):
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
-    product=relationship("Product", back_populates="processes")
+    product=relationship("Product", back_populates="processesCo2")
 
 #Store how much of a nutrient one product has
 class ProductNutrientAssociation(Value):
@@ -257,7 +259,7 @@ class Product(db.Model):
         'synonyms':[synonym.name for synonym in self.synonyms],
         'tags':[tag.name for tag in self.tags],
         'nutrients':[{'amount':nutrient.amount,'name':nutrient.nutrient.name} for nutrient in self.nutrients],
-        'processes':[{'id':process.process.id, 'name':process.process.name} for process in self.processes],
+        'processes':[{'id':process.process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
         'possibleOrigins':[origin.name for origin in self.possibleOrigins],
         'allergenes':[allergene.allergene.name for allergene in self.allergenes]
         }
@@ -282,6 +284,7 @@ class Product(db.Model):
     name = db.Column(db.String())
     nutrients=relationship("ProductNutrientAssociation", back_populates="product")
     processes=relationship("ProductProcessNutritionAssociation", back_populates="product")
+    processesCo2=relationship("ProductProcessCO2Association", back_populates="product")
     possibleOrigins=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
     specification = db.Column(db.String())
     synonyms=relationship("Synonym", secondary="synonym_prod_association")

@@ -331,6 +331,10 @@ class EdbProduct(Product):
     __mapper_args__ = {
         'polymorphic_identity':'edb_product',
     }
+    def toDict(self):
+        output=super(EdbProduct, self).toDict()
+        output['edb']=True
+        return output
     id = Column(db.Integer, ForeignKey('product.id'), primary_key=True)
 
 #A food product prototype, can be seen as category
@@ -339,4 +343,8 @@ class TemplateProduct(Product):
     __mapper_args__ = {
         'polymorphic_identity':'template',
     }
+    def toDict(self):
+        output=super(TemplateProduct, self).toDict()
+        output['edb']=False
+        return output
     id = Column(db.Integer, ForeignKey('product.id'), primary_key=True)

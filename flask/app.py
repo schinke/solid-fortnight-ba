@@ -20,7 +20,7 @@ def get_products():
     visit = Visits("/products")
     db.session.add(visit)
     db.session.commit()
-    return jsonify([a.toDict() for a in EdbProduct.query.all()])
+    return jsonify([a.toDict() for a in Product.query.all()])
 
 @app.route('/product/<id>', methods=['GET'])
 def get_product(id):
@@ -40,9 +40,24 @@ def put_product():
             product=TemplateProduct()
     else:
         product=TemplateProduct()
+
     if not 'name' in request.json:
-        abort
+        return "name missing"#TODO: add appropriate status code
     else:
+        product.name = request.json['name']
+    db.session.add(product)
+    db.session.commit()
+    return post_product(product.id)
+
+@app.route('/product/<id>', methods=['POST'])
+def post_product(id):
+    try:
+        product = Product.query.get(id)
+    except:
+        product = None
+    if not product:
+        return "resource not found"#TODO: add appropriate status code
+    if 'name' in request.json:
         product.name = request.json['name']
     if 'specification' in request.json:
         product.specification = request.json['specification']

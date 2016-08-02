@@ -4,7 +4,8 @@ from sqlalchemy import Table, Column, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import relationship
 
-
+#TODO: add appropriate comment columns
+#TODO: add confidence intervals
 class Visits(db.Model):
     __tablename__ = 'results'
 
@@ -28,7 +29,7 @@ class Value(db.Model):
         'polymorphic_identity':'scivalue',
         'polymorphic_on':type
     }
-
+    confidenceInterval=db.Column(db.Integer)
     id=db.Column(db.Integer, primary_key=True)
     validCountries = relationship("Location", secondary="location_scivalue_association")
     reference_id=db.Column(db.Integer, db.ForeignKey('reference.id'))
@@ -36,6 +37,7 @@ class Value(db.Model):
     base_value_id=db.Column(db.Integer, db.ForeignKey('scivalue.id'))
     baseValue=relationship("Value", foreign_keys=base_value_id)
     amount=db.Column(db.Integer)
+    unit=db.Column(db.String)
     def actualValue(self):
         if base_value_id:
             return baseValue.actualValue()
@@ -53,7 +55,7 @@ class Location(db.Model):
 class FoodWasteData(Value):
     __tablename__='foodwaste'
     __mapper_args__ = {
-        'polymorphic_identity':'prod_allergene_association',
+        'polymorphic_identity':'foodwaste',
     }
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'))

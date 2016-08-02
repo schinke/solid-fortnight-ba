@@ -107,6 +107,8 @@ class Co2Value(Value):
 class Reference(db.Model):
     __tablename__ = 'reference'
     id=db.Column(db.Integer, primary_key=True)
+    name=db.Column(db.String)
+    comment=db.Column(db.String)
     scivalues=relationship("Value", back_populates="reference")
 
 #Associate products with relevant tags for searching

@@ -29,8 +29,14 @@ def get_product(id):
     visit = Visits("/product")
     db.session.add(visit)
     db.session.commit()
-    intermediate = Product.query.get(id)
-    return jsonify(intermediate.toDict())
+    try:
+        product = Product.query.get(id)
+    except:
+        product = None
+    if not product:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        return jsonify(product.toDict())
 
 @app.route('/product', methods=['PUT'])
 def put_product():
@@ -61,7 +67,7 @@ def post_product(id):
         return "resource not found"#TODO: add appropriate status code
     else:
         controller.editProduct(id,request)
-    return "ok"
+    return str(id)
 
 
 @app.route('/<name>')

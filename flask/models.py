@@ -51,12 +51,18 @@ class Location(db.Model):
     name=db.Column(db.String)
     possibleProducts=relationship("Product", secondary="location_prod_association", back_populates="possibleOrigins")
 
+class FoodWasteField(db.Model):
+    __tablename__='foodwaste_field'
+    name=Column(db.String(), primary_key=True)
+
 #A single product's single foodwaste number
 class FoodWasteData(Value):
     __tablename__='foodwaste'
     __mapper_args__ = {
         'polymorphic_identity':'foodwaste',
     }
+    field_id=(db.String, db.ForeignKey()
+    field=relation('foodwaste_field.name')
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", back_populates="foodWasteData")

@@ -35,12 +35,12 @@ class Value(db.Model):
     reference_id=db.Column(db.Integer, db.ForeignKey('reference.id'))
     reference=relationship("Reference")
     base_value_id=db.Column(db.Integer, db.ForeignKey('scivalue.id'))
-    baseValue=relationship("Value", foreign_keys=base_value_id)
+    baseValue=relationship("Value")
     amount=db.Column(db.Integer)
     unit=db.Column(db.String)
     def actualValue(self):
-        if base_value_id:
-            return baseValue.actualValue()
+        if self.baseValue:
+            return self.baseValue.actualValue()
         else:
             return self
 
@@ -136,7 +136,7 @@ class ProductAllergeneAssociation(Value):
     allergene=relationship("Allergene")
 
 #Store how much one process changes one nutrient for one product
-class ProductProcessNutritionAssociation(Value):
+class ProductProcessNutrientAssociation(Value):
     __tablename__ = 'prod_process_association'
     __mapper_args__ = {
         'polymorphic_identity':'prod_process_association',
@@ -262,20 +262,22 @@ class Product(db.Model):
         'alternatives':[{'name':product.name, 'id':product.id} for product in self.alternatives],
         'synonyms':[synonym.name for synonym in self.synonyms],
         'tags':[tag.name for tag in self.tags],
-        'nutrients':[{'amount':nutrient.amount,'name':nutrient.nutrient.name} for nutrient in self.nutrients],
-        'processes':[{'id':process.process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
+        'nutrients':[{'derived': not nutrient.id==nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, } for nutrient in self.nutrients],
+        'processes':[{'derived': not process.id==process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
         'possibleOrigins':[origin.name for origin in self.possibleOrigins],
         'allergenes':[allergene.allergene.name for allergene in self.allergenes]
         }
         if self.co2Value:
             response['hasCo2Value']=(self.co2Value.actualValue().id==self.co2Value.id())
-            response['co2Value']=self.co2Value.actualValue().amount
+            response['co2Value']={'derived': not self.co2Value.id==self.co2Value.actualValue().id,
+            'id':self.co2Value.id,'amount':self.co2Value.actualValue().amount}
         if self.standardOrigin:
             response['standardOrigin']=self.standardOrigin.name
         if self.density:
-            response['density']=self.density.amount
+            response['density']={'derived': not self.density.id==self.density.actualValue().id,
+            'id':self.density.id, 'amount':self.density.amount}
         if self.unitWeight:
-            response['unitWeight']=self.unitWeight.amount
+            response['unitWeight']={'id':self.unitWeight.id, 'amount':self.unitWeight.amount}
         return response
 
     id = db.Column(db.Integer, primary_key=True)
@@ -287,7 +289,7 @@ class Product(db.Model):
     frenchName=db.Column(db.String())
     name = db.Column(db.String())
     nutrients=relationship("ProductNutrientAssociation", back_populates="product")
-    processes=relationship("ProductProcessNutritionAssociation", back_populates="product")
+    processes=relationship("ProductProcessNutrientAssociation", back_populates="product")
     processesCo2=relationship("ProductProcessCO2Association", back_populates="product")
     possibleOrigins=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
     specification = db.Column(db.String())

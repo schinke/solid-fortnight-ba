@@ -61,10 +61,10 @@ class FoodWasteData(Value):
     __mapper_args__ = {
         'polymorphic_identity':'foodwaste',
     }
-    field_id=(db.String, db.ForeignKey('foodwaste_field.name'))
+    field_id=db.Column(db.String(), db.ForeignKey('foodwaste_field.name'))
     field=relationship("FoodWasteField")
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = Column(Integer, ForeignKey('product.id'))
+    product_id = Column(db.Integer(), ForeignKey('product.id'))
     product = relationship("Product", back_populates="foodWasteData")
 
 #A process, not tied to a product
@@ -148,7 +148,7 @@ class ProductProcessNutrientAssociation(Value):
         'polymorphic_identity':'prod_process_association',
     }
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete="CASCADE"))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
     nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     nutrient=relationship("Nutrient")

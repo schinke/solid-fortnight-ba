@@ -61,8 +61,8 @@ class FoodWasteData(Value):
     __mapper_args__ = {
         'polymorphic_identity':'foodwaste',
     }
-    field_id=(db.String, db.ForeignKey()
-    field=relation('foodwaste_field.name')
+    field_id=(db.String, db.ForeignKey('foodwaste_field.name'))
+    field=relationship("FoodWasteField")
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", back_populates="foodWasteData")

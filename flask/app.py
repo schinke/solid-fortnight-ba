@@ -417,7 +417,7 @@ def editProduct(id,request):
     return product.id
 
 def resetProduct(id,request):
-        try:
+    try:
         product = Product.query.get(id)
     except:
         product = None

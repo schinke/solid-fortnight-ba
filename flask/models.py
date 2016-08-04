@@ -262,13 +262,12 @@ class Product(db.Model):
         'alternatives':[{'name':product.name, 'id':product.id} for product in self.alternatives],
         'synonyms':[synonym.name for synonym in self.synonyms],
         'tags':[tag.name for tag in self.tags],
-        'nutrients':[{'derived': not nutrient.id==nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, } for nutrient in self.nutrients],
-        'processes':[{'derived': not process.id==process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
+        'nutrients':[{'derived': not nutrient.id==nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'id':nutrient.id} for nutrient in self.nutrients],
+        'processes':[{'derived': not process.id==process.actualValue().id,'id':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
         'possibleOrigins':[origin.name for origin in self.possibleOrigins],
         'allergenes':[allergene.allergene.name for allergene in self.allergenes]
         }
         if self.co2Value:
-            response['hasCo2Value']=(self.co2Value.actualValue().id==self.co2Value.id())
             response['co2Value']={'derived': not self.co2Value.id==self.co2Value.actualValue().id,
             'id':self.co2Value.id,'amount':self.co2Value.actualValue().amount}
         if self.standardOrigin:
@@ -277,7 +276,7 @@ class Product(db.Model):
             response['density']={'derived': not self.density.id==self.density.actualValue().id,
             'id':self.density.id, 'amount':self.density.amount}
         if self.unitWeight:
-            response['unitWeight']={'id':self.unitWeight.id, 'amount':self.unitWeight.amount}
+            response['unitWeight']={'derived': not self.unitWeight.id==self.unitWeight.actualValue().id,'id':self.unitWeight.id, 'amount':self.unitWeight.amount}
         return response
 
     id = db.Column(db.Integer, primary_key=True)

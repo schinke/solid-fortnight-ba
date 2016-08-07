@@ -24,6 +24,24 @@ class Visits(db.Model):
 class Value(db.Model):
     __tablename__='scivalue'
 
+    def toDict(self):
+        output = {
+        'id':self.id,
+        'validCountries':[location.name for location in self.validCountries],
+        'derived':self.id==self.base_value_id,
+        'amount':self.actualValue().amount,
+        'unit':self.actualValue().unit,
+        'type':self.type
+        }
+        if not self.actualValue().id == self.id:
+            output['derived']=True
+            output['baseValue']=self.baseValue.id
+        else:
+            output['derived']=False
+            if self.reference:
+                output['referenceId'] = self.reference.id
+                output['reference'] = self.reference.name
+        return output
     type = Column(db.String(50))
     __mapper_args__ = {
         'polymorphic_identity':'scivalue',
@@ -61,6 +79,11 @@ class FoodWasteData(Value):
     __mapper_args__ = {
         'polymorphic_identity':'foodwaste',
     }
+    def toDict(self):
+        output=super(FoodWasteData, self).toDict()
+        output['field']=self.field.name
+        output['productId']=self.product.id
+        return output
     field_id=db.Column(db.String(), db.ForeignKey('foodwaste_field.name'))
     field=relationship("FoodWasteField")
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
@@ -104,6 +127,10 @@ class Co2Value(Value):
     __mapper_args__ = {
         'polymorphic_identity':'co2',
     }
+    def toDict(self):
+        output=super(Co2Value, self).toDict()
+        output['productId']=self.product.id
+        return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     scivalue=db.Column(db.String)
     product_id = Column(Integer, ForeignKey('product.id'))
@@ -135,6 +162,13 @@ class ProductAllergeneAssociation(Value):
     __mapper_args__ = {
         'polymorphic_identity':'prod_allergene_association',
     }
+    def toDict(self):
+        output=super(ProductAllergeneAssociation, self).toDict()
+        output['allergeneId']=self.allergene.id
+        output['allergeneName']=self.allergene.name
+        output['productId']=self.product.id
+        return output
+
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=False)
     allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key=False)
@@ -147,6 +181,16 @@ class ProductProcessNutrientAssociation(Value):
     __mapper_args__ = {
         'polymorphic_identity':'prod_process_association',
     }
+
+    def toDict(self):
+        output=super(ProductProcessNutrientAssociation, self).toDict()
+        output['processId']=self.process.id
+        output['processName']=self.process.name
+        output['nutrientId']=self.nutrient.id
+        output['nutrientName']=self.nutrient.name
+        output['productId']=self.product.id
+        return output
+
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete="CASCADE"))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
@@ -161,9 +205,16 @@ class ProductProcessCO2Association(Value):
     __mapper_args__ = {
         'polymorphic_identity':'prod_process_co2_association',
     }
+    def toDict(self):
+        output=super(ProductProcessNutrientAssociation, self).toDict()
+        output['processId']=self.process.id
+        output['processName']=self.process.name
+        output['productId']=self.product.id
+        return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
+    process=relationship("Process")
     product=relationship("Product", back_populates="processesCo2")
 
 #Store how much of a nutrient one product has
@@ -172,6 +223,13 @@ class ProductNutrientAssociation(Value):
     __mapper_args__ = {
         'polymorphic_identity':'prod_nutrient_association',
     }
+
+    def toDict(self):
+        output=super(ProductNutrientAssociation, self).toDict()
+        output['nutrientId']=self.nutrient.id
+        output['nutrientName']=self.nutrient.name
+        output['productId']=self.product.id
+        return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     product=relationship("Product", back_populates="nutrients")
@@ -183,7 +241,10 @@ class ProductDensity(Value):
     __mapper_args__ = {
         'polymorphic_identity':'density',
     }
-
+    def toDict(self):
+        output=super(ProductDensity, self).toDict()
+        output['productId']=self.product.id
+        return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     product=relationship("Product", back_populates="density")
@@ -193,7 +254,10 @@ class ProductUnitWeight(Value):
     __mapper_args__ = {
         'polymorphic_identity':'unit_weight',
     }
-
+    def toDict(self):
+        output=super(ProductUnitWeight, self).toDict()
+        output['productId']=self.product.id
+        return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     product=relationship("Product", back_populates="unitWeight")
@@ -261,75 +325,81 @@ class Product(db.Model):
         product.frenchName = request.json['frenchName']
 
     def toDict(self):
-        response={'id': self.id, 'name': self.name,
-        'specification': self.specification,
-        'englishName': self.englishName,
-        'frenchName':self.frenchName,
+        response={
+        'allergenes':[allergene.allergene.name for allergene in self.allergenes],
         'alternatives':[{'name':product.name, 'id':product.id} for product in self.alternatives],
+        'commentsOnDensityAndUnitWeight': self.commentsOnDensityAndUnitWeight,
+        'endOfLocalSeason':str(self.endOfLocalSeason),
+        'englishName': self.englishName,
+        'foodWasteData':[{'valueId':data.id, 'name':data.field.name, 'amount':data.amount} for data in self.foodWasteData],
+        'frenchName':self.frenchName,
+        'id': self.id,
+        'infoTextForCook': self.infoTextForCook,
+        'name': self.name,
+        'nutrients':[{'derived': not nutrient.id==nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'valueId':nutrient.id} for nutrient in self.nutrients],
+        'possibleOrigins':[origin.name for origin in self.possibleOrigins],
+        'processes':[{'derived': not process.id==process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
+        'specification': self.specification,
+        'startOfLocalSeason':str(self.startOfLocalSeason),
         'synonyms':[synonym.name for synonym in self.synonyms],
         'tags':[tag.name for tag in self.tags],
-        'nutrients':[{'derived': not nutrient.id==nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'id':nutrient.id} for nutrient in self.nutrients],
-        'processes':[{'derived': not process.id==process.actualValue().id,'id':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
-        'possibleOrigins':[origin.name for origin in self.possibleOrigins],
-        'allergenes':[allergene.allergene.name for allergene in self.allergenes]
+        'texture':self.texture
         }
+        if self.density:
+            response['density']={'derived': not self.density.id==self.density.actualValue().id,
+            'id':self.density.id, 'amount':self.density.amount}
         if self.co2Value:
             response['co2Value']={'derived': not self.co2Value.id==self.co2Value.actualValue().id,
             'id':self.co2Value.id,'amount':self.co2Value.actualValue().amount}
         if self.standardOrigin:
             response['standardOrigin']=self.standardOrigin.name
-        if self.density:
-            response['density']={'derived': not self.density.id==self.density.actualValue().id,
-            'id':self.density.id, 'amount':self.density.amount}
         if self.unitWeight:
             response['unitWeight']={'derived': not self.unitWeight.id==self.unitWeight.actualValue().id,'id':self.unitWeight.id, 'amount':self.unitWeight.amount}
         return response
 
     id = db.Column(db.Integer, primary_key=True)
 
-    allergenes=relationship("ProductAllergeneAssociation", back_populates="product")
-    alternatives=relationship("Product", secondary="prod_alternatives", primaryjoin=id==ProductAlternative.product_id_1,
-                       secondaryjoin=id==ProductAlternative.product_id_2)
-    englishName=db.Column(db.String())
-    frenchName=db.Column(db.String())
-    name = db.Column(db.String())
-    nutrients=relationship("ProductNutrientAssociation", back_populates="product")
-    processes=relationship("ProductProcessNutrientAssociation", back_populates="product")
-    processesCo2=relationship("ProductProcessCO2Association", back_populates="product")
-    possibleOrigins=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
-    specification = db.Column(db.String())
-    synonyms=relationship("Synonym", secondary="synonym_prod_association")
-    tags = relationship("Tag", secondary="tag_prod_association")
 
-    co2Value=relationship("Co2Value", uselist=False, back_populates="product")
-    standardOrigin_id = db.Column(db.Integer, db.ForeignKey('location.id'))
-    standardOrigin=relationship(Location, foreign_keys=standardOrigin_id)
-    ##replace multiple fields with processes list
-    # productionMethods
-    # productionMethodParameters
-    # degreesOfProcessing
-    # degreesOfProcessingParameters
-    # preservationMethods
-    # packaging
-    # packagingParameters
-    # packagingMethods
-    
-    startOfLocalSeason=db.Column(db.Date())
-    endOfLocalSeason=db.Column(db.Date())
-    density=relationship("ProductDensity", back_populates="product")
-    unitWeight=relationship("ProductUnitWeight", back_populates="product")
-    commentsOnDensityAndUnitWeight=db.Column(db.String())
-    texture=db.Column(db.String)
-    foodWasteData=relationship("FoodWasteData", back_populates="product")
-    infoTextForCook=db.Column(db.String())
+
     # #Documentation
-    # co2CalculationPath
     # calculationProcessDocumentation
-
-    # referencesForBasicCO2Value
-    # otherReferences
+    # co2CalculationPath
     # commentsOnFoodwasteCO2CalculationPathForDifferentProductParameters
     # dataQualityEstimation
+    # degreesOfProcessing
+    # degreesOfProcessingParameters
+    # otherReferences
+    # packaging
+    # packagingMethods
+    # packagingParameters
+    # preservationMethods
+    # productionMethodParameters
+    # productionMethods
+    # referencesForBasicCO2Value
+    ##replace multiple fields with processes list
+    allergenes=relationship("ProductAllergeneAssociation", back_populates="product")
+    alternatives=relationship("Product", secondary="prod_alternatives", primaryjoin=id==ProductAlternative.product_id_1, secondaryjoin=id==ProductAlternative.product_id_2)
+    co2Value=relationship("Co2Value", uselist=False, back_populates="product")
+    commentsOnDensityAndUnitWeight=db.Column(db.String())
+    density=relationship("ProductDensity", back_populates="product")
+    endOfLocalSeason=db.Column(db.Date())
+    englishName=db.Column(db.String())
+    foodWasteData=relationship("FoodWasteData", back_populates="product")
+    frenchName=db.Column(db.String())
+    infoTextForCook=db.Column(db.String())
+    name = db.Column(db.String())
+    nutrients=relationship("ProductNutrientAssociation", back_populates="product")
+    possibleOrigins=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
+    processes=relationship("ProductProcessNutrientAssociation", back_populates="product")
+    processesCo2=relationship("ProductProcessCO2Association", back_populates="product")
+    specification = db.Column(db.String())
+    standardOrigin_id = db.Column(db.Integer, db.ForeignKey('location.id'))
+    standardOrigin=relationship(Location, foreign_keys=standardOrigin_id)
+    startOfLocalSeason=db.Column(db.Date())
+    synonyms=relationship("Synonym", secondary="synonym_prod_association")
+    tags = relationship("Tag", secondary="tag_prod_association")
+    texture=db.Column(db.String)
+    unitWeight=relationship("ProductUnitWeight", back_populates="product")
 
 #A food product that's used in the eaternity calculator
 class EdbProduct(Product):

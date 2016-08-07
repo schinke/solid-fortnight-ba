@@ -23,6 +23,16 @@ def get_products():
     db.session.commit()
     return jsonify([a.toDict() for a in Product.query.all()])
 
+@app.route('/value/<id>', methods=['GET'])
+def get_Value(id):
+    try:
+        value = Value.query.get(id)
+    except:
+        value = None
+    if not value:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        return jsonify(value.toDict())
 @app.route('/product/<id>', methods=['GET'])
 def get_product(id):
 
@@ -69,13 +79,10 @@ def post_product(id):
         editProduct(id,request)
     return str(id)
 
-
 @app.route('/<name>')
 @auth.login_required
 def hello_name(name):
     print(name)
-
-
 
 @auth.verify_password
 def verify_password(username, password):

@@ -147,14 +147,14 @@ class Reference(db.Model):
 #Associate products with relevant tags for searching
 class TagProductAssociation(db.Model):
     __tablename__ = 'tag_prod_association'
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    tag_name= db.Column(db.String, db.ForeignKey('tag.name'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete="CASCADE"), primary_key=True)
+    tag_name= db.Column(db.String, db.ForeignKey('tag.name',ondelete="CASCADE"), primary_key=True)
 
 #Associate products with relevant tags for searching
 class SynonymProductAssociation(db.Model):
     __tablename__ = 'synonym_prod_association'
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
-    synonym_name= db.Column(db.String, db.ForeignKey('synonym.name'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"), primary_key=True)
+    synonym_name= db.Column(db.String, db.ForeignKey('synonym.name', ondelete="CASCADE"), primary_key=True)
 
 #Associate one allergene to a product
 class ProductAllergeneAssociation(Value):
@@ -170,8 +170,8 @@ class ProductAllergeneAssociation(Value):
         return output
 
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=False)
-    allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"), primary_key=False)
+    allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id', ondelete="CASCADE"), primary_key=False)
     product=relationship("Product", back_populates="allergenes")
     allergene=relationship("Allergene")
 
@@ -193,8 +193,8 @@ class ProductProcessNutrientAssociation(Value):
 
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete="CASCADE"))
-    process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
-    nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id'))
+    process_id= db.Column(db.Integer, db.ForeignKey('process.id', ondelete="CASCADE"))
+    nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id', ondelete="CASCADE"))
     nutrient=relationship("Nutrient")
     process=relationship("Process")
     product=relationship("Product", back_populates="processes")
@@ -212,8 +212,8 @@ class ProductProcessCO2Association(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
+    process_id= db.Column(db.Integer, db.ForeignKey('process.id', ondelete="CASCADE"))
     process=relationship("Process")
     product=relationship("Product", back_populates="processesCo2")
 
@@ -231,9 +231,9 @@ class ProductNutrientAssociation(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
     product=relationship("Product", back_populates="nutrients")
-    nutrient_id= db.Column(db.Integer, db.ForeignKey('nutrient.id'))
+    nutrient_id= db.Column(db.Integer, db.ForeignKey('nutrient.id', ondelete="CASCADE"))
     nutrient=relationship("Nutrient")
 
 class ProductDensity(Value):
@@ -246,7 +246,7 @@ class ProductDensity(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
     product=relationship("Product", back_populates="density")
 
 class ProductUnitWeight(Value):
@@ -259,7 +259,7 @@ class ProductUnitWeight(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
     product=relationship("Product", back_populates="unitWeight")
 
 #Associate one product to one alternative product

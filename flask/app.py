@@ -24,7 +24,7 @@ def get_products():
     return jsonify([a.toDict() for a in Product.query.all()])
 
 @app.route('/value/<id>', methods=['GET'])
-def get_Value(id):
+def get_value(id):
     try:
         value = Value.query.get(id)
     except:
@@ -33,9 +33,24 @@ def get_Value(id):
         return "resource not found"#TODO: add appropriate status code
     else:
         return jsonify(value.toDict())
+
+@app.route('/values', methods=['GET'])
+def get_values():
+    return jsonify([a.toDict() for a in Value.query.all()])
+
+@app.route('/value/<id>', methods=['POST'])
+def post_value(id):
+    try:
+        value = Value.query.get(id)
+    except:
+        value = None
+    if not value:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        editValue(value.id,request)
+    return "ok"
 @app.route('/product/<id>', methods=['GET'])
 def get_product(id):
-
     visit = Visits("/product")
     db.session.add(visit)
     db.session.commit()
@@ -91,12 +106,7 @@ def verify_password(username, password):
 
 
 def editProduct(id,request):
-    try:
-        product = Product.query.get(id)
-    except:
-        product = None
-    if not product:
-        return "resource not found"#TODO: add appropriate status code
+    product = Product.query.get(id)
     if 'name' in request.json:
         product.name = request.json['name']
     if 'specification' in request.json:
@@ -422,6 +432,36 @@ def editProduct(id,request):
     db.session.add(product)
     db.session.commit()
     return product.id
+
+def editValue(id,request):
+    value = Value.query.get(id)
+    if 'id' in request.json:
+        value.baseValue=Value.query.get(request.json['id'])
+    if 'amount' in request.json:
+        value.amount=request.json['amount']
+        value.baseValue=[]
+    if 'unit' in request.json:
+        value.unit=request.json['unit']
+    if 'reference' in request.json:
+        if 'id' in request.json['reference']:
+            try:
+                reference = Reference.query.get(request.json['reference']['id'])
+            except:
+                reference = None
+            if reference:
+                value.reference=reference
+        elif 'name' in request.json['reference']:
+            try:
+                reference = Reference.query.filter(Reference.name==request.json['reference']['name']).all()[0]
+            except:
+                reference=None
+            if not reference:
+                reference=Reference()
+                reference.name=request.json['reference']['name']
+                value.reference=reference
+                db.session.add(reference)
+    db.session.commit()
+    return value.id
 
 if __name__ == '__main__':
     app.run()

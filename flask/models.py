@@ -336,7 +336,7 @@ class Product(db.Model):
 
     def toDict(self):
         response={
-        'allergenes':[allergene.allergene.name for allergene in self.allergenes],
+        'allergenes':[{'name':allergene.allergene.name, 'valueId':allergene.id} for allergene in self.allergenes],
         'alternatives':[{'name':product.name, 'id':product.id} for product in self.alternatives],
         'commentsOnDensityAndUnitWeight': self.commentsOnDensityAndUnitWeight,
         'endOfLocalSeason':str(self.endOfLocalSeason),

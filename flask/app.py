@@ -79,7 +79,6 @@ def delete_product(id):
         return "resource not found"#TODO: add appropriate status code
     else:
         db.session.delete(product)
-        #Error: cascades are not triggered for product values
         db.session.commit()
         return "ok"
 
@@ -110,15 +109,27 @@ def post_value(id):
 def get_values():
     return jsonify([a.toDict() for a in Value.query.all()])
 
-    
-@app.route('/<name>')
-@auth.login_required
-def hello_name(name):
-    print(name)
+@app.route('/value/<id>', methods=['DELETE'])
+def delete_value(id):
+    try:
+        value = Value.query.get(id)
+    except:
+        value = None
+    if not value:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        db.session.delete(value)
+        db.session.commit()
+        return "ok"
+# # authentication example
+# @app.route('/<name>')
+# @auth.login_required
+# def hello_name(name):
+#     print(name)
 
-@auth.verify_password
-def verify_password(username, password):
-    return (username and not password)
+# @auth.verify_password
+# def verify_password(username, password):
+#     return True
 
 
 def editProduct(id,jsonData):
@@ -420,7 +431,7 @@ def editProduct(id,jsonData):
                 value=None
             if value:
                 if not product.density:
-                    unitWeight=ProductUnitWeight
+                    unitWeight=ProductUnitWeight()
                     product.unitWeight=unitWeight
                     session.add(density)
                 product.unitWeight.baseValue=value

@@ -50,7 +50,7 @@ class Value(db.Model):
     }
     confidenceInterval=db.Column(db.Integer)
     id=db.Column(db.Integer, primary_key=True)
-    # product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
     validCountries = relationship("Location", secondary="location_scivalue_association")
     reference_id=db.Column(db.Integer, db.ForeignKey('reference.id'))
     reference=relationship("Reference")
@@ -90,7 +90,7 @@ class FoodWasteData(Value):
     field_id=db.Column(db.String(), db.ForeignKey('foodwaste_field.name'))
     field=relationship("FoodWasteField")
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
-    product_id = Column(db.Integer(), ForeignKey('product.id'))
+    #product_id = Column(db.Integer(), ForeignKey('product.id'))
     product = relationship("Product", back_populates="foodWasteData")
 
 #A process, not tied to a product
@@ -137,7 +137,7 @@ class Co2Value(Value):
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
     scivalue=db.Column(db.String)
-    product_id = Column(Integer, ForeignKey('product.id'))
+    #product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", back_populates="co2Value")
 
 #A reference, maybe for multiple values
@@ -174,7 +174,7 @@ class ProductAllergeneAssociation(Value):
         return output
 
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=False)
+    #product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=False)
     allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key=False)
     product = relationship("Product", back_populates="allergenes")
     allergene=relationship("Allergene")
@@ -197,7 +197,7 @@ class ProductProcessNutrientAssociation(Value):
         return output
 
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id',))
+    #product_id = db.Column(db.Integer, db.ForeignKey('product.id',))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
     nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     nutrient=relationship("Nutrient")
@@ -218,7 +218,7 @@ class ProductProcessCO2Association(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    #product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     process_id= db.Column(db.Integer, db.ForeignKey('process.id', ondelete="SET NULL"))
     process=relationship("Process")
     product = relationship("Product", back_populates="processesCo2")
@@ -238,7 +238,7 @@ class ProductNutrientAssociation(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
+    #product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
     product = relationship("Product", cascade="all", back_populates="nutrients")
     nutrient_id= db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     nutrient=relationship("Nutrient")
@@ -254,7 +254,7 @@ class ProductDensity(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    #product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     product = relationship("Product", back_populates="density")
 
 class ProductUnitWeight(Value):
@@ -268,7 +268,7 @@ class ProductUnitWeight(Value):
         output['productId']=self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    #product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     product = relationship("Product", back_populates="unitWeight")
 
 #Associate one product to one alternative product
@@ -385,27 +385,27 @@ class Product(db.Model):
     # productionMethods
     # referencesForBasicCO2Value
     ##replace multiple fields with processes list
-    allergenes=relationship("ProductAllergeneAssociation", back_populates="product")
+    allergenes=relationship("ProductAllergeneAssociation", back_populates="product", passive_deletes=True)
     alternatives=relationship("Product", secondary="prod_alternatives", primaryjoin=id==ProductAlternative.product_id_1, secondaryjoin=id==ProductAlternative.product_id_2)
-    co2Value=relationship("Co2Value", uselist=False, back_populates="product")
+    co2Value=relationship("Co2Value", uselist=False, back_populates="product", passive_deletes=True)
     commentsOnDensityAndUnitWeight=db.Column(db.String())
-    density=relationship("ProductDensity", back_populates="product")
+    density=relationship("ProductDensity", back_populates="product", passive_deletes=True)
     endOfLocalSeason=db.Column(db.Date())
     englishName=db.Column(db.String())
-    foodWasteData=relationship("FoodWasteData", back_populates="product")
+    foodWasteData=relationship("FoodWasteData", back_populates="product", passive_deletes=True)
     frenchName=db.Column(db.String())
     infoTextForCook=db.Column(db.String())
     name = db.Column(db.String())
     nutrients=relationship("ProductNutrientAssociation", back_populates="product", passive_deletes=True)
-    possibleOrigins=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
-    processes=relationship("ProductProcessNutrientAssociation", back_populates="product")
-    processesCo2=relationship("ProductProcessCO2Association", back_populates="product")
+    possibleOrigins=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts", passive_deletes=True)
+    processes=relationship("ProductProcessNutrientAssociation", back_populates="product", passive_deletes=True)
+    processesCo2=relationship("ProductProcessCO2Association", back_populates="product", passive_deletes=True)
     specification = db.Column(db.String())
     standardOrigin_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     standardOrigin=relationship(Location, foreign_keys=standardOrigin_id)
     startOfLocalSeason=db.Column(db.Date())
-    synonyms=relationship("Synonym", secondary="synonym_prod_association")
-    tags = relationship("Tag", secondary="tag_prod_association")
+    synonyms=relationship("Synonym", secondary="synonym_prod_association", passive_deletes=True)
+    tags = relationship("Tag", secondary="tag_prod_association", passive_deletes=True)
     texture=db.Column(db.String)
     unitWeight=relationship("ProductUnitWeight", back_populates="product")
 

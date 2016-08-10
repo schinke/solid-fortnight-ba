@@ -105,10 +105,6 @@ def post_value(id):
         editValue(value.id,request.json)
         return jsonify(value.toDict())
 
-@app.route('/values', methods=['GET'])
-def get_values():
-    return jsonify([a.toDict() for a in Value.query.all()])
-
 @app.route('/value/<id>', methods=['DELETE'])
 def delete_value(id):
     try:
@@ -121,6 +117,26 @@ def delete_value(id):
         db.session.delete(value)
         db.session.commit()
         return "ok"
+
+@app.route('/values', methods=['GET'])
+def get_values():
+    return jsonify([a.toDict() for a in Value.query.all()])
+
+@app.route('/references', methods=['GET'])
+def get_references():
+    return jsonify([a.toDict() for a in Reference.query.all()])
+
+@app.route('/reference/<id>', methods=['POST'])
+def post_reference(id):
+    try:
+        reference = Reference.query.get(id)
+    except:
+        reference = None
+    if not reference:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        editReference(reference.id,request.json)
+        return jsonify(reference.toDict())
 # # authentication example
 # @app.route('/<name>')
 # @auth.login_required

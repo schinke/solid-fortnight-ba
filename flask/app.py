@@ -23,32 +23,7 @@ def get_products():
     db.session.commit()
     return jsonify([a.toDict() for a in Product.query.all()])
 
-@app.route('/value/<id>', methods=['GET'])
-def get_value(id):
-    try:
-        value = Value.query.get(id)
-    except:
-        value = None
-    if not value:
-        return "resource not found"#TODO: add appropriate status code
-    else:
-        return jsonify(value.toDict())
 
-@app.route('/values', methods=['GET'])
-def get_values():
-    return jsonify([a.toDict() for a in Value.query.all()])
-
-@app.route('/value/<id>', methods=['POST'])
-def post_value(id):
-    try:
-        value = Value.query.get(id)
-    except:
-        value = None
-    if not value:
-        return "resource not found"#TODO: add appropriate status code
-    else:
-        editValue(value.id,request)
-    return "ok"
 @app.route('/product/<id>', methods=['GET'])
 def get_product(id):
     visit = Visits("/product")
@@ -79,8 +54,8 @@ def put_product():
         product.name = request.json['name']
     db.session.add(product)
     db.session.commit()
-    id=editProduct(product.id,request)
-    return str(id)
+    id=editProduct(product.id,request.json)
+    return jsonify(product.toDict())
 
 @app.route('/product/<id>', methods=['POST'])
 def post_product(id):
@@ -91,9 +66,51 @@ def post_product(id):
     if not product:
         return "resource not found"#TODO: add appropriate status code
     else:
-        editProduct(id,request)
-    return str(id)
+        editProduct(id,request.json)
+        return jsonify(product.toDict())
 
+@app.route('/product/<id>', methods=['DELETE'])
+def delete_product(id):
+    try:
+        product = Product.query.get(id)
+    except:
+        product = None
+    if not product:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        db.session.delete(product)
+        #Error: cascades are not triggered for product values
+        db.session.commit()
+        return "ok"
+
+@app.route('/value/<id>', methods=['GET'])
+def get_value(id):
+    try:
+        value = Value.query.get(id)
+    except:
+        value = None
+    if not value:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        return jsonify(value.toDict())
+
+@app.route('/value/<id>', methods=['POST'])
+def post_value(id):
+    try:
+        value = Value.query.get(id)
+    except:
+        value = None
+    if not value:
+        return "resource not found"#TODO: add appropriate status code
+    else:
+        editValue(value.id,request.json)
+        return jsonify(value.toDict())
+
+@app.route('/values', methods=['GET'])
+def get_values():
+    return jsonify([a.toDict() for a in Value.query.all()])
+
+    
 @app.route('/<name>')
 @auth.login_required
 def hello_name(name):
@@ -101,29 +118,28 @@ def hello_name(name):
 
 @auth.verify_password
 def verify_password(username, password):
-
     return (username and not password)
 
 
-def editProduct(id,request):
+def editProduct(id,jsonData):
     product = Product.query.get(id)
-    if 'name' in request.json:
-        product.name = request.json['name']
-    if 'specification' in request.json:
-        product.specification = request.json['specification']
-    if 'englishName' in request.json:
-        product.englishName = request.json['englishName']
-    if 'frenchName' in request.json:
-        product.frenchName = request.json['frenchName']
-    if 'alternatives' in request.json:
-        for alternativeId in request.json['alternatives']:
+    if 'name' in jsonData:
+        product.name = jsonData['name']
+    if 'specification' in jsonData:
+        product.specification = jsonData['specification']
+    if 'englishName' in jsonData:
+        product.englishName = jsonData['englishName']
+    if 'frenchName' in jsonData:
+        product.frenchName = jsonData['frenchName']
+    if 'alternatives' in jsonData:
+        for alternativeId in jsonData['alternatives']:
             try:
                 alternative=Product.query.get(alternativeId)
                 product.alternatives.append(alternative)
             except:
                 pass
-    if 'synonyms' in request.json:
-        for synonymName in request.json['synonyms']:
+    if 'synonyms' in jsonData:
+        for synonymName in jsonData['synonyms']:
             try:
                 synonym=Synonym.query.get(synonymName)
             except:
@@ -133,8 +149,8 @@ def editProduct(id,request):
                 #side effect
                 db.session.add(synonym)
             product.synonyms.append(synonym)
-    if 'tags' in request.json:
-        for tagName in request.json['tags']:
+    if 'tags' in jsonData:
+        for tagName in jsonData['tags']:
             try:
                 tag=Tag.query.get(tagName)
             except:
@@ -146,8 +162,8 @@ def editProduct(id,request):
                 db.session.add(tag)
             product.tags.append(tag)
     #add ProductNutrientAssociation (if not existing) and if necessary create respective Nutrient (side effect)
-    if 'nutrients' in request.json:
-        for nutrientDict in request.json['nutrients']:
+    if 'nutrients' in jsonData:
+        for nutrientDict in jsonData['nutrients']:
             if 'name' in nutrientDict and 'amount' in nutrientDict:
                 try:
                     nutrient=Nutrient.query.filter(Nutrient.name==nutrientDict['name']).all()[0]
@@ -205,8 +221,8 @@ def editProduct(id,request):
                         db.session.add(association)
                     association.baseValue=value
     #add ProductProcessNutrientAssociation (if not existing) and if necessary create respective Nutrient and Process (side effect) 
-    if 'processes' in request.json:
-        for processDict in request.json['processes']:
+    if 'processes' in jsonData:
+        for processDict in jsonData['processes']:
             if 'name' in processDict and 'nutrient' in processDict\
             and 'amount' in processDict:
                 try:
@@ -323,8 +339,8 @@ def editProduct(id,request):
                         association.product=product
                         association.process=process
                         association.baseValue=value
-    if 'possibleOrigins' in request.json:
-        for originName in request.json['possibleOrigins']:
+    if 'possibleOrigins' in jsonData:
+        for originName in jsonData['possibleOrigins']:
             try:
                 location=Location.query.filter(Location.name==originName).all()[0]
             except:
@@ -335,8 +351,8 @@ def editProduct(id,request):
                 db.session.add(location)
             if not location in product.possibleOrigins:
                 product.possibleOrigins.append(location)
-    if 'allergenes' in request.json:
-        for allergeneName in request.json['allergenes']:
+    if 'allergenes' in jsonData:
+        for allergeneName in jsonData['allergenes']:
             try:
                 allergene=Allergene.query.filter(Allergene.name==allergeneName).all()[0]
             except:
@@ -354,9 +370,9 @@ def editProduct(id,request):
                 association=ProductAllergeneAssociation()
                 association.product=product
                 association.allergene=allergene
-                session.add(association)
-    if 'co2Value' in request.json:
-        if 'id' in request.json['co2Value']:
+                db.session.add(association)
+    if 'co2Value' in jsonData:
+        if 'id' in jsonData['co2Value']:
             try:
                 value=Co2Value.query.get(id)
             except:
@@ -369,16 +385,16 @@ def editProduct(id,request):
                     db.session.add(co2Value)
                 else:
                     product.co2Value.baseValue=value
-        elif 'amount' in request.json['co2Value']:
+        elif 'amount' in jsonData['co2Value']:
             if not product.co2Value:
                 co2Value=Co2Value()
                 co2Value.product=product
                 db.session.add(co2Value)
-            product.co2Value.amount=request.json['co2Value']['value']
-    if 'standardOrigin' in request.json:
+            product.co2Value.amount=jsonData['co2Value']['value']
+    if 'standardOrigin' in jsonData:
         pass
-    if 'density' in request.json:
-        if 'id' in request.json['density']:
+    if 'density' in jsonData:
+        if 'id' in jsonData['density']:
             try:
                 value=ProductDensity.query.get(id)
             except:
@@ -389,15 +405,15 @@ def editProduct(id,request):
                     product.density=density
                     session.add(density)
                 product.density.baseValue=value
-        elif 'amount' in request.json['density']:
+        elif 'amount' in jsonData['density']:
             if not product.density:
                 density=ProductDensity
                 product.density=density
                 session.add(density)
-            product.density.amount=request.json['density']['value']
+            product.density.amount=jsonData['density']['value']
             product.density.baseValue=[]
-    if 'unitWeight' in request.json:
-        if 'id' in request.json['unitWeight']:
+    if 'unitWeight' in jsonData:
+        if 'id' in jsonData['unitWeight']:
             try:
                 value=ProductUnitWeight.query.get(id)
             except:
@@ -408,60 +424,70 @@ def editProduct(id,request):
                     product.unitWeight=unitWeight
                     session.add(density)
                 product.unitWeight.baseValue=value
-        elif 'amount' in request.json['unitWeight']:
+        elif 'amount' in jsonData['unitWeight']:
             if not product.unitWeight:
                 unitWeight=ProductDensity
                 product.unitWeight=unitWeight
                 session.add(unitWeight)
-            product.untiWeight.amount=request.json['unitWeight']['value']
+            product.untiWeight.amount=jsonData['unitWeight']['value']
             product.unitWeight.baseValue=[]
-    if 'foodWaste' in request.json:
-        for element in request.json['foodWaste']:
+    if 'foodWaste' in jsonData:
+        for element in jsonData['foodWaste']:
             pass
-    if 'startOfLocalSeason' in request.json:
+    if 'startOfLocalSeason' in jsonData:
         #TODO: parse date, check, add
         pass
-    if 'endOfLocalSeason' in request.json:
+    if 'endOfLocalSeason' in jsonData:
         #TODO: parse date, check, add
         pass
-    if 'infoTextForCook' in request.json:
-        product.infoTextForCook=request.json['infoTextForCook']
-    if 'texture' in request.json:
-        product.texture=request.json['texture']
+    if 'infoTextForCook' in jsonData:
+        product.infoTextForCook=jsonData['infoTextForCook']
+    if 'texture' in jsonData:
+        product.texture=jsonData['texture']
 
     db.session.add(product)
     db.session.commit()
     return product.id
 
-def editValue(id,request):
+def editValue(id,jsonData):
     value = Value.query.get(id)
-    if 'id' in request.json:
-        value.baseValue=Value.query.get(request.json['id'])
-    if 'amount' in request.json:
-        value.amount=request.json['amount']
+    if 'id' in jsonData:
+        value.baseValue=Value.query.get(jsonData['id'])
+    if 'amount' in jsonData:
+        value.amount=jsonData['amount']
         value.baseValue=[]
-    if 'unit' in request.json:
-        value.unit=request.json['unit']
-    if 'reference' in request.json:
-        if 'id' in request.json['reference']:
+    if 'unit' in jsonData:
+        value.unit=jsonData['unit']
+    if 'reference' in jsonData:
+        if 'id' in jsonData['reference']:
             try:
-                reference = Reference.query.get(request.json['reference']['id'])
+                reference = Reference.query.get(jsonData['reference']['id'])
             except:
                 reference = None
             if reference:
                 value.reference=reference
-        elif 'name' in request.json['reference']:
+        elif 'name' in jsonData['reference']:
             try:
-                reference = Reference.query.filter(Reference.name==request.json['reference']['name']).all()[0]
+                reference = Reference.query.filter(Reference.name==jsonData['reference']['name']).all()[0]
             except:
                 reference=None
             if not reference:
                 reference=Reference()
-                reference.name=request.json['reference']['name']
+                reference.name=jsonData['reference']['name']
                 value.reference=reference
                 db.session.add(reference)
     db.session.commit()
     return value.id
+
+def editReference(id, jsonData):
+    reference = Reference.query.get(id)
+    if 'name' in jsonData:
+        reference.name=jsonData['name']
+    if 'comment' in jsonData:
+        reference.comment=jsonData['comment']
+    db.session.add(reference)
+    db.session.commit
+    return reference.id
 
 if __name__ == '__main__':
     app.run()

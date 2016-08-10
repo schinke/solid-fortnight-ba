@@ -45,10 +45,12 @@ class Value(db.Model):
     type = Column(db.String(50))
     __mapper_args__ = {
         'polymorphic_identity':'scivalue',
-        'polymorphic_on':type
+        'polymorphic_on':type,
+        
     }
     confidenceInterval=db.Column(db.Integer)
     id=db.Column(db.Integer, primary_key=True)
+    # product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
     validCountries = relationship("Location", secondary="location_scivalue_association")
     reference_id=db.Column(db.Integer, db.ForeignKey('reference.id'))
     reference=relationship("Reference")
@@ -78,6 +80,7 @@ class FoodWasteData(Value):
     __tablename__='foodwaste'
     __mapper_args__ = {
         'polymorphic_identity':'foodwaste',
+        
     }
     def toDict(self):
         output=super(FoodWasteData, self).toDict()
@@ -86,7 +89,7 @@ class FoodWasteData(Value):
         return output
     field_id=db.Column(db.String(), db.ForeignKey('foodwaste_field.name'))
     field=relationship("FoodWasteField")
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
     product_id = Column(db.Integer(), ForeignKey('product.id'))
     product = relationship("Product", back_populates="foodWasteData")
 
@@ -126,12 +129,13 @@ class Co2Value(Value):
     __tablename__='co2'
     __mapper_args__ = {
         'polymorphic_identity':'co2',
+        
     }
     def toDict(self):
         output=super(Co2Value, self).toDict()
         output['productId']=self.product.id
         return output
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
     scivalue=db.Column(db.String)
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", back_populates="co2Value")
@@ -147,20 +151,20 @@ class Reference(db.Model):
 #Associate products with relevant tags for searching
 class TagProductAssociation(db.Model):
     __tablename__ = 'tag_prod_association'
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete="CASCADE"), primary_key=True)
-    tag_name= db.Column(db.String, db.ForeignKey('tag.name',ondelete="CASCADE"), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"), primary_key=True)
+    tag_name= db.Column(db.String, db.ForeignKey('tag.name',), primary_key=True)
 
 #Associate products with relevant tags for searching
 class SynonymProductAssociation(db.Model):
     __tablename__ = 'synonym_prod_association'
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"), primary_key=True)
-    synonym_name= db.Column(db.String, db.ForeignKey('synonym.name', ondelete="CASCADE"), primary_key=True)
+    synonym_name= db.Column(db.String, db.ForeignKey('synonym.name'), primary_key=True)
 
 #Associate one allergene to a product
 class ProductAllergeneAssociation(Value):
     __tablename__ = 'prod_allergene_association'
     __mapper_args__ = {
-        'polymorphic_identity':'prod_allergene_association',
+        'polymorphic_identity':'prod_allergene_association'
     }
     def toDict(self):
         output=super(ProductAllergeneAssociation, self).toDict()
@@ -169,10 +173,10 @@ class ProductAllergeneAssociation(Value):
         output['productId']=self.product.id
         return output
 
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"), primary_key=False)
-    allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id', ondelete="CASCADE"), primary_key=False)
-    product=relationship("Product", back_populates="allergenes")
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=False)
+    allergene_id= db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key=False)
+    product = relationship("Product", back_populates="allergenes")
     allergene=relationship("Allergene")
 
 #Store how much one process changes one nutrient for one product
@@ -180,6 +184,7 @@ class ProductProcessNutrientAssociation(Value):
     __tablename__ = 'prod_process_association'
     __mapper_args__ = {
         'polymorphic_identity':'prod_process_association',
+        
     }
 
     def toDict(self):
@@ -191,19 +196,20 @@ class ProductProcessNutrientAssociation(Value):
         output['productId']=self.product.id
         return output
 
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete="CASCADE"))
-    process_id= db.Column(db.Integer, db.ForeignKey('process.id', ondelete="CASCADE"))
-    nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id', ondelete="CASCADE"))
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id',))
+    process_id= db.Column(db.Integer, db.ForeignKey('process.id'))
+    nutrient_id=db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     nutrient=relationship("Nutrient")
     process=relationship("Process")
-    product=relationship("Product", back_populates="processes")
+    product = relationship("Product", back_populates="processes")
 
 #Store how much one process changes one product's CO2 Value
 class ProductProcessCO2Association(Value):
     __tablename__ = 'prod_process_co2_association'
     __mapper_args__ = {
         'polymorphic_identity':'prod_process_co2_association',
+        
     }
     def toDict(self):
         output=super(ProductProcessNutrientAssociation, self).toDict()
@@ -211,17 +217,18 @@ class ProductProcessCO2Association(Value):
         output['processName']=self.process.name
         output['productId']=self.product.id
         return output
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
-    process_id= db.Column(db.Integer, db.ForeignKey('process.id', ondelete="CASCADE"))
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    process_id= db.Column(db.Integer, db.ForeignKey('process.id', ondelete="SET NULL"))
     process=relationship("Process")
-    product=relationship("Product", back_populates="processesCo2")
+    product = relationship("Product", back_populates="processesCo2")
 
 #Store how much of a nutrient one product has
 class ProductNutrientAssociation(Value):
     __tablename__ = 'prod_nutrient_association'
     __mapper_args__ = {
         'polymorphic_identity':'prod_nutrient_association',
+        
     }
 
     def toDict(self):
@@ -230,37 +237,39 @@ class ProductNutrientAssociation(Value):
         output['nutrientName']=self.nutrient.name
         output['productId']=self.product.id
         return output
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
-    product=relationship("Product", back_populates="nutrients")
-    nutrient_id= db.Column(db.Integer, db.ForeignKey('nutrient.id', ondelete="CASCADE"))
+    product = relationship("Product", cascade="all", back_populates="nutrients")
+    nutrient_id= db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     nutrient=relationship("Nutrient")
 
 class ProductDensity(Value):
     __tablename__ = 'density'
     __mapper_args__ = {
         'polymorphic_identity':'density',
+        
     }
     def toDict(self):
         output=super(ProductDensity, self).toDict()
         output['productId']=self.product.id
         return output
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
-    product=relationship("Product", back_populates="density")
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product = relationship("Product", back_populates="density")
 
 class ProductUnitWeight(Value):
     __tablename__ = 'unit_weight'
     __mapper_args__ = {
         'polymorphic_identity':'unit_weight',
+        
     }
     def toDict(self):
         output=super(ProductUnitWeight, self).toDict()
         output['productId']=self.product.id
         return output
-    id = Column(db.Integer, ForeignKey('scivalue.id'), primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete="CASCADE"))
-    product=relationship("Product", back_populates="unitWeight")
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product = relationship("Product", back_populates="unitWeight")
 
 #Associate one product to one alternative product
 class ProductAlternative(db.Model):
@@ -271,14 +280,14 @@ class ProductAlternative(db.Model):
 #Associate one product with possible origin locations
 class LocationProductAssociation(db.Model):
     __tablename__ = 'location_prod_association'
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id',), primary_key=True)
     location_id= db.Column(db.Integer, db.ForeignKey('location.id'), primary_key=True)
 
 #Associate one value to the locations in which it is valid
 class LocationValueAssociation(db.Model): #valid for
     __tablename__ = 'location_scivalue_association'
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'), primary_key=True)
-    scivalue_id= db.Column(db.Integer, db.ForeignKey('scivalue.id'), primary_key=True)
+    scivalue_id= db.Column(db.Integer, db.ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key=True)
 
 #A food product
 class Product(db.Model):
@@ -286,7 +295,8 @@ class Product(db.Model):
     type = Column(db.String(50))
     __mapper_args__ = {
         'polymorphic_identity':'product',
-        'polymorphic_on':type
+        'polymorphic_on':type,
+        
     }
 
     # def __init__(self, allergenes, alternatives, englishName, frenchName,
@@ -359,8 +369,6 @@ class Product(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-
-
     # #Documentation
     # calculationProcessDocumentation
     # co2CalculationPath
@@ -388,7 +396,7 @@ class Product(db.Model):
     frenchName=db.Column(db.String())
     infoTextForCook=db.Column(db.String())
     name = db.Column(db.String())
-    nutrients=relationship("ProductNutrientAssociation", back_populates="product")
+    nutrients=relationship("ProductNutrientAssociation", back_populates="product", passive_deletes=True)
     possibleOrigins=relationship("Location", secondary="location_prod_association", back_populates="possibleProducts")
     processes=relationship("ProductProcessNutrientAssociation", back_populates="product")
     processesCo2=relationship("ProductProcessCO2Association", back_populates="product")
@@ -412,16 +420,17 @@ class EdbProduct(Product):
         output=super(EdbProduct, self).toDict()
         output['edb']=True
         return output
-    id = Column(db.Integer, ForeignKey('product.id'), primary_key=True)
+    id = Column(db.Integer, ForeignKey('product.id', ondelete="CASCADE"), primary_key=True)
 
 #A food product prototype, can be seen as category
 class TemplateProduct(Product):
     __tablename__ = 'template'
     __mapper_args__ = {
         'polymorphic_identity':'template',
+        
     }
     def toDict(self):
         output=super(TemplateProduct, self).toDict()
         output['edb']=False
         return output
-    id = Column(db.Integer, ForeignKey('product.id'), primary_key=True)
+    id = Column(db.Integer, ForeignKey('product.id', ondelete="CASCADE"), primary_key=True)

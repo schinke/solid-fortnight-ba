@@ -16,10 +16,10 @@
       }
     </style>
 </head>
-<script src="../controller.js"></script>
+<script src="../viewProductController.js"></script>
 
 <body>
-     <nav>
+    <nav>
     <div class="nav-wrapper">
       <a href="#" class="brand-logo right">Logo</a>
       <ul id="nav-mobile" class="left">
@@ -29,7 +29,7 @@
       </ul>
     </div>
   </nav>
-   <div class="container" ng-app ng-click="showPopup(0)">
+   <div class="container" ng-app>
     <div class="row">
     <!-- <table class="table table-bordered table-condensed">
         <tbody>
@@ -40,7 +40,7 @@
             </tr>
         </tbody>
     </table> -->
-    
+
     <div class="col s12">
 
         <table class="striped">
@@ -51,7 +51,7 @@
               <th data-field="price">Spezifikation</th>
           </tr>
         </thead>
-        <tbody ng-controller="ContentController as cc">
+        <tbody ng-controller="ViewProductController">
           <tr ng-repeat="element in fromServer track by $index" ng-click="showPopup(element.id)">
                 <td >{{element.id}}</td>
                 <td>{{element.name}}</td>

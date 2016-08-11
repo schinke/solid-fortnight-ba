@@ -44,10 +44,14 @@ app.on('ready', function() {
   };
 
   var openProductForm = function(arg){
-    productForm = new BrowserWindow({width: 600, height:400});
+    productForm = new BrowserWindow({width: 600, height:400, show:false});
     productForm.loadURL(`file://${__dirname}/views/productForm.html`)
-    productForm.webContents.openDevTools();
-    productForm.webcontent.send('id',arg)
+    // productForm.webContents.openDevTools();
+    console.log('sent id to window')
+    productForm.on('ready-to-show',function(){
+      productForm.webContents.send('id',arg)
+      productForm.show()
+    })
     productForm.on('closed', function() {
       productForm = null;
     });

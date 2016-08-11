@@ -16,20 +16,15 @@
       }
     </style>
 </head>
-<script src="../controller.js"></script>
-
+<script src="../productFormController.js"></script>
 <body>
      <nav>
     <div class="nav-wrapper">
       <a href="#" class="brand-logo right">Logo</a>
-      <ul id="nav-mobile" class="left">
-        <li><a href="#" ng-click="ShowProducts">Products</a></li>
-        <li><a href="#" ng-click="ShowValues">Values</a></li>
-        <li><a href="#" ng-click="ShowReferences">References</a></li>
-      </ul>
+
     </div>
   </nav>
-   <div class="container" ng-app ng-click="showPopup(0)">
+   <div class="container" ng-app>
     <div class="row">
     <!-- <table class="table table-bordered table-condensed">
         <tbody>
@@ -40,24 +35,8 @@
             </tr>
         </tbody>
     </table> -->
-    <div class="col s12">
-
-        <table class="striped">
-        <thead>
-          <tr>
-              <th data-field="id">Id</th>
-              <th data-field="name">Name</th>
-              <th data-field="price">Spezifikation</th>
-          </tr>
-        </thead>
-        <tbody ng-controller="ContentController as cc">
-          <tr ng-repeat="element in fromServer track by $index" ng-click="showPopup(element.id)">
-                <td >{{element.id}}</td>
-                <td>{{element.name}}</td>
-                <td>{{element.specification}}</td>
-            </tr>
-        </tbody>
-      </table>
+    <div class="col s12" ng-controller="ProductFormController">
+      {{id}}
     </div>
    <!--  <div class="modal" ng-show="isPopupVisible">
         <div class="modal-header">

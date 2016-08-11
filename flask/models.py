@@ -144,7 +144,7 @@ class Co2Value(Value):
 class Reference(db.Model):
     __tablename__ = 'reference'
     def toDict(self):
-        output={'id':self.id, 'name':self.name, 'comment':self.comment}
+        output={'id':self.id, 'name':self.name, 'comment':self.comment, 'values':[value.id for value in self.scivalues]}
         return output
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)

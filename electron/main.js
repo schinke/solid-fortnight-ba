@@ -1,4 +1,5 @@
 const electron = require('electron');
+const {ipcMain}=require('electron')
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
@@ -18,12 +19,13 @@ app.on('ready', function() {
   var mainAddr = 'http://localhost:5000/products';
 
   var openWindow = function(){
-    mainWindow = new BrowserWindow({width: 800, height: 600});
+    mainWindow = new BrowserWindow({width: 1024, height: 578});
     mainWindow.loadURL(`file://${__dirname}/views/viewproducts.html`)
     mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
       mainWindow = null;
       subpy.kill('SIGINT');
+      app.quit();
     });
   };
 
@@ -38,8 +40,22 @@ app.on('ready', function() {
         console.log(err);
         startUp();
       });
+
   };
 
+  var openProductForm = function(arg){
+    productForm = new BrowserWindow({width: 600, height:400});
+    productForm.loadURL(`file://${__dirname}/views/productForm.html`)
+    productForm.webContents.openDevTools();
+    productForm.webcontent.send('id',arg)
+    productForm.on('closed', function() {
+      productForm = null;
+    });
+  }
+  ipcMain.on('show-prod-form', (evenet, arg) => {
+    openProductForm(arg);
+    console.log(arg);
+  })
   // fire!
   startUp();
 });

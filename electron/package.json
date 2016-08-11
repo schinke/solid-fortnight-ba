@@ -1,9 +1,10 @@
 {
-  "name"    : "your-app",
-  "version" : "0.1.0",
-  "main"    : "main.js",
+  "name": "your-app",
+  "version": "0.1.0",
+  "main": "main.js",
   "dependencies": {
-    "request-promise": "*",
-    "electron-prebuilt": "*"
+    "electron-prebuilt": "*",
+    "ipc": "0.0.1",
+    "request-promise": "*"
   }
 }

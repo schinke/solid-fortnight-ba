@@ -4,15 +4,33 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
     <script src="../static/angular.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css"/>
+     <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    
     <style type="text/css">
       .container {
           margin-top: 20px;
       }
     </style>
 </head>
+<script src="../controller.js"></script>
+
 <body>
-   <div class="container" ng-app ng-controller="ContentController">
+     <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo right">Logo</a>
+      <ul id="nav-mobile" class="left">
+        <li><a href="#" ng-click="ShowProducts"></a></li>
+        <li><a href="#" ng-click="ShowValues">Values</a></li>
+        <li><a href="#" ng-click="ShowReferences">References</a></li>
+      </ul>
+    </div>
+  </nav>
+   <div class="container" ng-app ng-click="showPopup(0)">
+    <div class="row">
     <!-- <table class="table table-bordered table-condensed">
         <tbody>
             <tr ng-repeat="email in emails" ng-click="showPopup(email)">
@@ -22,17 +40,26 @@
             </tr>
         </tbody>
     </table> -->
-    <table class="table table-bordered table-condensed">
-        <tbody>
-            <tr ng-repeat="element in fromServer track by $index" ng-click="showPopup(element.name)">
-                <td>{{element.id}}</td>
+    
+    <div class="col s12">
+
+        <table class="striped">
+        <thead>
+          <tr>
+              <th data-field="id">Id</th>
+              <th data-field="name">Name</th>
+              <th data-field="price">Spezifikation</th>
+          </tr>
+        </thead>
+        <tbody ng-controller="ContentController as cc">
+          <tr ng-repeat="element in fromServer track by $index" ng-click="showPopup(element.id)">
+                <td >{{element.id}}</td>
                 <td>{{element.name}}</td>
                 <td>{{element.specification}}</td>
             </tr>
-
         </tbody>
-    </table>
-    
+      </table>
+    </div>
    <!--  <div class="modal" ng-show="isPopupVisible">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closePopup()">&times;</button>
@@ -55,8 +82,9 @@
             <a href="#" class="btn btn-primary" ng-click="closePopup()">Close</a>
         </div>
     </div>   -->  
+    </div>
 </div>
-<script src="../controller.js"></script>
+
 
 </body>
 </html>

@@ -147,6 +147,13 @@ def post_reference(id):
 # def verify_password(username, password):
 #     return True
 
+@app.route('/allergenes', methods=['GET'])
+def get_allergenes():
+    return jsonify([a.toDict() for a in Allergene.query.all()])
+
+@app.route('/nutrients', methods=['GET'])
+def get_nutrients():
+    return jsonify([a.toDict() for a in Nutrient.query.all()])
 
 def editProduct(id,jsonData):
     product = Product.query.get(id)

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>My Super Page</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-
     <script src="../static/angular.min.js"></script>
      <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
@@ -36,7 +36,9 @@
         </tbody>
     </table> -->
     <div class="col s12" ng-controller="ProductFormController">
-      {{id}}
+      {{fromServer.name}}
+      {{fromServer.id}}
+      {{fromServer.specification}}
     </div>
    <!--  <div class="modal" ng-show="isPopupVisible">
         <div class="modal-header">

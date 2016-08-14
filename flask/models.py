@@ -6,6 +6,8 @@ from sqlalchemy.orm import relationship
 
 #TODO: add appropriate comment columns
 #TODO: add confidence intervals
+#TODO: circular dependencies of values
+#TODO: product dependencies and categories
 class Visits(db.Model):
     __tablename__ = 'results'
 
@@ -31,7 +33,8 @@ class Value(db.Model):
         'derived':self.id==self.base_value_id,
         'amount':self.actualValue().amount,
         'unit':self.actualValue().unit,
-        'type':self.type
+        'type':self.type,
+        'comment':self.comment
         }
         if not self.actualValue().id == self.id:
             output['derived']=True
@@ -58,6 +61,7 @@ class Value(db.Model):
     baseValue=relationship("Value")
     amount=db.Column(db.Integer)
     unit=db.Column(db.String)
+    comment=db.Column(db.String)
     def actualValue(self):
         if self.baseValue:
             return self.baseValue.actualValue()
@@ -80,8 +84,8 @@ class FoodWasteData(Value):
     __tablename__='foodwaste'
     __mapper_args__ = {
         'polymorphic_identity':'foodwaste',
-        
     }
+
     def toDict(self):
         output=super(FoodWasteData, self).toDict()
         output['field']=self.field.name
@@ -105,15 +109,19 @@ class Allergene(db.Model):#single allergene, not multiple allergenes
     __tablename__='allergene'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)
-    shortname=db.Column(db.String)
+    abbreviation=db.Column(db.String)
+
+    def toDict(self):
+        return {'name':self.name, 'abbreviation':self.abbreviation}
 
 #A nutrient, not tied to a product
 class Nutrient(db.Model):
     __tablename__='nutrient'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String)
-    shortname=db.Column(db.String)
-
+    abbreviation=db.Column(db.String)
+    def toDict(self):
+        return {'name':self.name, 'abbreviation':self.abbreviation}
 #A Tag, to be connected with products
 class Tag(db.Model):
     __tablename__='tag'

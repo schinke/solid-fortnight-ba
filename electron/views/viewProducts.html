@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+    <title>Übersicht</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-
     <script src="../static/angular.min.js"></script>
      <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
@@ -18,30 +19,23 @@
 </head>
 <script src="../viewProductController.js"></script>
 
-<body>
+<body ng-app="edbApp" ng-controller="MainWindowController">
     <nav>
     <div class="nav-wrapper">
       <a href="#" class="brand-logo right">Logo</a>
       <ul id="nav-mobile" class="left">
-        <li><a href="#" ng-click="ShowProducts"></a></li>
+        <li ><a ng-class="visibleClass==='Product'?'btn':'teal'" href="#" ng-click="ShowProducts">Products</a></li>
         <li><a href="#" ng-click="ShowValues">Values</a></li>
         <li><a href="#" ng-click="ShowReferences">References</a></li>
       </ul>
     </div>
   </nav>
-   <div class="container" ng-app>
+   <div class="container">
     <div class="row">
-    <!-- <table class="table table-bordered table-condensed">
-        <tbody>
-            <tr ng-repeat="email in emails" ng-click="showPopup(email)">
-                <td>{{ email.from }}</td>
-                <td>{{ email.subject }}</td>
-                <td>{{ email.date }}</td>
-            </tr>
-        </tbody>
-    </table> -->
-
     <div class="col s12">
+      <div>
+        <input type="text" class="form-control" placeholder="Search da Fish" ng-model="searchTerm">
+      </div>  
 
         <table class="striped">
         <thead>
@@ -51,8 +45,8 @@
               <th data-field="price">Spezifikation</th>
           </tr>
         </thead>
-        <tbody ng-controller="ViewProductController">
-          <tr ng-repeat="element in fromServer track by $index" ng-click="showPopup(element.id)">
+        <tbody>
+          <tr ng-repeat="element in fromServer|orderBy:sortField|filter:searchTerm" ng-click="showPopup(element.id)">
                 <td >{{element.id}}</td>
                 <td>{{element.name}}</td>
                 <td>{{element.specification}}</td>
@@ -60,28 +54,6 @@
         </tbody>
       </table>
     </div>
-   <!--  <div class="modal" ng-show="isPopupVisible">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="closePopup()">&times;</button>
-            <h3>{{selectedEmail.subject}}</h3>
-        </div>
-        <div class="modal-body">
-            <strong>From:</strong> {{selectedEmail.from}}<br />
-            <strong>Date:</strong> {{selectedEmail.date}}<br />
-            <br />
-            <p>
-                Hey You, <br />
-                <br />
-                How you doing?<br />
-                <br />
-                Sincerely<br />
-                Your Bro
-            </p>
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn btn-primary" ng-click="closePopup()">Close</a>
-        </div>
-    </div>   -->  
     </div>
 </div>
 

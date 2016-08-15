@@ -14,7 +14,7 @@ db = SQLAlchemy(app)
 
 from models import *
 
-@app.route('/products', methods=['GET'])
+@app.route('/products', methods = ['GET'])
 def get_products():
 
     #TODO: log visits automatically
@@ -24,7 +24,7 @@ def get_products():
     return jsonify([a.toDict() for a in Product.query.all()])
 
 
-@app.route('/product/<id>', methods=['GET'])
+@app.route('/product/<id>', methods = ['GET'])
 def get_product(id):
     visit = Visits("/product")
     db.session.add(visit)
@@ -38,15 +38,15 @@ def get_product(id):
     else:
         return jsonify(product.toDict())
 
-@app.route('/product', methods=['PUT'])
+@app.route('/product', methods = ['PUT'])
 def put_product():
     if 'edb' in request.json:
         if request.json['edb']:
             product = EdbProduct()
         else:
-            product=TemplateProduct()
+            product = TemplateProduct()
     else:
-        product=TemplateProduct()
+        product = TemplateProduct()
 
     if not 'name' in request.json:
         return "name missing"#TODO: add appropriate status code
@@ -54,10 +54,10 @@ def put_product():
         product.name = request.json['name']
     db.session.add(product)
     db.session.commit()
-    id=editProduct(product.id,request.json)
+    id = editProduct(product.id,request.json)
     return jsonify(product.toDict())
 
-@app.route('/product/<id>', methods=['POST'])
+@app.route('/product/<id>', methods = ['POST'])
 def post_product(id):
     try:
         product = Product.query.get(id)
@@ -69,7 +69,7 @@ def post_product(id):
         editProduct(id,request.json)
         return jsonify(product.toDict())
 
-@app.route('/product/<id>', methods=['DELETE'])
+@app.route('/product/<id>', methods = ['DELETE'])
 def delete_product(id):
     try:
         product = Product.query.get(id)
@@ -82,7 +82,7 @@ def delete_product(id):
         db.session.commit()
         return "ok"
 
-@app.route('/value/<id>', methods=['GET'])
+@app.route('/value/<id>', methods = ['GET'])
 def get_value(id):
     try:
         value = Value.query.get(id)
@@ -93,7 +93,7 @@ def get_value(id):
     else:
         return jsonify(value.toDict())
 
-@app.route('/value/<id>', methods=['POST'])
+@app.route('/value/<id>', methods = ['POST'])
 def post_value(id):
     try:
         value = Value.query.get(id)
@@ -105,7 +105,7 @@ def post_value(id):
         editValue(value.id,request.json)
         return jsonify(value.toDict())
 
-@app.route('/value/<id>', methods=['DELETE'])
+@app.route('/value/<id>', methods = ['DELETE'])
 def delete_value(id):
     try:
         value = Value.query.get(id)
@@ -118,15 +118,15 @@ def delete_value(id):
         db.session.commit()
         return "ok"
 
-@app.route('/values', methods=['GET'])
+@app.route('/values', methods = ['GET'])
 def get_values():
     return jsonify([a.toDict() for a in Value.query.all()])
 
-@app.route('/references', methods=['GET'])
+@app.route('/references', methods = ['GET'])
 def get_references():
     return jsonify([a.toDict() for a in Reference.query.all()])
 
-@app.route('/reference/<id>', methods=['POST'])
+@app.route('/reference/<id>', methods = ['POST'])
 def post_reference(id):
     try:
         reference = Reference.query.get(id)
@@ -147,11 +147,11 @@ def post_reference(id):
 # def verify_password(username, password):
 #     return True
 
-@app.route('/allergenes', methods=['GET'])
+@app.route('/allergenes', methods = ['GET'])
 def get_allergenes():
     return jsonify([a.toDict() for a in Allergene.query.all()])
 
-@app.route('/nutrients', methods=['GET'])
+@app.route('/nutrients', methods = ['GET'])
 def get_nutrients():
     return jsonify([a.toDict() for a in Nutrient.query.all()])
 
@@ -168,30 +168,30 @@ def editProduct(id,jsonData):
     if 'alternatives' in jsonData:
         for alternativeId in jsonData['alternatives']:
             try:
-                alternative=Product.query.get(alternativeId)
+                alternative = Product.query.get(alternativeId)
                 product.alternatives.append(alternative)
             except:
                 pass
     if 'synonyms' in jsonData:
         for synonymName in jsonData['synonyms']:
             try:
-                synonym=Synonym.query.get(synonymName)
+                synonym = Synonym.query.get(synonymName)
             except:
-                synonym=None
+                synonym = None
             if not synonym:
-                synonym=Synonym(synonymName)
+                synonym = Synonym(synonymName)
                 #side effect
                 db.session.add(synonym)
             product.synonyms.append(synonym)
     if 'tags' in jsonData:
         for tagName in jsonData['tags']:
             try:
-                tag=Tag.query.get(tagName)
+                tag = Tag.query.get(tagName)
             except:
-                tag=None
+                tag = None
             if not tag:
-                tag=Tag()
-                tag.name=tagName
+                tag = Tag()
+                tag.name = tagName
                 #side effect
                 db.session.add(tag)
             product.tags.append(tag)
@@ -200,284 +200,284 @@ def editProduct(id,jsonData):
         for nutrientDict in jsonData['nutrients']:
             if 'name' in nutrientDict and 'amount' in nutrientDict:
                 try:
-                    nutrient=Nutrient.query.filter(Nutrient.name==nutrientDict['name']).all()[0]
+                    nutrient = Nutrient.query.filter(Nutrient.name == nutrientDict['name']).all()[0]
                 except:
                     print("nutrient not found")
-                    nutrient=None
+                    nutrient = None
                 if not nutrient:
                     print("created nutrient")
-                    nutrient=Nutrient()
-                    nutrient.name=nutrientDict['name']
+                    nutrient = Nutrient()
+                    nutrient.name = nutrientDict['name']
                     db.session.add(nutrient)
                 try:
-                    association=ProductNutrientAssociation.query.filter(
-                        ProductNutrientAssociation.nutrient==nutrient,
-                            ProductNutrientAssociation.product==product).all()[0]
+                    association = ProductNutrientAssociation.query.filter(
+                        ProductNutrientAssociation.nutrient == nutrient,
+                            ProductNutrientAssociation.product == product).all()[0]
                 except:
                     print("association not found")
-                    association=None
+                    association = None
                 if not association:
-                    association=ProductNutrientAssociation()
+                    association = ProductNutrientAssociation()
                     db.session.add(association)
                     product.nutrients.append(association)
-                    association.nutrient=nutrient
+                    association.nutrient = nutrient
                     print("ProductNutrientAssociation created")
-                association.baseValue=None
-                association.amount=nutrientDict['amount']
+                association.baseValue = None
+                association.amount = nutrientDict['amount']
             elif 'name' in nutrientDict and 'id' in nutrientDict:
                 try:
-                    value=ProductNutrientAssociation.query.get(id)
+                    value = ProductNutrientAssociation.query.get(id)
                 except:
-                    value=None
+                    value = None
                 if value:
                     # find nutrient
                     try:
-                        nutrient=Nutrient.query.filter(Nutrient.name==nutrientDict['name']).all()[0]
+                        nutrient = Nutrient.query.filter(Nutrient.name == nutrientDict['name']).all()[0]
                     except:
                         print("nutrient not found")
-                        nutrient=None
+                        nutrient = None
                     if not nutrient:
                         print("created nutrient")
-                        nutrient=Nutrient()
-                        nutrient.name=nutrientDict['name']
+                        nutrient = Nutrient()
+                        nutrient.name = nutrientDict['name']
                         db.session.add(nutrient)
                     # see if prod and nutrient are already associated
                     try:
-                        association=ProductNutrientAssociation.query.filter(
-                            ProductNutrientAssociation.nutrient==nutrient,
-                                ProductNutrientAssociation.product==product).all()[0]
+                        association = ProductNutrientAssociation.query.filter(
+                            ProductNutrientAssociation.nutrient == nutrient,
+                                ProductNutrientAssociation.product == product).all()[0]
                     except:
-                        association=None
+                        association = None
                     # otherwise associate them
                     if not association:
-                        association=ProductNutrientAssociation()
-                        association.product=product
-                        association.nutrient=nutrient
+                        association = ProductNutrientAssociation()
+                        association.product = product
+                        association.nutrient = nutrient
                         db.session.add(association)
-                    association.baseValue=value
+                    association.baseValue = value
     #add ProductProcessNutrientAssociation (if not existing) and if necessary create respective Nutrient and Process (side effect) 
     if 'nutrientProcesses' in jsonData:
         for processDict in jsonData['nutrientProcesses']:
             if 'name' in processDict and 'nutrient' in processDict\
             and 'amount' in processDict:
                 try:
-                    process=Process.query.filter(Process.name==processDict['name']).all()[0]
+                    process = Process.query.filter(Process.name == processDict['name']).all()[0]
                 except:
-                    process=None
+                    process = None
                 if not process:
-                    process=Process()
-                    process.name=processDict['name']
+                    process = Process()
+                    process.name = processDict['name']
                     db.session.add(process)
                 try:
-                    nutrient=Nutrient.query.filter(Nutrient.name==processDict['nutrient']).all()[0]
+                    nutrient = Nutrient.query.filter(Nutrient.name == processDict['nutrient']).all()[0]
                 except:
-                    nutrient=None
+                    nutrient = None
                 if not nutrient:
-                    nutrient=Nutrient()
-                    nutrient.name=processDict['nutrient']
+                    nutrient = Nutrient()
+                    nutrient.name = processDict['nutrient']
                     db.session.add(nutrient)
                 try:
-                    association=ProductProcessNutrientAssociation.query.filter(
-                            ProductProcessNutrientAssociation.process==process,
-                            ProductProcessNutrientAssociation.product==product,
-                            ProductProcessNutrientAssociation.nutrient==nutrient).all()[0]
+                    association = ProductProcessNutrientAssociation.query.filter(
+                            ProductProcessNutrientAssociation.process == process,
+                            ProductProcessNutrientAssociation.product == product,
+                            ProductProcessNutrientAssociation.nutrient == nutrient).all()[0]
                 except:
-                    association=None
+                    association = None
                 if not association:
-                    association=ProductProcessNutrientAssociation()
-                    association.process=process
-                    association.product=product
-                    association.nutrient=nutrient
-                association.amount=processDict['amount']
+                    association = ProductProcessNutrientAssociation()
+                    association.process = process
+                    association.product = product
+                    association.nutrient = nutrient
+                association.amount = processDict['amount']
                 db.session.add(association)
             elif 'name' in processDict and 'nutrient' in processDict\
             and 'id' in processDict:
                 try:
-                    value=ProductProcessNutrientAssociation.query.get(id)
+                    value = ProductProcessNutrientAssociation.query.get(id)
                 except:
-                    value=None
+                    value = None
                 if value:
                     try:
-                        process=Process.query.filter(Process.name==processDict['name']).all()[0]
+                        process = Process.query.filter(Process.name == processDict['name']).all()[0]
                     except:
-                        process=None
+                        process = None
                     if not process:
-                        process=Process()
-                        process.name=processDict['name']
+                        process = Process()
+                        process.name = processDict['name']
                         db.session.add(process)
                     try:
-                        nutrient=Nutrient.query.filter(Nutrient.name==processDict['nutrient']).all()[0]
+                        nutrient = Nutrient.query.filter(Nutrient.name == processDict['nutrient']).all()[0]
                     except:
-                        nutrient=None
+                        nutrient = None
                     if not nutrient:
-                        nutrient=Nutrient()
-                        nutrient.name=processDict['nutrient']
+                        nutrient = Nutrient()
+                        nutrient.name = processDict['nutrient']
                         db.session.add(nutrient)
                     try:
-                        association=ProductProcessNutrientAssociation.query.filter(
-                            ProductProcessNutrientAssociation.process==process,
-                            ProductProcessNutrientAssociation.product==product,
-                            ProductProcessNutrientAssociation.nutrient==nutrient).all()[0]
+                        association = ProductProcessNutrientAssociation.query.filter(
+                            ProductProcessNutrientAssociation.process == process,
+                            ProductProcessNutrientAssociation.product == product,
+                            ProductProcessNutrientAssociation.nutrient == nutrient).all()[0]
                         print(association)
                     except:
-                        association=None
+                        association = None
                     if not association:
-                        association=ProductProcessNutrientAssociation()
-                        association.product=product
-                        association.process=process
-                        association.nutrient=nutrient
+                        association = ProductProcessNutrientAssociation()
+                        association.product = product
+                        association.process = process
+                        association.nutrient = nutrient
                         db.session.add(association)
-                    association.baseValue=value
+                    association.baseValue = value
     if 'processesCo2' in jsonData:
         for processDict in jsonData['processesCo2']:
             if 'name' in processDict and 'amount' in processDict:
                 try:
-                    process=Process.query.filter(Process.name==processDict['name']).all()[0]
+                    process = Process.query.filter(Process.name == processDict['name']).all()[0]
                 except:
-                    process=None
+                    process = None
                 if not process:
-                    process=Process()
-                    process.name=processDict['name']
+                    process = Process()
+                    process.name = processDict['name']
                     db.session.add(process)
                 try:
-                    association=ProductProcessCO2Association.query.filter(
-                        ProductProcessCO2Association.process==process,
-                        ProductProcessCO2Association.product==product).all()[0]
+                    association = ProductProcessCO2Association.query.filter(
+                        ProductProcessCO2Association.process == process,
+                        ProductProcessCO2Association.product == product).all()[0]
                 except:
-                    association=None
+                    association = None
                 if not association:
-                    association=ProductProcessCO2Association()
-                    association.process=process
-                    association.product=product
-                association.amount=processDict['amount']
-                association.baseValue=None
+                    association = ProductProcessCO2Association()
+                    association.process = process
+                    association.product = product
+                association.amount = processDict['amount']
+                association.baseValue = None
             elif 'name' in processDict and 'id' in processDict:
                 try:
-                    value=Value.query.get(id)
+                    value = Value.query.get(id)
                 except:
-                    value=None
+                    value = None
                 if value:
                     try:
-                        process=Process.query.filter(Process.name==processDict['name']).all()[0]
+                        process = Process.query.filter(Process.name == processDict['name']).all()[0]
                     except:
-                        process=None
+                        process = None
                     if not process:
-                        process=Process()
-                        process.name=processDict['name']
+                        process = Process()
+                        process.name = processDict['name']
                         db.session.add(process)
                     try:
-                        association=ProductProcessCo2Association.query.filter(
-                            ProductProcessCO2Association.process==process,
-                            ProductProcessCO2Association.product==product).all()[0]
+                        association = ProductProcessCo2Association.query.filter(
+                            ProductProcessCO2Association.process == process,
+                            ProductProcessCO2Association.product == product).all()[0]
                     except:
-                        association=None
+                        association = None
                     if not association:
-                        association=ProductProcessCO2Association()
-                        association.product=product
-                        association.process=process
-                        association.baseValue=value
+                        association = ProductProcessCO2Association()
+                        association.product = product
+                        association.process = process
+                        association.baseValue = value
     if 'possibleOrigins' in jsonData:
         for originName in jsonData['possibleOrigins']:
             try:
-                location=Location.query.filter(Location.name==originName).all()[0]
+                location = Location.query.filter(Location.name == originName).all()[0]
             except:
-                location=None
+                location = None
             if not location:
-                location=Location()
-                location.name=originName
+                location = Location()
+                location.name = originName
                 db.session.add(location)
             if not location in product.possibleOrigins:
                 product.possibleOrigins.append(location)
     if 'allergenes' in jsonData:
         for allergeneDict in (a for a in jsonData['allergenes'] if 'name' in a):
             try:
-                allergene=Allergene.query.filter(Allergene.name==allergeneDict['name']).all()[0]
+                allergene = Allergene.query.filter(Allergene.name == allergeneDict['name']).all()[0]
             except:
-                allergene=None
+                allergene = None
             if not allergene:
-                allergene=Allergene()
-                allergene.name=allergeneDict['name']
+                allergene = Allergene()
+                allergene.name = allergeneDict['name']
                 db.session.add(allergene)
             try:
                 #Check if associated
-                association=ProductAllergeneAssociation.query.filter(ProductAllergeneAssociation.product==product, ProductAllergeneAssociation.allergene==allergene).all()[0]
+                association = ProductAllergeneAssociation.query.filter(ProductAllergeneAssociation.product == product, ProductAllergeneAssociation.allergene == allergene).all()[0]
             except:
-                association=None
+                association = None
             if not association:
-                association=ProductAllergeneAssociation()
-                association.product=product
-                association.allergene=allergene
+                association = ProductAllergeneAssociation()
+                association.product = product
+                association.allergene = allergene
                 db.session.add(association)
     if 'co2Value' in jsonData:
         if 'id' in jsonData['co2Value']:
             try:
-                value=Co2Value.query.get(jsonData['co2Value']['id'])
+                value = Co2Value.query.get(jsonData['co2Value']['id'])
                 print(jsonData['co2Value']['id'])
             except:
-                value=None
+                value = None
             if value:
                 if not product.co2Value:
-                    co2Value=Co2Value()
-                    co2Value.product=product
-                    co2Value.baseValue=value
+                    co2Value = Co2Value()
+                    co2Value.product = product
+                    co2Value.baseValue = value
                     db.session.add(co2Value)
                 else:
-                    product.co2Value.baseValue=value
+                    product.co2Value.baseValue = value
         elif 'amount' in jsonData['co2Value']:
             if not product.co2Value:
-                co2Value=Co2Value()
-                product.co2Value=co2Value
+                co2Value = Co2Value()
+                product.co2Value = co2Value
                 db.session.add(co2Value)
-            product.co2Value.baseValue=None
-            product.co2Value.amount=jsonData['co2Value']['amount']
+            product.co2Value.baseValue = None
+            product.co2Value.amount = jsonData['co2Value']['amount']
     if 'standardOrigin' in jsonData:
         try:
-            location=Location.query.filter(Location.name==jsonData['standardOrigin']).all()[0]
+            location = Location.query.filter(Location.name == jsonData['standardOrigin']).all()[0]
         except:
-            location=None
+            location = None
         if not location:
-            location=Location()
-            location.name=jsonData['standardOrigin']
+            location = Location()
+            location.name = jsonData['standardOrigin']
             db.session.add(location)
-            product.standardOrigin=location
+            product.standardOrigin = location
     if 'density' in jsonData:
         if 'id' in jsonData['density']:
             try:
-                value=ProductDensity.query.get(jsonData['density']['id'])
+                value = ProductDensity.query.get(jsonData['density']['id'])
             except:
-                value=None
+                value = None
             if value:
                 if not product.density:
-                    density=ProductDensity
-                    product.density=density
+                    density = ProductDensity
+                    product.density = density
                     session.add(density)
-                product.density.baseValue=value
+                product.density.baseValue = value
         elif 'amount' in jsonData['density']:
             if not product.density:
-                density=ProductDensity
-                product.density=density
+                density = ProductDensity
+                product.density = density
                 session.add(density)
-            product.density.amount=jsonData['density']['value']
-            product.density.baseValue=None
+            product.density.amount = jsonData['density']['value']
+            product.density.baseValue = None
     if 'unitWeight' in jsonData:
         if 'id' in jsonData['unitWeight']:
             try:
-                value=ProductUnitWeight.query.get(jsonData['unitWeight']['id'])
+                value = ProductUnitWeight.query.get(jsonData['unitWeight']['id'])
             except:
-                value=None
+                value = None
             if value:
                 if not product.density:
-                    unitWeight=ProductUnitWeight()
-                    product.unitWeight=unitWeight
+                    unitWeight = ProductUnitWeight()
+                    product.unitWeight = unitWeight
                     session.add(density)
-                product.unitWeight.baseValue=value
+                product.unitWeight.baseValue = value
         elif 'amount' in jsonData['unitWeight']:
             if not product.unitWeight:
-                unitWeight=ProductDensity
-                product.unitWeight=unitWeight
+                unitWeight = ProductDensity
+                product.unitWeight = unitWeight
                 session.add(unitWeight)
-            product.untiWeight.amount=jsonData['unitWeight']['value']
-            product.unitWeight.baseValue=None
+            product.untiWeight.amount = jsonData['unitWeight']['value']
+            product.unitWeight.baseValue = None
     if 'foodWaste' in jsonData:
         for element in jsonData['foodWaste']:
             pass
@@ -488,9 +488,9 @@ def editProduct(id,jsonData):
         #TODO: parse date, check, add
         pass
     if 'infoTextForCook' in jsonData:
-        product.infoTextForCook=jsonData['infoTextForCook']
+        product.infoTextForCook = jsonData['infoTextForCook']
     if 'texture' in jsonData:
-        product.texture=jsonData['texture']
+        product.texture = jsonData['texture']
 
     db.session.add(product)
     db.session.commit()
@@ -499,12 +499,12 @@ def editProduct(id,jsonData):
 def editValue(id,jsonData):
     value = Value.query.get(id)
     if 'id' in jsonData:
-        value.baseValue=Value.query.get(jsonData['id'])
+        value.baseValue = Value.query.get(jsonData['id'])
     if 'amount' in jsonData:
-        value.amount=jsonData['amount']
-        value.baseValue=None
+        value.amount = jsonData['amount']
+        value.baseValue = None
     if 'unit' in jsonData:
-        value.unit=jsonData['unit']
+        value.unit = jsonData['unit']
     if 'reference' in jsonData:
         if 'id' in jsonData['reference']:
             try:
@@ -512,16 +512,16 @@ def editValue(id,jsonData):
             except:
                 reference = None
             if reference:
-                value.reference=reference
+                value.reference = reference
         elif 'name' in jsonData['reference']:
             try:
-                reference = Reference.query.filter(Reference.name==jsonData['reference']['name']).all()[0]
+                reference = Reference.query.filter(Reference.name == jsonData['reference']['name']).all()[0]
             except:
-                reference=None
+                reference = None
             if not reference:
-                reference=Reference()
-                reference.name=jsonData['reference']['name']
-                value.reference=reference
+                reference = Reference()
+                reference.name = jsonData['reference']['name']
+                value.reference = reference
                 db.session.add(reference)
     db.session.commit()
     return value.id
@@ -529,9 +529,9 @@ def editValue(id,jsonData):
 def editReference(id, jsonData):
     reference = Reference.query.get(id)
     if 'name' in jsonData:
-        reference.name=jsonData['name']
+        reference.name = jsonData['name']
     if 'comment' in jsonData:
-        reference.comment=jsonData['comment']
+        reference.comment = jsonData['comment']
     db.session.add(reference)
     db.session.commit
     return reference.id

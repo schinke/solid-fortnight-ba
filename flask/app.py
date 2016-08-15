@@ -213,7 +213,6 @@ def editProduct(id,jsonData):
                     association=ProductNutrientAssociation.query.filter(
                         ProductNutrientAssociation.nutrient==nutrient,
                             ProductNutrientAssociation.product==product).all()[0]
-                    print(association)
                 except:
                     print("association not found")
                     association=None
@@ -223,7 +222,7 @@ def editProduct(id,jsonData):
                     product.nutrients.append(association)
                     association.nutrient=nutrient
                     print("ProductNutrientAssociation created")
-                association.baseValue=[]
+                association.baseValue=None
                 association.amount=nutrientDict['amount']
             elif 'name' in nutrientDict and 'id' in nutrientDict:
                 try:
@@ -247,7 +246,6 @@ def editProduct(id,jsonData):
                         association=ProductNutrientAssociation.query.filter(
                             ProductNutrientAssociation.nutrient==nutrient,
                                 ProductNutrientAssociation.product==product).all()[0]
-                        print(association)
                     except:
                         association=None
                     # otherwise associate them
@@ -352,7 +350,7 @@ def editProduct(id,jsonData):
                     association.process=process
                     association.product=product
                 association.amount=processDict['amount']
-                association.baseValue=[]
+                association.baseValue=None
             elif 'name' in processDict and 'id' in processDict:
                 try:
                     value=Value.query.get(id)
@@ -413,7 +411,8 @@ def editProduct(id,jsonData):
     if 'co2Value' in jsonData:
         if 'id' in jsonData['co2Value']:
             try:
-                value=Co2Value.query.get(id)
+                value=Co2Value.query.get(jsonData['co2Value']['id'])
+                print(jsonData['co2Value']['id'])
             except:
                 value=None
             if value:
@@ -427,15 +426,24 @@ def editProduct(id,jsonData):
         elif 'amount' in jsonData['co2Value']:
             if not product.co2Value:
                 co2Value=Co2Value()
-                co2Value.product=product
+                product.co2Value=co2Value
                 db.session.add(co2Value)
-            product.co2Value.amount=jsonData['co2Value']['value']
+            product.co2Value.baseValue=None
+            product.co2Value.amount=jsonData['co2Value']['amount']
     if 'standardOrigin' in jsonData:
-        pass
+        try:
+            location=Location.query.filter(Location.name==jsonData['standardOrigin']).all()[0]
+        except:
+            location=None
+        if not location:
+            location=Location()
+            location.name=jsonData['standardOrigin']
+            db.session.add(location)
+            product.standardOrigin=location
     if 'density' in jsonData:
         if 'id' in jsonData['density']:
             try:
-                value=ProductDensity.query.get(id)
+                value=ProductDensity.query.get(jsonData['density']['id'])
             except:
                 value=None
             if value:
@@ -450,11 +458,11 @@ def editProduct(id,jsonData):
                 product.density=density
                 session.add(density)
             product.density.amount=jsonData['density']['value']
-            product.density.baseValue=[]
+            product.density.baseValue=None
     if 'unitWeight' in jsonData:
         if 'id' in jsonData['unitWeight']:
             try:
-                value=ProductUnitWeight.query.get(id)
+                value=ProductUnitWeight.query.get(jsonData['unitWeight']['id'])
             except:
                 value=None
             if value:
@@ -469,7 +477,7 @@ def editProduct(id,jsonData):
                 product.unitWeight=unitWeight
                 session.add(unitWeight)
             product.untiWeight.amount=jsonData['unitWeight']['value']
-            product.unitWeight.baseValue=[]
+            product.unitWeight.baseValue=None
     if 'foodWaste' in jsonData:
         for element in jsonData['foodWaste']:
             pass
@@ -494,7 +502,7 @@ def editValue(id,jsonData):
         value.baseValue=Value.query.get(jsonData['id'])
     if 'amount' in jsonData:
         value.amount=jsonData['amount']
-        value.baseValue=[]
+        value.baseValue=None
     if 'unit' in jsonData:
         value.unit=jsonData['unit']
     if 'reference' in jsonData:

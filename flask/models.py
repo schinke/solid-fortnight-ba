@@ -59,7 +59,7 @@ class Value(db.Model):
     reference_id=db.Column(db.Integer, db.ForeignKey('reference.id'))
     reference=relationship("Reference")
     base_value_id=db.Column(db.Integer, db.ForeignKey('scivalue.id'))
-    baseValue=relationship("Value")
+    baseValue=relationship("Value", uselist=False)
     amount=db.Column(db.Integer)
     unit=db.Column(db.String)
     comment=db.Column(db.String)

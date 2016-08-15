@@ -231,6 +231,7 @@ def editProduct(id,jsonData):
                 except:
                     value=None
                 if value:
+                    # find nutrient
                     try:
                         nutrient=Nutrient.query.filter(Nutrient.name==nutrientDict['name']).all()[0]
                     except:
@@ -241,6 +242,7 @@ def editProduct(id,jsonData):
                         nutrient=Nutrient()
                         nutrient.name=nutrientDict['name']
                         db.session.add(nutrient)
+                    # see if prod and nutrient are already associated
                     try:
                         association=ProductNutrientAssociation.query.filter(
                             ProductNutrientAssociation.nutrient==nutrient,
@@ -248,6 +250,7 @@ def editProduct(id,jsonData):
                         print(association)
                     except:
                         association=None
+                    # otherwise associate them
                     if not association:
                         association=ProductNutrientAssociation()
                         association.product=product
@@ -255,8 +258,8 @@ def editProduct(id,jsonData):
                         db.session.add(association)
                     association.baseValue=value
     #add ProductProcessNutrientAssociation (if not existing) and if necessary create respective Nutrient and Process (side effect) 
-    if 'processes' in jsonData:
-        for processDict in jsonData['processes']:
+    if 'nutrientProcesses' in jsonData:
+        for processDict in jsonData['nutrientProcesses']:
             if 'name' in processDict and 'nutrient' in processDict\
             and 'amount' in processDict:
                 try:
@@ -327,7 +330,9 @@ def editProduct(id,jsonData):
                         association.nutrient=nutrient
                         db.session.add(association)
                     association.baseValue=value
-            elif 'name' in processDict and 'co2Amount' in processDict:
+    if 'processesCo2' in jsonData:
+        for processDict in jsonData['processesCo2']:
+            if 'name' in processDict and 'amount' in processDict:
                 try:
                     process=Process.query.filter(Process.name==processDict['name']).all()[0]
                 except:
@@ -337,16 +342,16 @@ def editProduct(id,jsonData):
                     process.name=processDict['name']
                     db.session.add(process)
                 try:
-                    association=ProductProcessCo2Association.query.filter(
-                        ProductProcessCo2Association.process==process,
-                        ProductProcessCo2Association.product==product).all()[0]
+                    association=ProductProcessCO2Association.query.filter(
+                        ProductProcessCO2Association.process==process,
+                        ProductProcessCO2Association.product==product).all()[0]
                 except:
                     association=None
                 if not association:
-                    association=ProductProcessCo2Association()
+                    association=ProductProcessCO2Association()
                     association.process=process
                     association.product=product
-                association.amount=processDict['co2Amount']
+                association.amount=processDict['amount']
                 association.baseValue=[]
             elif 'name' in processDict and 'id' in processDict:
                 try:
@@ -364,12 +369,12 @@ def editProduct(id,jsonData):
                         db.session.add(process)
                     try:
                         association=ProductProcessCo2Association.query.filter(
-                            ProductProcessCo2Association.process==process,
-                            ProductProcessCo2Association.product==product).all()[0]
+                            ProductProcessCO2Association.process==process,
+                            ProductProcessCO2Association.product==product).all()[0]
                     except:
                         association=None
                     if not association:
-                        association=ProductProcessCo2Association()
+                        association=ProductProcessCO2Association()
                         association.product=product
                         association.process=process
                         association.baseValue=value
@@ -386,14 +391,14 @@ def editProduct(id,jsonData):
             if not location in product.possibleOrigins:
                 product.possibleOrigins.append(location)
     if 'allergenes' in jsonData:
-        for allergeneName in jsonData['allergenes']:
+        for allergeneDict in (a for a in jsonData['allergenes'] if 'name' in a):
             try:
-                allergene=Allergene.query.filter(Allergene.name==allergeneName).all()[0]
+                allergene=Allergene.query.filter(Allergene.name==allergeneDict['name']).all()[0]
             except:
                 allergene=None
             if not allergene:
                 allergene=Allergene()
-                allergene.name=allergeneName
+                allergene.name=allergeneDict['name']
                 db.session.add(allergene)
             try:
                 #Check if associated

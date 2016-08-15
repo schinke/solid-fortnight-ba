@@ -34,6 +34,7 @@ class Value(db.Model):
         'amount':self.actualValue().amount,
         'unit':self.actualValue().unit,
         'type':self.type,
+        'product':self.product_id,
         'comment':self.comment
         }
         if not self.actualValue().id == self.id:
@@ -359,7 +360,8 @@ class Product(db.Model):
         'name': self.name,
         'nutrients':[{'derived': not nutrient.id==nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'valueId':nutrient.id} for nutrient in self.nutrients],
         'possibleOrigins':[origin.name for origin in self.possibleOrigins],
-        'processes':[{'derived': not process.id==process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
+        'nutrientProcesses':[{'derived': not process.id==process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
+        'processesCo2':[{'derived': not process.id==process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'amount':process.amount} for process in self.processesCo2],
         'specification': self.specification,
         'startOfLocalSeason':str(self.startOfLocalSeason),
         'synonyms':[synonym.name for synonym in self.synonyms],

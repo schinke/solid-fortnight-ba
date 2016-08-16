@@ -63,9 +63,13 @@ class Value(db.Model):
     amount = db.Column(db.Integer)
     unit = db.Column(db.String)
     comment = db.Column(db.String)
-    def actualValue(self):
-        if self.baseValue and not self.baseValue.id == self.id:
-            return self.baseValue.actualValue()
+    def actualValue(self, id=None):
+        if not id:
+            id=self.id
+        if id == self.id:
+            return self
+        if self.baseValue and not self.id == self.baseValue.id:
+            return self.baseValue.actualValue(id)
         else:
             return self
 
@@ -224,7 +228,7 @@ class ProductProcessCO2Association(Value):
         
     }
     def toDict(self):
-        output = super(ProductProcessNutrientAssociation, self).toDict()
+        output = super(ProductProcessCO2Association, self).toDict()
         output['processId'] = self.process.id
         output['processName'] = self.process.name
         output['productId'] = self.product.id

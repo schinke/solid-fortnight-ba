@@ -35,6 +35,21 @@ function ProductFormController($scope) {
     });
     $scope.$apply()
   });
+  $scope.addNutrientProcess = function(){
+    var newNutrientProcess={"name":$scope.newProcessName, "amount":$scope.newProcessAmount, "nutrient":$scope.newNutrientName}
+    $scope.localData.nutrientProcesses.push(newNutrientProcess);
+    $scope.postData()
+    $scope.newProcessName=""
+    $scope.newProcessAmount=""
+    $scope.newNutrientName=""
+  }
+    $scope.addFoodWasteData = function(){
+    var newFoodWasteData={"field":$scope.newFoodWasteField, "amount":$scope.newFoodWasteAmount}
+    $scope.localData.foodWasteData.push(newFoodWasteData);
+    $scope.postData()
+    $scope.newFoodWasteField=""
+    $scope.newFoodWasteAmount=""
+  }
   $scope.postData = function(){
     $scope.lastSentData=angular.fromJson(JSON.stringify($scope.localData))
     httpPutAsync($scope.productURL, JSON.stringify($scope.localData), function(response){

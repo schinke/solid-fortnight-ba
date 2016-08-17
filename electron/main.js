@@ -94,8 +94,8 @@ app.on('ready', function() {
     valueForm.show()
   }
 
-  ipcMain.on('show-prod-form', (event, arg) => {
-    showProductForm(arg);
+  ipcMain.on('show-val-form', (event, arg) => {
+    showValueForm(arg);
     console.log(arg);
   })
   // fire!

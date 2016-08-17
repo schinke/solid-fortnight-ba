@@ -357,7 +357,7 @@ class Product(db.Model):
         'commentsOnDensityAndUnitWeight': self.commentsOnDensityAndUnitWeight,
         'endOfLocalSeason':str(self.endOfLocalSeason),
         'englishName': self.englishName,
-        'foodWasteData':[{'valueId':data.id, 'name':data.field.name, 'amount':data.amount} for data in self.foodWasteData],
+        'foodWasteData':[{'valueId':data.id, 'field':data.field.name, 'amount':data.amount} for data in self.foodWasteData],
         'frenchName':self.frenchName,
         'id': self.id,
         'infoTextForCook': self.infoTextForCook,

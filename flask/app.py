@@ -487,9 +487,28 @@ def editProduct(id,jsonData):
                 session.add(unitWeight)
             product.untiWeight.amount = jsonData['unitWeight']['value']
             product.unitWeight.baseValue = None
-    if 'foodWaste' in jsonData:
-        for element in jsonData['foodWaste']:
-            pass
+    if 'foodWasteData' in jsonData:
+        for element in jsonData['foodWasteData']:
+            if 'field' in element and 'amount' in element:
+                try:
+                    field = FoodWasteField.query.get(element['field'])
+                except:
+                    field = None
+                if not field:
+                    field=FoodWasteField()
+                    field.name=element['field']
+                    db.session.add(field)
+                try:
+                    foodWaste = FoodWasteData.query.filter(FoodWasteData.field == field, FoodWasteData.product==product).all()[0]
+                except:
+                    foodWaste = None
+                if not foodWaste:
+                    foodWaste = FoodWasteData()
+                    foodWaste.field = field
+                    foodWaste.product=product
+                    db.session.add(foodWaste)
+                foodWaste.amount=element['amount']
+
     if 'startOfLocalSeason' in jsonData:
         #TODO: parse date, check, add
         pass

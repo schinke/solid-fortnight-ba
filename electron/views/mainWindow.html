@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Übersicht</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="../static/angular.min.js"></script>
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <title>Übersicht</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="../static/angular.min.js"></script>
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 
-    <style type="text/css">
-      .container {
-        margin-top: 20px;
-      }
-    </style>
-  </head>
-  <script src="../viewProductController.js"></script>
+  <style type="text/css">
+  .container {
+    margin-top: 20px;
+  }
+  </style>
+</head>
+<script src="../viewProductController.js"></script>
 
-  <body ng-app="edbApp" ng-controller="MainWindowController">
+<body ng-app="edbApp" ng-controller="MainWindowController">
+  <div class="navbar-fixed">
     <nav>
       <div class="nav-wrapper">
         <a href="#" class="brand-logo right">Logo</a>
@@ -29,83 +28,91 @@
         </ul>
       </div>
     </nav>
+  </div>
 
+  <div class="container">
+    <!-- products tab -->
+    <div class="row" ng-class="visibleClass==='Product'?'':'hide'">
+      <div class="col s12">
+        <div>
+          <input type="text" class="form-control" placeholder="Search term" ng-model="productSearchTerm">
+        </div>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th data-field="id" ng-click="productSortField='id'">Id</th>
+              <th data-field="name" ng-click="productSortField='name'">Name</th>
+              <th data-field="specification" ng-click="productSortField='specification'">Spezifikation</th>
 
-    <div class="container">
-      <!-- products tab -->
-      <div class="row" ng-class="visibleClass==='Product'?'':'hide'">
-      <div class="col s12">
-        <div>
-        <input type="text" class="form-control" placeholder="Search term" ng-model="productSearchTerm">
-        </div>
-        <table class="striped">
-        <thead>
-          <tr>
-            <th data-field="id" ng-click="productSortField='id'">Id</th>
-            <th data-field="name" ng-click="productSortField='name'">Name</th>
-            <th data-field="price" ng-click="productSortField='specification'">Spezifikation</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="element in productsFromServer|orderBy:productSortField|filter:productSearchTerm" ng-click="showPopup(element.id)">
-            <td >{{element.id}}</td>
-            <td>{{element.name}}</td>
-            <td>{{element.specification}}</td>
-          </tr>
-        </tbody>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="element in productsFromServer|orderBy:productSortField|filter:productSearchTerm" ng-click="showPopup(element.id)">
+              <td >{{element.id}}</td>
+              <td>{{element.name}}</td>
+              <td>{{element.specification}}</td>
+            </tr>
+          </tbody>
         </table>
-      </div>
-      </div>
-      <!-- values tab -->
-      <div class="row" ng-class="visibleClass==='Value'?'':'hide'">
-      <div class="col s12">
-        <div>
-        <input type="text" class="form-control" placeholder="Search term" ng-model="valueSearchTerm">
-        </div>
-        <table class="striped">
-        <thead>
-          <tr>
-            <th data-field="id" ng-click="valueSortField='id'">Id</th>
-            <th data-field="type" ng-click="valueSortField='type'">Typ</th>
-            <th data-field="reference" ng-click="valueSortField='reference'">Reference</th>
-            <th data-field="product" ng-click="valueSortField='product'">Product</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="element in valuesFromServer|orderBy:valueSortField|filter:valueSearchTerm" ng-click="showPopup(element.id)">
-            <td >{{element.id}}</td>
-            <td>{{element.type}}</td>
-            <td>{{element.reference}}</td>
-            <td>{{element.product}}</td>
-          </tr>
-        </tbody>
-        </table>
-      </div>
-      </div>
-      <!-- references tab -->
-      <div class="row" ng-class="visibleClass==='Reference'?'':'hide'">
-      <div class="col s12">
-        <div>
-        <input type="text" class="form-control" placeholder="Search term" ng-model="referenceSearchTerm">
-        </div>
-        <table class="striped">
-        <thead>
-          <tr>
-            <th data-field="id" ng-click="referenceSortField='id'">Id</th>
-            <th data-field="name" ng-click="referenceSortField='name'">Name</th>
-            <th data-field="comment" ng-click="referenceSortField='comment'">Comment</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="element in referencesFromServer|orderBy:referenceSortField|filter:referenceSearchTerm" ng-click="showPopup(element.id)">
-            <td >{{element.id}}</td>
-            <td>{{element.name}}</td>
-            <td>{{element.comment}}</td>
-          </tr>
-        </tbody>
-        </table>
-      </div>
       </div>
     </div>
-  </body>
+    <!-- values tab -->
+    <div class="row" ng-class="visibleClass==='Value'?'':'hide'">
+      <div class="col s12">
+        <div>
+          <input type="text" class="form-control" placeholder="Search term" ng-model="valueSearchTerm">
+        </div>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th data-field="id" ng-click="valueSortField='id'">Id</th>
+              <th data-field="type" ng-click="valueSortField='type'">Typ</th>
+              <th data-field="reference" ng-click="valueSortField='reference'">Reference</th>
+              <th data-field="product" ng-click="valueSortField='product'">Product</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="element in valuesFromServer|orderBy:valueSortField|filter:valueSearchTerm" ng-click="showPopup(element.id)">
+              <td >{{element.id}}</td>
+              <td>{{element.type}}</td>
+              <td>{{element.reference}}</td>
+              <td>{{element.product}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- references tab -->
+    <div class="row" ng-class="visibleClass==='Reference'?'':'hide'">
+      <div class="col s12">
+        <div>
+          <input type="text" class="form-control" placeholder="Search term" ng-model="referenceSearchTerm">
+        </div>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th data-field="id" ng-click="referenceSortField='id'">Id</th>
+              <th data-field="name" ng-click="referenceSortField='name'">Name</th>
+              <th data-field="comment" ng-click="referenceSortField='comment'">Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="element in referencesFromServer|orderBy:referenceSortField|filter:referenceSearchTerm" ng-click="showPopup(element.id)">
+              <td >{{element.id}}</td>
+              <td>{{element.name}}</td>
+              <td>{{element.comment}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+      <a class="btn-floating btn-large red">
+        <i class="material-icons">add</i>
+      </a>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+</body>
 </html>

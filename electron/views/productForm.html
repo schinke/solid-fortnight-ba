@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Super Page</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <title>Product Details</title>
+
     <script src="../static/angular.min.js"></script>
      <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
 
     <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+
     
     <style type="text/css">
       .container {
@@ -18,31 +18,113 @@
 </head>
 <script src="../productFormController.js"></script>
 <body>
+   <div class="navbar-fixed">
      <nav>
     <div class="nav-wrapper">
       <a href="#" class="brand-logo right">Logo</a>
 
     </div>
   </nav>
+</div>
    <div class="container" ng-app>
     <div class="row">
     <div class="col s12"  ng-controller="ProductFormController">
-        Name: <input ng-class="localData.name===fromServer.name?'teal':'red'" type="text" ng-change="postData()" ng-model="localData.name" required /><br />
-        English name: <input ng-class="localData.englishName===fromServer.englishName?'':'red'" type="text" ng-change="postData()" ng-model="localData.englishName" required /><br />
-        Fernch name: <input ng-class="localData.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="postData()" ng-model="localData.frenchName" required /><br />
-        Specification: <input ng-class="localData.specification===fromServer.specification?'':'red'" type="text" ng-change="postData()"ng-model="localData.specification" required /><br />
-        Alternatives:
-        <div ng-repeat="alternative in localData.alternatives">
-          {{alternative.name}}
+        <div class="card-panel">
+        Name:
+        <input ng-class="localData.name===fromServer.name?'':'red'" type="text" ng-change="postData()" ng-model="localData.name" required /><br />
         </div>
-        Comments on density and unit weight:<input ng-class="localData.commentsOnDensityAndUnitWeight===fromServer.commentsOnDensityAndUnitWeight?'':'red'" type="text" ng-change="postData()"ng-model="localData.commentsOnDensityAndUnitWeight" required />
+        <div class="card-panel">
+        English name:
+        <input ng-class="localData.englishName===fromServer.englishName?'':'red'" type="text" ng-change="postData()" ng-model="localData.englishName" required /><br />
+        </div>
+        <div class="card-panel">
+        French name:
+        <input ng-class="localData.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="postData()" ng-model="localData.frenchName" required /><br />
+        </div>
+        <div class="card-panel">
+        Specification:
+        <input ng-class="localData.specification===fromServer.specification?'':'red'" type="text" ng-change="postData()"ng-model="localData.specification" required /><br />
+        </div>
+        <div class="card-panel">
+          Comments on density and unit weight:<input ng-class="localData.commentsOnDensityAndUnitWeight===fromServer.commentsOnDensityAndUnitWeight?'':'red'" type="text" ng-change="postData()"ng-model="localData.commentsOnDensityAndUnitWeight" required />
+        </div>
+        <div class="card-panel">
+          Info text for cook:
+        <input ng-class="localData.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="postData()"ng-model="localData.infoTextForCook" required /><br />
+        </div>
+        <div class="card-panel">
+          Alternatives:
+        <div ng-repeat="alternative in fromServer.alternatives">
+          {{alternative.name}}<br />
+        </div><br />
+        </div>
+        <div class="card-panel">
+          Nutrient processes:
+        <table>
+          <thead>
+            <tr>
+              <th data-field="type" ng-click="valueSortField='name'">Name</th>
+              <th data-field="product" ng-click="valueSortField='amount'">Amount</th>
+              <th data-field="reference" ng-click="valueSortField='nutrient'">Nutrient</th>
 
+              <th data-field="id" ng-click="valueSortField='valueId'">Value Id</th>
+            </tr>
+          </thead>
+        <tbody>
+          <tr ng-repeat="process in fromServer.nutrientProcesses|orderBy:valueSortField|filter:valueSearchTerm">
+            
+            <td>{{process.name}}</td>
+            <td>{{process.amount}}</td>
+            <td>{{process.nutrient}}</td>
+            <td>{{process.valueId}}</td>
+          </tr>
+          <form ng-submit="addNutrientProcess()">
+            <td><input type="text" ng-model="newProcessName"/></td>
+            <td><input type="number" ng-model="newProcessAmount"/></td>
+            <td><input type="text" ng-model="newNutrientName"/></td>
+            <td><div class="btn" ng-click="addNutrientProcess()">add</div></td>
+          </form>
+          <tr>
+          </tr>
+        </tbody>
+        </table>
+        
+        
+        </div>
+        <div class="card-panel">
+          Foodwaste Data:
+        <table>
+          <thead>
+            <tr>
+              <th data-field="field" ng-click="foodWasteSortField='name'">Name</th>
+              <th data-field="amount" ng-click="foodWasteSortField='amount'">Amount</th>
+              <th data-field="id" ng-click="foodWasteSortField='valueId'">Value Id</th>
+            </tr>
+          </thead>
+        <tbody>
+          <tr ng-repeat="data in fromServer.foodWasteData|orderBy:foodWasteSortField|filter:foodWasteSearchTerm">
+            
+            <td>{{data.field}}</td>
+            <td>{{data.amount}}</td>
+            <td>{{data.valueId}}</td>
+          </tr>
+          <form ng-submit="addNutrientProcess()">
+            <td><input type="text" ng-model="newFoodWasteField"/></td>
+            <td><input type="number" ng-model="newFoodWasteAmount"/></td>
+            <td><div class="btn" ng-click="addFoodWasteData()" ng-mouseenter="addButtonHover = true" ng-mouseleave="addButtonHover = false">add</div></td>
+          </form>
+          <tr>
+          </tr>
+        </tbody>
+        </table>
+      </div>
     </div>
 
 
     </div>
 </div>
-
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 
 </body>
 </html>

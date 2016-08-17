@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Übersicht</title>
+  <title>Main window</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="../static/angular.min.js"></script>
   <!-- Compiled and minified CSS -->
@@ -22,9 +22,9 @@
       <div class="nav-wrapper">
         <a href="#" class="brand-logo right">Logo</a>
         <ul id="nav-mobile" class="left">
-          <li><a ng-class="visibleClass==='Product'?'teal':''" href="#" ng-click="visibleClass='Product'">Products</a></li>
-          <li><a ng-class="visibleClass==='Value'?'teal':''" ng-click="visibleClass='Value'">Values</a></li>
-          <li><a ng-class="visibleClass==='Reference'?'teal':''" ng-click="visibleClass='Reference'">References</a></li>
+          <li><a ng-class="visibleClass==='Product'?'teal':''" alt="show products table" href="#" ng-click="visibleClass='Product'">Products</a></li>
+          <li><a ng-class="visibleClass==='Value'?'teal':''" alt="show values table" ng-click="visibleClass='Value'">Values</a></li>
+          <li><a ng-class="visibleClass==='Reference'?'teal':''" alt="show references table" ng-click="visibleClass='Reference'">References</a></li>
         </ul>
       </div>
     </nav>
@@ -43,14 +43,17 @@
               <th data-field="id" ng-click="productSortField='id'">Id</th>
               <th data-field="name" ng-click="productSortField='name'">Name</th>
               <th data-field="specification" ng-click="productSortField='specification'">Spezifikation</th>
+              <th ></th>
+              <th></th>
 
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="element in productsFromServer|orderBy:productSortField|filter:productSearchTerm" ng-click="showPopup(element.id)">
+            <tr ng-repeat="element in productsFromServer|orderBy:productSortField|filter:productSearchTerm" >
               <td >{{element.id}}</td>
               <td>{{element.name}}</td>
               <td>{{element.specification}}</td>
+              <td><a ng-click="showPopup(element.id)"><i class="material-icons">open_in_new</i></a>
             </tr>
           </tbody>
         </table>

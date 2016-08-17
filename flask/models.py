@@ -290,14 +290,14 @@ class ProductUnitWeight(Value):
 #Associate one product to one alternative product
 class ProductAlternative(db.Model):
     __tablename__ = 'prod_alternatives'
-    product_id_1 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key = True)
-    product_id_2 = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key = True)
+    product_id_1 = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = "CASCADE"), primary_key = True)
+    product_id_2 = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = "CASCADE"), primary_key = True)
 
 #Associate one product with possible origin locations
 class LocationProductAssociation(db.Model):
     __tablename__ = 'location_prod_association'
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id',), primary_key = True)
-    location_id =  db.Column(db.Integer, db.ForeignKey('location.id'), primary_key = True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete = "CASCADE"), primary_key = True)
+    location_id =  db.Column(db.Integer, db.ForeignKey('location.id',ondelete = "CASCADE"), primary_key = True)
 
 #Associate one value to the locations in which it is valid
 class LocationValueAssociation(db.Model): #valid for
@@ -403,7 +403,7 @@ class Product(db.Model):
     # referencesForBasicCO2Value
     ##replace multiple fields with processes list
     allergenes = relationship("ProductAllergeneAssociation", back_populates = "product", passive_deletes = True)
-    alternatives = relationship("Product", secondary = "prod_alternatives", primaryjoin = id == ProductAlternative.product_id_1, secondaryjoin = id == ProductAlternative.product_id_2)
+    alternatives = relationship("Product", secondary = "prod_alternatives", primaryjoin = id == ProductAlternative.product_id_1, secondaryjoin = id == ProductAlternative.product_id_2, passive_deletes = True)
     co2Value = relationship("Co2Value", uselist = False, back_populates = "product", passive_deletes = True)
     commentsOnDensityAndUnitWeight = db.Column(db.String())
     density = relationship("ProductDensity", back_populates = "product", passive_deletes = True)

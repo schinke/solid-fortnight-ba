@@ -43,7 +43,7 @@ def get_product(id):
     else:
         return jsonify(product.toDict())
 
-@app.route('/product', methods = ['PUT'])
+@app.route('/product', methods = ['POST'])
 def put_product():
     if 'edb' in request.json:
         if request.json['edb']:
@@ -62,7 +62,7 @@ def put_product():
     id = editProduct(product.id,request.json)
     return jsonify(product.toDict())
 
-@app.route('/product/<id>', methods = ['POST'])
+@app.route('/product/<id>', methods = ['PUT'])
 def post_product(id):
     try:
         product = Product.query.get(id)
@@ -98,7 +98,7 @@ def get_value(id):
     else:
         return jsonify(value.toDict())
 
-@app.route('/value/<id>', methods = ['POST'])
+@app.route('/value/<id>', methods = ['PUT'])
 def post_value(id):
     try:
         value = Value.query.get(id)
@@ -131,7 +131,7 @@ def get_values():
 def get_references():
     return jsonify([a.toDict() for a in Reference.query.all()])
 
-@app.route('/reference/<id>', methods = ['POST'])
+@app.route('/reference/<id>', methods = ['PUT'])
 def post_reference(id):
     try:
         reference = Reference.query.get(id)

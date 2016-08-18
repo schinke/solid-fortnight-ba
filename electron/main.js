@@ -22,7 +22,7 @@ app.on('ready', function() {
   let willQuitApp = false;
   app.on('before-quit', () => willQuitApp = true);
 
-  productForm = new BrowserWindow({width: 600, height:400, show:false, resizable:false, title:"Product details"});
+  productForm = new BrowserWindow({minWidth: 600, height:800, show:false, title:"Product details"});
   productForm.loadURL(`file://${__dirname}/views/productForm.html`)
   productForm.on('close', (e) => { //   <---- Catch close event
     if(willQuitApp){
@@ -35,7 +35,7 @@ app.on('ready', function() {
     }
   });
 
-  valueForm = new BrowserWindow({width: 600, height:400, show:false, resizable:false, title:"Value details"});
+  valueForm = new BrowserWindow({minWidth: 600, height:800, show:false, title:"Value details"});
   valueForm.loadURL(`file://${__dirname}/views/valueForm.html`)
   valueForm.on('close', (e) => { //   <---- Catch close event
     if(willQuitApp){
@@ -49,7 +49,7 @@ app.on('ready', function() {
   });
 
   var openWindow = function(){
-    mainWindow = new BrowserWindow({width: 1024, height: 578});
+    mainWindow = new BrowserWindow({width: 1024, minWidth: 800, height: 578});
     mainWindow.loadURL(`file://${__dirname}/views/mainWindow.html`)
     mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {

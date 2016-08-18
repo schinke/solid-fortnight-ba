@@ -33,9 +33,9 @@
         Name:
         <input ng-class="localData.name===fromServer.name?'':'red'" type="text" ng-change="postData()" ng-model="localData.name" required /><br />
         English name:
-        <input ng-class="localData.englishName===fromServer.englishName?'':'red'" type="text" ng-change="postData()" ng-model="localData.englishName" required /><br />
+        <input ng-class="localData.englishName===fromServer.englishName?'':'red'" type="text" ng-change="postData()" ng-model="localData.englishName"  /><br />
         French name:
-        <input ng-class="localData.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="postData()" ng-model="localData.frenchName" required /><br />
+        <input ng-class="localData.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="postData()" ng-model="localData.frenchName"  /><br />
 
         Specification:
         <input ng-class="localData.specification===fromServer.specification?'':'red'" type="text" ng-change="postData()"ng-model="localData.specification" required /><br />
@@ -46,6 +46,16 @@
       <div class="card-panel">
         Info text for cook:
         <input ng-class="localData.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="postData()"ng-model="localData.infoTextForCook" required /><br />
+      </div>
+      <div class="card-panel">
+        Tags:
+        <div ng-repeat="tag in fromServer.tags">
+          {{tag}}<br />
+        </div><br />
+        Synonyms:
+        <div ng-repeat="synonym in fromServer.synonyms">
+          {{synonym}}<br />
+        </div><br />
       </div>
       <div class="card-panel">
         Alternatives:
@@ -114,7 +124,6 @@
         </table>
       </div>
     </div>
-
 
   </div>
 </div>

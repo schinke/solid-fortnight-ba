@@ -44,7 +44,6 @@
               <th data-field="name" ng-click="productSortField='name'">Name</th>
               <th data-field="specification" ng-click="productSortField='specification'">Spezifikation</th>
               <th ></th>
-              <th></th>
 
             </tr>
           </thead>
@@ -53,7 +52,7 @@
               <td >{{element.id}}</td>
               <td>{{element.name}}</td>
               <td>{{element.specification}}</td>
-              <td><a ng-click="showPopup(element.id)"><i class="material-icons">open_in_new</i></a>
+              <td><a ng-click="showPopup(element.id)"><i class="material-icons">open_in_new</i></a></td>
             </tr>
           </tbody>
         </table>
@@ -110,11 +109,20 @@
       </div>
     </div>
     <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
-      <a class="btn-floating btn-large red">
+      <a class="btn-floating btn-large red modal-trigger" href="#addProductModal"ng-click="toggleAddItemModal()">
         <i class="material-icons">add</i>
       </a>
     </div>
   </div>
+  <dialog open id="addProductModal" ng-show="showProductModal" class="">
+    <div class="modal-content">
+      <h4>Add Product</h4>
+      <p>A bunch of text</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
+    </div>
+  </dialog>
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 </body>

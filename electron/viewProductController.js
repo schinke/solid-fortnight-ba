@@ -23,7 +23,12 @@ angular.module('edbApp', [])
     console.log(arg)
   }
 
-
+  $scope.toggleAddItemModal = function(arg){
+    $scope.showProductModal=($scope.visibleClass==="Product"&&!$scope.showProductModal&&!$scope.showValueModal&&!$scope.showReferenceModal);
+    $scope.showValueModal=($scope.visibleClass==="Value"&&!$scope.showProductModal&&!$scope.showValueModal&&!$scope.showReferenceModal);
+    $scope.showReferenceModal=($scope.visibleClass==="Reference"&&!$scope.showProductModal&&!$scope.showValueModal&&!$scope.showReferenceModal);
+    console.log("modal toggled")
+  }
 
   httpGetAsync('http://localhost:5000/products', function(response){
   $scope.productsFromServer=angular.fromJson(response);

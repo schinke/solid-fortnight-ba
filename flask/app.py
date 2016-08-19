@@ -29,7 +29,7 @@ def get_products():
     return jsonify([a.toDict() for a in Product.query.all()])
 
 
-@app.route('/product/<id>', methods = ['GET'])
+@app.route('/products/<id>', methods = ['GET'])
 def get_product(id):
     visit = Visits("/product")
     db.session.add(visit)
@@ -43,7 +43,7 @@ def get_product(id):
     else:
         return jsonify(product.toDict())
 
-@app.route('/product', methods = ['POST'])
+@app.route('/products', methods = ['POST'])
 def put_product():
     if 'edb' in request.json:
         if request.json['edb']:
@@ -62,7 +62,7 @@ def put_product():
     id = editProduct(product.id,request.json)
     return jsonify(product.toDict())
 
-@app.route('/product/<id>', methods = ['PUT'])
+@app.route('/products/<id>', methods = ['PUT'])
 def post_product(id):
     try:
         product = Product.query.get(id)
@@ -87,7 +87,7 @@ def delete_product(id):
         db.session.commit()
         return "ok"
 
-@app.route('/value/<id>', methods = ['GET'])
+@app.route('/values/<id>', methods = ['GET'])
 def get_value(id):
     try:
         value = Value.query.get(id)
@@ -98,7 +98,7 @@ def get_value(id):
     else:
         return jsonify(value.toDict())
 
-@app.route('/value/<id>', methods = ['PUT'])
+@app.route('/values/<id>', methods = ['PUT'])
 def post_value(id):
     try:
         value = Value.query.get(id)
@@ -110,7 +110,7 @@ def post_value(id):
         editValue(value.id,request.json)
         return jsonify(value.toDict())
 
-@app.route('/value/<id>', methods = ['DELETE'])
+@app.route('/values/<id>', methods = ['DELETE'])
 def delete_value(id):
     try:
         value = Value.query.get(id)
@@ -131,7 +131,7 @@ def get_values():
 def get_references():
     return jsonify([a.toDict() for a in Reference.query.all()])
 
-@app.route('/reference/<id>', methods = ['PUT'])
+@app.route('/references/<id>', methods = ['PUT'])
 def post_reference(id):
     try:
         reference = Reference.query.get(id)
@@ -162,14 +162,26 @@ def get_nutrients():
 
 def editProduct(id,jsonData):
     product = Product.query.get(id)
-    if 'name' in jsonData:
-        product.name = jsonData['name']
-    if 'specification' in jsonData:
-        product.specification = jsonData['specification']
-    if 'englishName' in jsonData:
-        product.englishName = jsonData['englishName']
-    if 'frenchName' in jsonData:
-        product.frenchName = jsonData['frenchName']
+    if 'allergenes' in jsonData:
+        for allergeneDict in (a for a in jsonData['allergenes'] if 'name' in a):
+            try:
+                allergene = Allergene.query.filter(Allergene.name == allergeneDict['name']).all()[0]
+            except:
+                allergene = None
+            if not allergene:
+                allergene = Allergene()
+                allergene.name = allergeneDict['name']
+                db.session.add(allergene)
+            try:
+                #Check if associated
+                association = ProductAllergeneAssociation.query.filter(ProductAllergeneAssociation.product == product, ProductAllergeneAssociation.allergene == allergene).all()[0]
+            except:
+                association = None
+            if not association:
+                association = ProductAllergeneAssociation()
+                association.product = product
+                association.allergene = allergene
+                db.session.add(association)
     if 'alternatives' in jsonData:
         for alternative in jsonData['alternatives']:
             try:
@@ -178,31 +190,76 @@ def editProduct(id,jsonData):
                     product.alternatives.append(alternative)
             except:
                 pass
+    if 'co2Value' in jsonData:
+        if 'baseValue' in jsonData['co2Value']:
+            try:
+                value = Co2Value.query.get(jsonData['co2Value']['baseValue'])
+            except:
+                value = None
+            if value:
+                if not product.co2Value:
+                    co2Value = Co2Value()
+                    co2Value.product = product
+                    co2Value.baseValue = value
+                    db.session.add(co2Value)
+                else:
+                    product.co2Value.baseValue = value
+        elif 'amount' in jsonData['co2Value']:
+            if not product.co2Value:
+                co2Value = Co2Value()
+                product.co2Value = co2Value
+                db.session.add(co2Value)
+            product.co2Value.baseValue = None
+            product.co2Value.amount = jsonData['co2Value']['amount']
     if 'commentsOnDensityAndUnitWeight' in jsonData:
+    if 'density' in jsonData:
+        if 'baseValue' in jsonData['density']:
+            try:
+                value = ProductDensity.query.get(jsonData['density']['baseValue'])
+            except:
+                value = None
+            if value:
+                if not product.density:
+                    density = ProductDensity
+                    product.density = density
+                    session.add(density)
+                product.density.baseValue = value
+        elif 'amount' in jsonData['density']:
+            if not product.density:
+                density = ProductDensity
+                product.density = density
+                session.add(density)
+            product.density.amount = jsonData['density']['value']
         product.commentsOnDensityAndUnitWeight=jsonData['commentsOnDensityAndUnitWeight']
-    if 'synonyms' in jsonData:
-        for synonymName in jsonData['synonyms']:
-            try:
-                synonym = Synonym.query.get(synonymName)
-            except:
-                synonym = None
-            if not synonym:
-                synonym = Synonym(synonymName)
-                #side effect
-                db.session.add(synonym)
-            product.synonyms.append(synonym)
-    if 'tags' in jsonData:
-        for tagName in jsonData['tags']:
-            try:
-                tag = Tag.query.get(tagName)
-            except:
-                tag = None
-            if not tag:
-                tag = Tag()
-                tag.name = tagName
-                #side effect
-                db.session.add(tag)
-            product.tags.append(tag)
+    if 'endOfLocalSeason' in jsonData:
+        #TODO: parse date, check, add
+    if 'englishName' in jsonData:
+        product.englishName = jsonData['englishName']
+    if 'foodWasteData' in jsonData:
+        for element in jsonData['foodWasteData']:
+            if 'field' in element and 'amount' in element:
+                try:
+                    field = FoodWasteField.query.get(element['field'])
+                except:
+                    field = None
+                if not field:
+                    field=FoodWasteField()
+                    field.name=element['field']
+                    db.session.add(field)
+                try:
+                    foodWaste = FoodWasteData.query.filter(FoodWasteData.field == field, FoodWasteData.product==product).all()[0]
+                except:
+                    foodWaste = None
+                if not foodWaste:
+                    foodWaste = FoodWasteData()
+                    foodWaste.field = field
+                    foodWaste.product=product
+                    db.session.add(foodWaste)
+                foodWaste.amount=element['amount']
+    if 'infoTextForCook' in jsonData:
+        product.infoTextForCook = jsonData['infoTextForCook']
+    if 'name' in jsonData:
+        product.name = jsonData['name']
     #add ProductNutrientAssociation (if not existing) and if necessary create respective Nutrient (side effect)
     if 'nutrients' in jsonData:
         for nutrientDict in jsonData['nutrients']:
@@ -263,7 +320,33 @@ def editProduct(id,jsonData):
                     print("ProductNutrientAssociation created")
                 association.baseValue = None
                 association.amount = nutrientDict['amount']
-            
+    if 'specification' in jsonData:
+        product.specification = jsonData['specification']
+    if 'frenchName' in jsonData:
+        product.frenchName = jsonData['frenchName']
+    if 'synonyms' in jsonData:
+        for synonymName in jsonData['synonyms']:
+            try:
+                synonym = Synonym.query.get(synonymName)
+            except:
+                synonym = None
+            if not synonym:
+                synonym = Synonym(synonymName)
+                #side effect
+                db.session.add(synonym)
+            product.synonyms.append(synonym)
+    if 'tags' in jsonData:
+        for tagName in jsonData['tags']:
+            try:
+                tag = Tag.query.get(tagName)
+            except:
+                tag = None
+            if not tag:
+                tag = Tag()
+                tag.name = tagName
+                #side effect
+                db.session.add(tag)
+            product.tags.append(tag)
     #add ProductProcessNutrientAssociation (if not existing) and if necessary create respective Nutrient and Process (side effect) 
     if 'nutrientProcesses' in jsonData:
         for processDict in jsonData['nutrientProcesses']:
@@ -337,7 +420,18 @@ def editProduct(id,jsonData):
                     association.nutrient = nutrient
                 association.amount = processDict['amount']
                 db.session.add(association)
-            
+    if 'possibleOrigins' in jsonData:
+        for originName in jsonData['possibleOrigins']:
+            try:
+                location = Location.query.filter(Location.name == originName).all()[0]
+            except:
+                location = None
+            if not location:
+                location = Location()
+                location.name = originName
+                db.session.add(location)
+            if not location in product.possibleOrigins:
+                product.possibleOrigins.append(location)
     if 'processesCo2' in jsonData:
         for processDict in jsonData['processesCo2']:
             if 'name' in processDict and 'baseValue' in processDict:
@@ -386,59 +480,6 @@ def editProduct(id,jsonData):
                     association.product = product
                 association.amount = processDict['amount']
                 association.baseValue = None
-    if 'possibleOrigins' in jsonData:
-        for originName in jsonData['possibleOrigins']:
-            try:
-                location = Location.query.filter(Location.name == originName).all()[0]
-            except:
-                location = None
-            if not location:
-                location = Location()
-                location.name = originName
-                db.session.add(location)
-            if not location in product.possibleOrigins:
-                product.possibleOrigins.append(location)
-    if 'allergenes' in jsonData:
-        for allergeneDict in (a for a in jsonData['allergenes'] if 'name' in a):
-            try:
-                allergene = Allergene.query.filter(Allergene.name == allergeneDict['name']).all()[0]
-            except:
-                allergene = None
-            if not allergene:
-                allergene = Allergene()
-                allergene.name = allergeneDict['name']
-                db.session.add(allergene)
-            try:
-                #Check if associated
-                association = ProductAllergeneAssociation.query.filter(ProductAllergeneAssociation.product == product, ProductAllergeneAssociation.allergene == allergene).all()[0]
-            except:
-                association = None
-            if not association:
-                association = ProductAllergeneAssociation()
-                association.product = product
-                association.allergene = allergene
-                db.session.add(association)
-    if 'co2Value' in jsonData:
-        if 'baseValue' in jsonData['co2Value']:
-            try:
-                value = Co2Value.query.get(jsonData['co2Value']['baseValue'])
-            except:
-                value = None
-            if value:
-                if not product.co2Value:
-                    co2Value = Co2Value()
-                    co2Value.product = product
-                    co2Value.baseValue = value
-                    db.session.add(co2Value)
-                else:
-                    product.co2Value.baseValue = value
-        elif 'amount' in jsonData['co2Value']:
-            if not product.co2Value:
-                co2Value = Co2Value()
-                product.co2Value = co2Value
-                db.session.add(co2Value)
-            product.co2Value.baseValue = None
-            product.co2Value.amount = jsonData['co2Value']['amount']
     if 'standardOrigin' in jsonData:
         try:
             location = Location.query.filter(Location.name == jsonData['standardOrigin']).all()[0]
@@ -449,24 +490,7 @@ def editProduct(id,jsonData):
             location.name = jsonData['standardOrigin']
             db.session.add(location)
             product.standardOrigin = location
-    if 'density' in jsonData:
-        if 'baseValue' in jsonData['density']:
-            try:
-                value = ProductDensity.query.get(jsonData['density']['baseValue'])
-            except:
-                value = None
-            if value:
-                if not product.density:
-                    density = ProductDensity
-                    product.density = density
-                    session.add(density)
-                product.density.baseValue = value
-        elif 'amount' in jsonData['density']:
-            if not product.density:
-                density = ProductDensity
-                product.density = density
-                session.add(density)
-            product.density.amount = jsonData['density']['value']
+
             product.density.baseValue = None
     if 'unitWeight' in jsonData:
         if 'baseValue' in jsonData['unitWeight']:
@@ -487,36 +511,10 @@ def editProduct(id,jsonData):
                 session.add(unitWeight)
             product.untiWeight.amount = jsonData['unitWeight']['value']
             product.unitWeight.baseValue = None
-    if 'foodWasteData' in jsonData:
-        for element in jsonData['foodWasteData']:
-            if 'field' in element and 'amount' in element:
-                try:
-                    field = FoodWasteField.query.get(element['field'])
-                except:
-                    field = None
-                if not field:
-                    field=FoodWasteField()
-                    field.name=element['field']
-                    db.session.add(field)
-                try:
-                    foodWaste = FoodWasteData.query.filter(FoodWasteData.field == field, FoodWasteData.product==product).all()[0]
-                except:
-                    foodWaste = None
-                if not foodWaste:
-                    foodWaste = FoodWasteData()
-                    foodWaste.field = field
-                    foodWaste.product=product
-                    db.session.add(foodWaste)
-                foodWaste.amount=element['amount']
 
     if 'startOfLocalSeason' in jsonData:
         #TODO: parse date, check, add
         pass
-    if 'endOfLocalSeason' in jsonData:
-        #TODO: parse date, check, add
-        pass
-    if 'infoTextForCook' in jsonData:
-        product.infoTextForCook = jsonData['infoTextForCook']
     if 'texture' in jsonData:
         product.texture = jsonData['texture']
 

@@ -17,113 +17,168 @@
 <script src="../viewProductController.js"></script>
 
 <body ng-app="edbApp" ng-controller="MainWindowController">
-  <div class="navbar-fixed">
-    <nav>
-      <div class="nav-wrapper">
-        <a href="#" class="brand-logo right">Logo</a>
-        <ul id="nav-mobile" class="left">
-          <li><a ng-class="visibleClass==='Product'?'teal':''" alt="show products table" href="#" ng-click="visibleClass='Product'">Products</a></li>
-          <li><a ng-class="visibleClass==='Value'?'teal':''" alt="show values table" ng-click="visibleClass='Value'">Values</a></li>
-          <li><a ng-class="visibleClass==='Reference'?'teal':''" alt="show references table" ng-click="visibleClass='Reference'">References</a></li>
-        </ul>
-      </div>
-    </nav>
-  </div>
+  <div = ng-view>
+    <div class="navbar-fixed">
+      <nav>
+        <div class="nav-wrapper">
+          <a href="#" class="brand-logo right">Logo</a>
+          <ul id="nav-mobile" class="left">
+            <li><a ng-class="visibleClass==='Product'?'teal':''" alt="show products table" href="#" ng-click="visibleClass='Product'">Products</a></li>
+            <li><a ng-class="visibleClass==='Value'?'teal':''" alt="show values table" ng-click="visibleClass='Value'">Values</a></li>
+            <li><a ng-class="visibleClass==='Reference'?'teal':''" alt="show references table" ng-click="visibleClass='Reference'">References</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
 
-  <div class="container">
-    <!-- products tab -->
-    <div class="row" ng-class="visibleClass==='Product'?'':'hide'">
-      <div class="col s12">
-        <div>
-          <input type="text" class="form-control" placeholder="Search term" ng-model="productSearchTerm">
-        </div>
-        <table class="striped">
-          <thead>
-            <tr>
-              <th data-field="id" ng-click="productSortField='id'">Id</th>
-              <th data-field="name" ng-click="productSortField='name'">Name</th>
-              <th data-field="specification" ng-click="productSortField='specification'">Spezifikation</th>
-              <th ></th>
+    <div class="container">
+      <!-- products tab -->
+      <div class="row" ng-class="visibleClass==='Product'?'':'hide'">
+        <div class="col s12">
+          <div>
+            <input type="text" class="form-control" placeholder="Search term" ng-model="productSearchTerm" autofocus>
+          </div>
+          <table class="striped">
+            <thead>
+              <tr>
+                <th data-field="id" ng-click="productSortField='id'">Id</th>
+                <th data-field="name" ng-click="productSortField='name'">Name</th>
+                <th data-field="specification" ng-click="productSortField='specification'">Spezifikation</th>
+                <th ></th>
 
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="element in productsFromServer|orderBy:productSortField|filter:productSearchTerm" >
-              <td >{{element.id}}</td>
-              <td>{{element.name}}</td>
-              <td>{{element.specification}}</td>
-              <td><a ng-click="showPopup(element.id)"><i class="material-icons">open_in_new</i></a></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <!-- values tab -->
-    <div class="row" ng-class="visibleClass==='Value'?'':'hide'">
-      <div class="col s12">
-        <div>
-          <input type="text" class="form-control" placeholder="Search term" ng-model="valueSearchTerm">
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="element in productsFromServer|orderBy:productSortField|filter:productSearchTerm" >
+                <td >{{element.id}}</td>
+                <td>{{element.name}}</td>
+                <td>{{element.specification}}</td>
+                <td><a ng-click="showPopup(element.id)"><i class="material-icons">open_in_new</i></a></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <table class="striped">
-          <thead>
-            <tr>
-              <th data-field="id" ng-click="valueSortField='id'">Id</th>
-              <th data-field="type" ng-click="valueSortField='type'">Typ</th>
-              <th data-field="reference" ng-click="valueSortField='reference'">Reference</th>
-              <th data-field="product" ng-click="valueSortField='product'">Product</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="element in valuesFromServer|orderBy:valueSortField|filter:valueSearchTerm" ng-click="showPopup(element.id)">
-              <td >{{element.id}}</td>
-              <td>{{element.type}}</td>
-              <td>{{element.reference}}</td>
-              <td>{{element.product}}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
-    </div>
-    <!-- references tab -->
-    <div class="row" ng-class="visibleClass==='Reference'?'':'hide'">
-      <div class="col s12">
-        <div>
-          <input type="text" class="form-control" placeholder="Search term" ng-model="referenceSearchTerm">
+      <!-- values tab -->
+      <div class="row" ng-class="visibleClass==='Value'?'':'hide'">
+        <div class="col s12">
+          <div>
+            <input type="text" class="form-control" placeholder="Search term" ng-model="valueSearchTerm">
+          </div>
+          <table class="striped">
+            <thead>
+              <tr>
+                <th data-field="id" ng-click="valueSortField='id'">Id</th>
+                <th data-field="type" ng-click="valueSortField='type'">Typ</th>
+                <th data-field="reference" ng-click="valueSortField='reference'">Reference</th>
+                <th data-field="product" ng-click="valueSortField='product'">Product</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="element in valuesFromServer|orderBy:valueSortField|filter:valueSearchTerm" ng-click="showPopup(element.id)">
+                <td >{{element.id}}</td>
+                <td>{{element.type}}</td>
+                <td>{{element.reference}}</td>
+                <td>{{element.product}}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <table class="striped">
-          <thead>
-            <tr>
-              <th data-field="id" ng-click="referenceSortField='id'">Id</th>
-              <th data-field="name" ng-click="referenceSortField='name'">Name</th>
-              <th data-field="comment" ng-click="referenceSortField='comment'">Comment</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="element in referencesFromServer|orderBy:referenceSortField|filter:referenceSearchTerm" ng-click="showPopup(element.id)">
-              <td >{{element.id}}</td>
-              <td>{{element.name}}</td>
-              <td>{{element.comment}}</td>
-            </tr>
-          </tbody>
-        </table>
+      </div>
+      <!-- references tab -->
+      <div class="row" ng-class="visibleClass==='Reference'?'':'hide'">
+        <div class="col s12">
+          <div>
+            <input type="text" class="form-control" placeholder="Search term" ng-model="referenceSearchTerm">
+          </div>
+          <table class="striped">
+            <thead>
+              <tr>
+                <th data-field="id" ng-click="referenceSortField='id'">Id</th>
+                <th data-field="name" ng-click="referenceSortField='name'">Name</th>
+                <th data-field="comment" ng-click="referenceSortField='comment'">Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="element in referencesFromServer|orderBy:referenceSortField|filter:referenceSearchTerm" ng-click="showPopup(element.id)">
+                <td >{{element.id}}</td>
+                <td>{{element.name}}</td>
+                <td>{{element.comment}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="fixed-action-btn" style="bottom: 45px; right: 24px; z-index: 1000;">
+        <a class="btn-floating btn-large red modal-trigger" href="#addProductModal"ng-click="toggleAddItemModal()">
+          <i class="material-icons">add</i>
+        </a>
       </div>
     </div>
-    <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
-      <a class="btn-floating btn-large red modal-trigger" href="#addProductModal"ng-click="toggleAddItemModal()">
-        <i class="material-icons">add</i>
-      </a>
+    <div class="overlay" ng-show="showProductModal" >
+      <div class="container">
+        <div class="row">
+          <div  id="addProductModal" class="col s12 card">
+            <div class="">
+              <h4>Add Product</h4>
+
+              <p>A bunch of text</p>
+            </div>
+            <div class="">
+              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="overlay" ng-show="showValueModal" >
+      <div class="container">
+        <div class="row">
+          <div  id="addValueModal" class="col s12 card">
+            <div class="">
+              <h4>Add Product</h4>
+
+              <p>A bunch of text</p>
+            </div>
+            <div class="">
+              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="overlay" ng-show="showReferenceModal" >
+      <div class="container">
+        <div class="row">
+          <div  id="addReferenceModal" class="col s12 card">
+            <div class="">
+              <h4>Add Product</h4>
+
+              <p>A bunch of text</p>
+            </div>
+            <div class="">
+              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    <style media="screen" type="text/css">
+
+    .overlay {
+      background-color: rgba(120,120,120,0.6);
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0px;
+      left: 0px;
+      text-align:center;
+      z-index: 999;
+    }
+
+    </style>
   </div>
-  <dialog open id="addProductModal" ng-show="showProductModal" class="">
-    <div class="modal-content">
-      <h4>Add Product</h4>
-      <p>A bunch of text</p>
-    </div>
-    <div class="modal-footer">
-      <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
-    </div>
-  </dialog>
-  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
 </body>
 </html>

@@ -27,7 +27,7 @@ function httpGetAsync(theUrl, callback) {
 
     ipcRenderer.on('prodFormId' , function(event, id){
       $scope.id=id;
-      $scope.productURL='http://localhost:5000/product/'.concat(id)
+      $scope.productURL='http://localhost:5000/products/'.concat(id)
       httpGetAsync($scope.productURL, function(response){
         $scope.fromServer=angular.fromJson(response);
         $scope.localData=angular.fromJson(response);

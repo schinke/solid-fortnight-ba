@@ -363,8 +363,8 @@ class Product(db.Model):
         'infoTextForCook': self.infoTextForCook,
         'name': self.name,
         'nutrients':[{'derived': not nutrient.id == nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'valueId':nutrient.id} for nutrient in self.nutrients],
-        'possibleOrigins':[origin.name for origin in self.possibleOrigins],
         'nutrientProcesses':[{'derived': not process.id == process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
+        'possibleOrigins':[origin.name for origin in self.possibleOrigins],
         'processesCo2':[{'derived': not process.id == process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'amount':process.amount} for process in self.processesCo2],
         'specification': self.specification,
         'startOfLocalSeason':str(self.startOfLocalSeason),
@@ -402,6 +402,7 @@ class Product(db.Model):
     # productionMethods
     # referencesForBasicCO2Value
     ##replace multiple fields with processes list
+    euro4Id = db.Column(db.String)
     allergenes = relationship("ProductAllergeneAssociation", back_populates = "product", passive_deletes = True)
     alternatives = relationship("Product", secondary = "prod_alternatives", primaryjoin = id == ProductAlternative.product_id_1, secondaryjoin = id == ProductAlternative.product_id_2, passive_deletes = True)
     co2Value = relationship("Co2Value", uselist = False, back_populates = "product", passive_deletes = True)

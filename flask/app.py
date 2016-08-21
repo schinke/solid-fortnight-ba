@@ -212,6 +212,7 @@ def editProduct(id,jsonData):
             product.co2Value.baseValue = None
             product.co2Value.amount = jsonData['co2Value']['amount']
     if 'commentsOnDensityAndUnitWeight' in jsonData:
+        product.commentsOnDensityAndUnitWeight=jsonData['commentsOnDensityAndUnitWeight']
     if 'density' in jsonData:
         if 'baseValue' in jsonData['density']:
             try:
@@ -230,9 +231,10 @@ def editProduct(id,jsonData):
                 product.density = density
                 session.add(density)
             product.density.amount = jsonData['density']['value']
-        product.commentsOnDensityAndUnitWeight=jsonData['commentsOnDensityAndUnitWeight']
+            product.density.baseValue = None
     if 'endOfLocalSeason' in jsonData:
         #TODO: parse date, check, add
+        pass
     if 'englishName' in jsonData:
         product.englishName = jsonData['englishName']
     if 'foodWasteData' in jsonData:
@@ -256,98 +258,13 @@ def editProduct(id,jsonData):
                     foodWaste.product=product
                     db.session.add(foodWaste)
                 foodWaste.amount=element['amount']
+    if 'frenchName' in jsonData:
+        product.frenchName = jsonData['frenchName']
     if 'infoTextForCook' in jsonData:
         product.infoTextForCook = jsonData['infoTextForCook']
     if 'name' in jsonData:
         product.name = jsonData['name']
-    #add ProductNutrientAssociation (if not existing) and if necessary create respective Nutrient (side effect)
-    if 'nutrients' in jsonData:
-        for nutrientDict in jsonData['nutrients']:
-            if 'name' in nutrientDict and 'baseValue' in nutrientDict:
-                try:
-                    value = ProductNutrientAssociation.query.get(nutrientDict['baseValue'])
-                except:
-                    value = None
-                if value:
-                    # find nutrient
-                    try:
-                        nutrient = Nutrient.query.filter(Nutrient.name == nutrientDict['name']).all()[0]
-                    except:
-                        print("nutrient not found")
-                        nutrient = None
-                    if not nutrient:
-                        print("created nutrient")
-                        nutrient = Nutrient()
-                        nutrient.name = nutrientDict['name']
-                        db.session.add(nutrient)
-                    # see if prod and nutrient are already associated
-                    try:
-                        association = ProductNutrientAssociation.query.filter(
-                            ProductNutrientAssociation.nutrient == nutrient,
-                                ProductNutrientAssociation.product == product).all()[0]
-                    except:
-                        association = None
-                    # otherwise associate them
-                    if not association:
-                        association = ProductNutrientAssociation()
-                        association.product = product
-                        association.nutrient = nutrient
-                        db.session.add(association)
-                    association.baseValue = value
-            elif 'name' in nutrientDict and 'amount' in nutrientDict:
-                try:
-                    nutrient = Nutrient.query.filter(Nutrient.name == nutrientDict['name']).all()[0]
-                except:
-                    print("nutrient not found")
-                    nutrient = None
-                if not nutrient:
-                    print("created nutrient")
-                    nutrient = Nutrient()
-                    nutrient.name = nutrientDict['name']
-                    db.session.add(nutrient)
-                try:
-                    association = ProductNutrientAssociation.query.filter(
-                        ProductNutrientAssociation.nutrient == nutrient,
-                            ProductNutrientAssociation.product == product).all()[0]
-                except:
-                    print("association not found")
-                    association = None
-                if not association:
-                    association = ProductNutrientAssociation()
-                    db.session.add(association)
-                    product.nutrients.append(association)
-                    association.nutrient = nutrient
-                    print("ProductNutrientAssociation created")
-                association.baseValue = None
-                association.amount = nutrientDict['amount']
-    if 'specification' in jsonData:
-        product.specification = jsonData['specification']
-    if 'frenchName' in jsonData:
-        product.frenchName = jsonData['frenchName']
-    if 'synonyms' in jsonData:
-        for synonymName in jsonData['synonyms']:
-            try:
-                synonym = Synonym.query.get(synonymName)
-            except:
-                synonym = None
-            if not synonym:
-                synonym = Synonym(synonymName)
-                #side effect
-                db.session.add(synonym)
-            product.synonyms.append(synonym)
-    if 'tags' in jsonData:
-        for tagName in jsonData['tags']:
-            try:
-                tag = Tag.query.get(tagName)
-            except:
-                tag = None
-            if not tag:
-                tag = Tag()
-                tag.name = tagName
-                #side effect
-                db.session.add(tag)
-            product.tags.append(tag)
-    #add ProductProcessNutrientAssociation (if not existing) and if necessary create respective Nutrient and Process (side effect) 
+        #add ProductProcessNutrientAssociation (if not existing) and if necessary create respective Nutrient and Process (side effect) 
     if 'nutrientProcesses' in jsonData:
         for processDict in jsonData['nutrientProcesses']:
             if 'name' in processDict and 'nutrient' in processDict\
@@ -420,6 +337,66 @@ def editProduct(id,jsonData):
                     association.nutrient = nutrient
                 association.amount = processDict['amount']
                 db.session.add(association)
+    #add ProductNutrientAssociation (if not existing) and if necessary create respective Nutrient (side effect)
+    if 'nutrients' in jsonData:
+        for nutrientDict in jsonData['nutrients']:
+            if 'name' in nutrientDict and 'baseValue' in nutrientDict:
+                try:
+                    value = ProductNutrientAssociation.query.get(nutrientDict['baseValue'])
+                except:
+                    value = None
+                if value:
+                    # find nutrient
+                    try:
+                        nutrient = Nutrient.query.filter(Nutrient.name == nutrientDict['name']).all()[0]
+                    except:
+                        print("nutrient not found")
+                        nutrient = None
+                    if not nutrient:
+                        print("created nutrient")
+                        nutrient = Nutrient()
+                        nutrient.name = nutrientDict['name']
+                        db.session.add(nutrient)
+                    # see if prod and nutrient are already associated
+                    try:
+                        association = ProductNutrientAssociation.query.filter(
+                            ProductNutrientAssociation.nutrient == nutrient,
+                                ProductNutrientAssociation.product == product).all()[0]
+                    except:
+                        association = None
+                    # otherwise associate them
+                    if not association:
+                        association = ProductNutrientAssociation()
+                        association.product = product
+                        association.nutrient = nutrient
+                        db.session.add(association)
+                    association.baseValue = value
+            elif 'name' in nutrientDict and 'amount' in nutrientDict:
+                try:
+                    nutrient = Nutrient.query.filter(Nutrient.name == nutrientDict['name']).all()[0]
+                except:
+                    print("nutrient not found")
+                    nutrient = None
+                if not nutrient:
+                    print("created nutrient")
+                    nutrient = Nutrient()
+                    nutrient.name = nutrientDict['name']
+                    db.session.add(nutrient)
+                try:
+                    association = ProductNutrientAssociation.query.filter(
+                        ProductNutrientAssociation.nutrient == nutrient,
+                            ProductNutrientAssociation.product == product).all()[0]
+                except:
+                    print("association not found")
+                    association = None
+                if not association:
+                    association = ProductNutrientAssociation()
+                    db.session.add(association)
+                    product.nutrients.append(association)
+                    association.nutrient = nutrient
+                    print("ProductNutrientAssociation created")
+                association.baseValue = None
+                association.amount = nutrientDict['amount']
     if 'possibleOrigins' in jsonData:
         for originName in jsonData['possibleOrigins']:
             try:
@@ -480,6 +457,8 @@ def editProduct(id,jsonData):
                     association.product = product
                 association.amount = processDict['amount']
                 association.baseValue = None
+    if 'specification' in jsonData:
+        product.specification = jsonData['specification']
     if 'standardOrigin' in jsonData:
         try:
             location = Location.query.filter(Location.name == jsonData['standardOrigin']).all()[0]
@@ -491,7 +470,34 @@ def editProduct(id,jsonData):
             db.session.add(location)
             product.standardOrigin = location
 
-            product.density.baseValue = None
+    if 'startOfLocalSeason' in jsonData:
+        #TODO: parse date, check, add
+        pass
+    if 'synonyms' in jsonData:
+        for synonymName in jsonData['synonyms']:
+            try:
+                synonym = Synonym.query.get(synonymName)
+            except:
+                synonym = None
+            if not synonym:
+                synonym = Synonym(synonymName)
+                #side effect
+                db.session.add(synonym)
+            product.synonyms.append(synonym)
+    if 'tags' in jsonData:
+        for tagName in jsonData['tags']:
+            try:
+                tag = Tag.query.get(tagName)
+            except:
+                tag = None
+            if not tag:
+                tag = Tag()
+                tag.name = tagName
+                #side effect
+                db.session.add(tag)
+            product.tags.append(tag)
+    if 'texture' in jsonData:
+        product.texture = jsonData['texture']
     if 'unitWeight' in jsonData:
         if 'baseValue' in jsonData['unitWeight']:
             try:
@@ -511,13 +517,6 @@ def editProduct(id,jsonData):
                 session.add(unitWeight)
             product.untiWeight.amount = jsonData['unitWeight']['value']
             product.unitWeight.baseValue = None
-
-    if 'startOfLocalSeason' in jsonData:
-        #TODO: parse date, check, add
-        pass
-    if 'texture' in jsonData:
-        product.texture = jsonData['texture']
-
     db.session.add(product)
     db.session.commit()
     return product.id

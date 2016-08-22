@@ -8,7 +8,7 @@ auth = HTTPBasicAuth()
 import os
 """Provides an API for models, intended for use with javascript and electron"""
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object('config.DevelopmentConfig')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

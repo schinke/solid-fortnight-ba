@@ -25,6 +25,31 @@ class Visits(db.Model):
 #general purpose value
 class Value(db.Model):
     __tablename__ = 'scivalue'
+    def fromDict(self, data):
+        if 'amount' in data:
+            self.amount = data['amount']
+            self.baseValue = None
+        if 'unit' in data:
+            self.unit = data['unit']
+        if 'reference' in data:
+            if 'id' in data['reference']:
+                try:
+                    reference = Reference.query.get(data['reference']['id'])
+                except:
+                    reference = None
+                if reference:
+                    self.reference = reference
+            elif 'name' in data['reference']:
+                try:
+                    reference = Reference.query.filter(Reference.name == data['reference']['name']).all()[0]
+                except:
+                    reference = None
+                if not reference:
+                    reference = Reference()
+                    reference.name = data['reference']['name']
+                self.reference = reference
+        if 'baseValue' in data:
+            value.baseValue = Value.query.get(data['baseValue'])
 
     def toDict(self):
         output = {
@@ -33,7 +58,7 @@ class Value(db.Model):
         'derived':self.id == self.base_value_id,
         'amount':self.actualValue().amount,
         'unit':self.actualValue().unit,
-        'type':self.type,
+        'type':type(self).__name__,
         'product':self.product_id,
         'comment':self.comment
         }
@@ -90,14 +115,17 @@ class FoodWasteData(Value):
     __mapper_args__ = {
         'polymorphic_identity':'foodwaste',
     }
+    def fromDict(self, data):
+        super(FoodWasteData, self).toDict(data)
+        if 'field' in data:
+            self.field=FoodWasteField.query.get(data['field'])
 
     def toDict(self):
         output = super(FoodWasteData, self).toDict()
         output['field'] = self.field.name
-        output['productId'] = self.product.id
         return output
     field_id = db.Column(db.String(), db.ForeignKey('foodwaste_field.name'))
-    field = relationship("FoodWasteField")
+    field = relationship("FoodWasteField", uselist=False)
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     #product_id = Column(db.Integer(), ForeignKey('product.id'))
     product = relationship("Product", back_populates = "foodWasteData")
@@ -144,18 +172,19 @@ class Co2Value(Value):
         'polymorphic_identity':'co2',
         
     }
+
     def toDict(self):
         output = super(Co2Value, self).toDict()
-        output['productId'] = self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     scivalue = db.Column(db.String)
     #product_id = Column(Integer, ForeignKey('product.id'))
-    product = relationship("Product", back_populates = "co2Value")
+    product = relationship("Product", back_populates = "co2Values")
 
 #A reference, maybe for multiple values
 class Reference(db.Model):
     __tablename__ = 'reference'
+
     def toDict(self):
         output = {'id':self.id, 'name':self.name, 'comment':self.comment, 'values':[value.id for value in self.scivalues]}
         return output
@@ -182,11 +211,23 @@ class ProductAllergeneAssociation(Value):
     __mapper_args__ = {
         'polymorphic_identity':'prod_allergene_association'
     }
+    def fromDict(self, data):
+        super(ProductAllergeneAssociation, self).fromDict(data)
+        if 'allergeneId' in data:
+            try:
+                allergene=Allergene.query.get(data['allergeneId'])
+            except:
+                allergene=None
+            if not allergene:
+                allergene=Allergene()
+                allergene.name=data['allergene']
+                db.session.add(allergene)
+            
+
     def toDict(self):
         output = super(ProductAllergeneAssociation, self).toDict()
         output['allergeneId'] = self.allergene.id
         output['allergeneName'] = self.allergene.name
-        output['productId'] = self.product.id
         return output
 
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
@@ -209,7 +250,6 @@ class ProductProcessNutrientAssociation(Value):
         output['processName'] = self.process.name
         output['nutrientId'] = self.nutrient.id
         output['nutrientName'] = self.nutrient.name
-        output['productId'] = self.product.id
         return output
 
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
@@ -231,7 +271,6 @@ class ProductProcessCO2Association(Value):
         output = super(ProductProcessCO2Association, self).toDict()
         output['processId'] = self.process.id
         output['processName'] = self.process.name
-        output['productId'] = self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     #product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
@@ -251,7 +290,6 @@ class ProductNutrientAssociation(Value):
         output = super(ProductNutrientAssociation, self).toDict()
         output['nutrientId'] = self.nutrient.id
         output['nutrientName'] = self.nutrient.name
-        output['productId'] = self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     #product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = "CASCADE"))
@@ -267,11 +305,10 @@ class ProductDensity(Value):
     }
     def toDict(self):
         output = super(ProductDensity, self).toDict()
-        output['productId'] = self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     #product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    product = relationship("Product", back_populates = "density")
+    product = relationship("Product", back_populates = "densities")
 
 class ProductUnitWeight(Value):
     __tablename__ = 'unit_weight'
@@ -281,11 +318,10 @@ class ProductUnitWeight(Value):
     }
     def toDict(self):
         output = super(ProductUnitWeight, self).toDict()
-        output['productId'] = self.product.id
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     #product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    product = relationship("Product", back_populates = "unitWeight")
+    product = relationship("Product", back_populates = "unitWeights")
 
 #Associate one product to one alternative product
 class ProductAlternative(db.Model):
@@ -352,36 +388,32 @@ class Product(db.Model):
 
     def toDict(self):
         response = {
-        'allergenes':[{'name':allergene.allergene.name, 'valueId':allergene.id} for allergene in self.allergenes],
-        'alternatives':[{'name':product.name, 'id':product.id} for product in self.alternatives],
+        'allergenes':[{'name':allergene.allergene.name, 'id':allergene.id, 'countries':[country.name for country in allergene.validCountries]} for allergene in self.allergenes],
+        'alternatives':[{'name':product.name, 'id':product.id,} for product in self.alternatives],
         'commentsOnDensityAndUnitWeight': self.commentsOnDensityAndUnitWeight,
+        'co2Values': [{'id':value.id, 'amount':value.amount, 'countries':[country.name for country in value.validCountries]} for value in self.co2Values],
+        'densities': [{'derived': not density.id == density.actualValue().id,
+            'id':density.id, 'amount':density.amount}for density in self.densities],
         'endOfLocalSeason':str(self.endOfLocalSeason),
         'englishName': self.englishName,
-        'foodWasteData':[{'valueId':data.id, 'field':data.field.name, 'amount':data.amount} for data in self.foodWasteData],
+        'foodWasteData':[{'id':data.id, 'field':data.field.name, 'amount':data.amount, 'countries':[country.name for country in data.validCountries]} for data in self.foodWasteData],
         'frenchName':self.frenchName,
         'id': self.id,
         'infoTextForCook': self.infoTextForCook,
         'name': self.name,
-        'nutrients':[{'derived': not nutrient.id == nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'valueId':nutrient.id} for nutrient in self.nutrients],
-        'nutrientProcesses':[{'derived': not process.id == process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount} for process in self.processes],
+        'nutrients':[{'derived': not nutrient.id == nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'id':nutrient.id, 'countries':[country.name for country in nutrient.validCountries]} for nutrient in self.nutrients],
+        'nutrientProcesses':[{'derived': not process.id == process.actualValue().id,'id':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount, 'countries':[country.name for country in process.validCountries]} for process in self.processes],
         'possibleOrigins':[origin.name for origin in self.possibleOrigins],
-        'processesCo2':[{'derived': not process.id == process.actualValue().id,'valueId':process.id, 'name':process.process.name, 'amount':process.amount} for process in self.processesCo2],
+        'processesCo2':[{'derived': not process.id == process.actualValue().id,'id':process.id, 'name':process.process.name, 'amount':process.amount, 'countries':[country.name for country in process.validCountries]} for process in self.processesCo2],
         'specification': self.specification,
         'startOfLocalSeason':str(self.startOfLocalSeason),
         'synonyms':[synonym.name for synonym in self.synonyms],
         'tags':[tag.name for tag in self.tags],
-        'texture':self.texture
+        'texture':self.texture,
+        'unitWeights':[{'derived': not unitWeight.id == unitWeight.actualValue().id,'id':unitWeight.id, 'amount':unitWeight.amount} for unitWeight in self.unitWeights]
         }
-        if self.density:
-            response['density'] = {'derived': not self.density.id == self.density.actualValue().id,
-            'id':self.density.id, 'amount':self.density.amount}
-        if self.co2Value:
-            response['co2Value'] = {'derived': not self.co2Value.id == self.co2Value.actualValue().id,
-            'id':self.co2Value.id,'amount':self.co2Value.actualValue().amount}
         if self.standardOrigin:
             response['standardOrigin'] = self.standardOrigin.name
-        if self.unitWeight:
-            response['unitWeight'] = {'derived': not self.unitWeight.id == self.unitWeight.actualValue().id,'id':self.unitWeight.id, 'amount':self.unitWeight.amount}
         return response
 
     id = db.Column(db.Integer, primary_key = True)
@@ -405,9 +437,9 @@ class Product(db.Model):
     euro4Id = db.Column(db.String)
     allergenes = relationship("ProductAllergeneAssociation", back_populates = "product", passive_deletes = True)
     alternatives = relationship("Product", secondary = "prod_alternatives", primaryjoin = id == ProductAlternative.product_id_1, secondaryjoin = id == ProductAlternative.product_id_2, passive_deletes = True)
-    co2Value = relationship("Co2Value", uselist = False, back_populates = "product", passive_deletes = True)
+    co2Values = relationship("Co2Value", back_populates = "product", passive_deletes = True)
     commentsOnDensityAndUnitWeight = db.Column(db.String())
-    density = relationship("ProductDensity", back_populates = "product", passive_deletes = True)
+    densities = relationship("ProductDensity", back_populates = "product", passive_deletes = True)
     endOfLocalSeason = db.Column(db.Date())
     englishName = db.Column(db.String())
     foodWasteData = relationship("FoodWasteData", back_populates = "product", passive_deletes = True)
@@ -425,7 +457,7 @@ class Product(db.Model):
     synonyms = relationship("Synonym", secondary = "synonym_prod_association", passive_deletes = True)
     tags = relationship("Tag", secondary = "tag_prod_association", passive_deletes = True)
     texture = db.Column(db.String)
-    unitWeight = relationship("ProductUnitWeight", back_populates = "product")
+    unitWeights = relationship("ProductUnitWeight", back_populates = "product")
 
 #A food product that's used in the eaternity calculator
 class EdbProduct(Product):
@@ -452,3 +484,6 @@ class TemplateProduct(Product):
         output['edb'] = False
         return output
     id = Column(db.Integer, ForeignKey('product.id', ondelete = "CASCADE"), primary_key = True)
+
+
+

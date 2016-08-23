@@ -33,7 +33,7 @@ def get_products():
 
 @app.route('/products/<id>', methods = ['GET'])
 def get_product(id):
-    visit = Visits("/product")
+    visit = Visits("/products")
     db.session.add(visit)
     db.session.commit()
     try:
@@ -44,6 +44,7 @@ def get_product(id):
         return "resource not found"#TODO: add appropriate status code
     else:
         return jsonify(product.toDict())
+
 
 @app.route('/products', methods = ['POST'])
 def post_product():
@@ -76,7 +77,7 @@ def put_product(id):
         editProduct(id,request.json)
         return jsonify(product.toDict())
 
-@app.route('/product/<id>', methods = ['DELETE'])
+@app.route('/products/<id>', methods = ['DELETE'])
 def delete_product(id):
     try:
         product = Product.query.get(id)
@@ -447,7 +448,15 @@ def editValue(value,valueDict):
         # no additonal fields
         pass
     elif valueDict['type']=='FoodWasteData' and type(value)==FoodWasteData and 'field' in valueDict:
-        value.FoodWasteField=FoodWasteField.get(valueDict['field'])
+        try:
+            field=FoodWasteField.query.get(valueDict['field'])
+        except:
+            field=None
+        if not field:
+            field=FoodWasteField()
+            field.name=valueDict['field']
+            db.session.add(field)
+        value.field=field
     elif valueDict['type']=='ProductDensity' and type(value)==ProductDensity:
         # no additonal fields
         pass

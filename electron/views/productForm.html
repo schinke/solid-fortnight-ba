@@ -26,26 +26,46 @@
     </div>
   </nav>
 </div>
-<div class="container" ng-app>
+<div class="container" ng-app="productFormApp" ng-controller="ProductFormController">
   <div class="row">
-    <div class="col s12"  ng-controller="ProductFormController">
+    <div class="col"  ng-class="extenderVisible?'s8':'s12'" >
       <div class="card-panel">
         Name:
-        <input ng-class="localData.name===fromServer.name?'':'red'" type="text" ng-change="postData()" ng-model="localData.name" required /><br />
+        <input ng-class="localData.name===fromServer.name?'':'red'" type="text" ng-change="postProduct()" ng-model="localData.name" required /><br />
         English name:
-        <input ng-class="localData.englishName===fromServer.englishName?'':'red'" type="text" ng-change="postData()" ng-model="localData.englishName"  /><br />
+        <input ng-class="localData.englishName===fromServer.englishName?'':'red'" type="text" ng-change="postProduct()" ng-model="localData.englishName"  /><br />
         French name:
-        <input ng-class="localData.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="postData()" ng-model="localData.frenchName"  /><br />
+        <input ng-class="localData.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="postProduct()" ng-model="localData.frenchName"  /><br />
 
         Specification:
-        <input ng-class="localData.specification===fromServer.specification?'':'red'" type="text" ng-change="postData()"ng-model="localData.specification" required /><br />
+        <input ng-class="localData.specification===fromServer.specification?'':'red'" type="text" ng-change="postProduct()"ng-model="localData.specification" required /><br />
       </div>
       <div class="card-panel">
-        Comments on density and unit weight:<input ng-class="localData.commentsOnDensityAndUnitWeight===fromServer.commentsOnDensityAndUnitWeight?'':'red'" type="text" ng-change="postData()"ng-model="localData.commentsOnDensityAndUnitWeight" required />
+        Density:
+        <table>
+          <thead>
+            <tr>
+              <th data-field="product" ng-click="densitySortField='product'">Product</th>
+              <th data-field="amount" ng-click="densitySortField='amount'">Amount</th>
+              <th data-field="reference" ng-click="densitySortField='nutrient'">Nutrient</th>
+              <th data-field="id" ng-click="densitySortField='valueId'">Value Id</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="density in fromServer.densities|orderBy:densitySortField|filter:densitySearchTerm" ng-click="toggleExtender(density.id)">
+              <td>{{density.product}}</td>
+              <td>{{density.amount}}</td>
+              <td>{{density.id}}</td>
+            </tr>
+            <tr>
+            </tr>
+          </tbody>
+        </table>
+        Comments on density and unit weight:<input ng-class="localData.commentsOnDensityAndUnitWeight===fromServer.commentsOnDensityAndUnitWeight?'':'red'" type="text" ng-change="postProduct()"ng-model="localData.commentsOnDensityAndUnitWeight" required />
       </div>
       <div class="card-panel">
         Info text for cook:
-        <input ng-class="localData.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="postData()"ng-model="localData.infoTextForCook" required /><br />
+        <input ng-class="localData.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="postProduct()"ng-model="localData.infoTextForCook" required /><br />
       </div>
       <div class="card-panel">
         Tags:
@@ -89,12 +109,8 @@
               <td><input type="text" ng-model="newNutrientName"/></td>
               <td><div class="btn" ng-click="addNutrientProcess()">add</div></td>
             </form>
-            <tr>
-            </tr>
           </tbody>
         </table>
-        
-        
       </div>
       <div class="card-panel">
         Foodwaste Data:
@@ -111,7 +127,7 @@
 
               <td>{{data.field}}</td>
               <td>{{data.amount}}</td>
-              <td>{{data.valueId}}</td>
+              <td>{{data.id}}</td>
             </tr>
             <form ng-submit="addNutrientProcess()">
               <td><input type="text" ng-model="newFoodWasteField"/></td>
@@ -124,8 +140,13 @@
         </table>
       </div>
     </div>
-
+    <div class="col s4" ng-show="extenderVisible" >
+      <div class="col s4 card" style="position:fixed; align:left">
+        <div extender></div>
+      </div>
+    </div>
   </div>
+  
 </div>
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>

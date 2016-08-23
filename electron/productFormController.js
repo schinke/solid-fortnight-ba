@@ -22,11 +22,13 @@ function httpGetAsync(theUrl, callback) {
     xmlHttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8')
     xmlHttp.send(jsonData);
   }
+  angular.module('productFormApp', [])
 
-  function ProductFormController($scope) {
+  .controller('ProductFormController',function($scope) {
 
     ipcRenderer.on('prodFormId' , function(event, id){
       $scope.id=id;
+      $scope.valueId=null
       $scope.productURL='http://localhost:5000/products/'.concat(id)
       httpGetAsync($scope.productURL, function(response){
         $scope.fromServer=angular.fromJson(response);
@@ -38,7 +40,7 @@ function httpGetAsync(theUrl, callback) {
     $scope.addNutrientProcess = function(){
       var newNutrientProcess={"name":$scope.newProcessName, "amount":$scope.newProcessAmount, "nutrient":$scope.newNutrientName}
       $scope.localData.nutrientProcesses.push(newNutrientProcess);
-      $scope.postData()
+      $scope.postProduct()
       $scope.newProcessName=""
       $scope.newProcessAmount=""
       $scope.newNutrientName=""
@@ -46,25 +48,45 @@ function httpGetAsync(theUrl, callback) {
     $scope.addFoodWasteData = function(){
       var newFoodWasteData={"field":$scope.newFoodWasteField, "amount":$scope.newFoodWasteAmount}
       $scope.localData.foodWasteData.push(newFoodWasteData);
-      $scope.postData()
+      $scope.postProduct()
       $scope.newFoodWasteField=""
       $scope.newFoodWasteAmount=""
     }
-    $scope.postData = function(){
-      $scope.lastSentData=angular.fromJson(JSON.stringify($scope.localData))
-      httpPutAsync($scope.productURL, JSON.stringify($scope.localData), function(response){
-        $scope.fromServer=angular.fromJson(response);
+    $scope.toggleExtender = function(valueId){
+      $scope.valueURL='http://localhost:5000/values/'.concat(valueId)
+      $scope.extenderVisible=!$scope.extenderVisible||valueId!=$scope.valueId;
+      $scope.valueId = valueId;
+      console.log("show extender");
+      httpGetAsync($scope.valueURL, function(response){
+        $scope.valueFromServer=angular.fromJson(response)
+        $scope.valueLocal=angular.fromJson(response)
         $scope.$apply()
-        console.log(response)
-        if (JSON.stringify($scope.fromServer)===JSON.stringify($scope.lastSentData)){
-          console.log("updated succesfully")
-        }
-        else{
-          console.log(JSON.stringify($scope.fromServer))
-          console.log(JSON.stringify($scope.lastSentData))
-        }
+        $scope.$apply;
       })
-    }
-    
+    };
+      $scope.postProduct = function(){
+        $scope.lastSentData=angular.fromJson(JSON.stringify($scope.localData))
+        httpPutAsync($scope.productURL, JSON.stringify($scope.localData), function(response){
+          $scope.fromServer=angular.fromJson(response);
+          $scope.$apply()
+          console.log(response)
+          if (JSON.stringify($scope.fromServer)===JSON.stringify($scope.lastSentData)){
+            console.log("updated succesfully")
+          }
+          else{
+            console.log(JSON.stringify($scope.fromServer))
+            console.log(JSON.stringify($scope.lastSentData))
+          }
+        })
+      }
+    })
+      .controller("extenderController", function($scope){
+        console.log("extenderController executed")
 
-  }
+
+    })
+.directive("extender", function(){
+  return({
+    templateUrl:"valueSidebar.html"
+  })
+})

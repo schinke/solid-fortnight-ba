@@ -16,7 +16,7 @@
 </head>
 <script src="../viewProductController.js"></script>
 
-<body ng-app="edbApp" ng-controller="MainWindowController">
+<body ng-app="mainWindowApp" ng-controller="MainWindowController">
   <div = ng-view>
     <div class="navbar-fixed">
       <nav>
@@ -32,6 +32,7 @@
     </div>
 
     <div class="container">
+
       <!-- products tab -->
       <div class="row" ng-class="visibleClass==='Product'?'':'hide'">
         <div class="col s12">
@@ -59,6 +60,7 @@
           </table>
         </div>
       </div>
+
       <!-- values tab -->
       <div class="row" ng-class="visibleClass==='Value'?'':'hide'">
         <div class="col s12">
@@ -85,6 +87,7 @@
           </table>
         </div>
       </div>
+
       <!-- references tab -->
       <div class="row" ng-class="visibleClass==='Reference'?'':'hide'">
         <div class="col s12">
@@ -115,53 +118,17 @@
         </a>
       </div>
     </div>
-    <div class="overlay" ng-show="showProductModal" >
-      <div class="container">
-        <div class="row">
-          <div  id="addProductModal" class="col s12 card">
-            <div class="">
-              <h4>Add Product</h4>
 
-              <p>A bunch of text</p>
-            </div>
-            <div class="">
-              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- add product modal -->
+    <div add-product-modal>
     </div>
-    <div class="overlay" ng-show="showValueModal" >
-      <div class="container">
-        <div class="row">
-          <div  id="addValueModal" class="col s12 card">
-            <div class="">
-              <h4>Add Product</h4>
 
-              <p>A bunch of text</p>
-            </div>
-            <div class="">
-              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- add value modal -->
+    <div add-value-modal>
     </div>
-    <div class="overlay" ng-show="showReferenceModal" >
-      <div class="container">
-        <div class="row">
-          <div  id="addReferenceModal" class="col s12 card">
-            <div class="">
-              <h4>Add Product</h4>
 
-              <p>A bunch of text</p>
-            </div>
-            <div class="">
-              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat">Save and edit</a>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- add reference modal -->
+    <div add-reference-modal>
     </div>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>

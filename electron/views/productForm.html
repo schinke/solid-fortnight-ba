@@ -14,26 +14,24 @@
  <div class="navbar-fixed">
    <nav>
     <div class="nav-wrapper">
-      <a href="#" class="brand-logo right">Logo</a>
-
     </div>
   </nav>
 </div>
 <div  ng-app="productFormApp" ng-controller="ProductFormController">
   <div class="row" style="height:100vh">
     <div class="col" style="height:100vh; overflow:scroll" ng-class="extenderVisible?'s7':'s12'">
-      <div class="container " style="padding-bottom: 50px;overflow:visible">
+      <div class="container" style="padding-bottom: 50px;overflow:visible">
         <div class="row">
           <div class="col s12 card-panel">
             Name:
-            <input ng-class="localData.name===fromServer.name?'':'red'" type="text" ng-change="postProduct()" ng-model="localData.name" required /><br />
+            <input ng-class="localProduct.name===fromServer.name?'':'red'" type="text" ng-change="putProduct()()" ng-model="localProduct.name" required /><br />
             English name:
-            <input ng-class="localData.englishName===fromServer.englishName?'':'red'" type="text" ng-change="postProduct()" ng-model="localData.englishName"  /><br />
+            <input ng-class="localProduct.englishName===fromServer.englishName?'':'red'" type="text" ng-change="putProduct()()" ng-model="localProduct.englishName"  /><br />
             French name:
-            <input ng-class="localData.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="postProduct()" ng-model="localData.frenchName"  /><br />
+            <input ng-class="localProduct.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="putProduct()()" ng-model="localProduct.frenchName"  /><br />
 
             Specification:
-            <input ng-class="localData.specification===fromServer.specification?'':'red'" type="text" ng-change="postProduct()"ng-model="localData.specification"/><br />
+            <input ng-class="localProduct.specification===fromServer.specification?'':'red'" type="text" ng-change="putProduct()()"ng-model="localProduct.specification"/><br />
           </div>
           <div class="col s12 card-panel">
             Allergenes:
@@ -102,11 +100,11 @@
                 </tr>
               </tbody>
             </table>
-            Comments on density and unit weight:<input ng-class="localData.commentsOnDensityAndUnitWeight===fromServer.commentsOnDensityAndUnitWeight?'':'red'" type="text" ng-change="postProduct()"ng-model="localData.commentsOnDensityAndUnitWeight"/>
+            Comments on density and unit weight:<input ng-class="localProduct.commentsOnDensityAndUnitWeight===fromServer.commentsOnDensityAndUnitWeight?'':'red'" type="text" ng-change="putProduct()()"ng-model="localProduct.commentsOnDensityAndUnitWeight"/>
           </div>
           <div class="col s12 card-panel">
             Info text for cook:
-            <input ng-class="localData.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="postProduct()"ng-model="localData.infoTextForCook"/><br />
+            <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="putProduct()()"ng-model="localProduct.infoTextForCook"/><br />
           </div>
           <div class="col s12 card-panel">
             Tags:

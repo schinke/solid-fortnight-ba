@@ -21,7 +21,7 @@
     <tr>
       <th data-field="id" ng-click="productSortField='id'">Id</th>
       <th data-field="name" ng-click="productSortField='name'">Name</th>
-      <th data-field="specification" ng-click="productSortField='specification'">Amount</th>
+
       <th ></th>
     </tr>
   </thead>
@@ -29,14 +29,13 @@
     <tr ng-show="showPostField">
       <td><a ng-click="togglePostField()"><i class="material-icons">remove</i></a></td>
       <td><input type="text" ng-change="addValue()" ng-model="newAllergene.allergeneName"/></td>
-      <td><input type="number" ng-change="addValue()" ng-model="newAllergene.amount"/></td>
+
       <td><a ng-click="postValue(newAllergene)"><i class="material-icons">add</i></a></td>
     </tr>
     <tr ng-repeat="value in editValues">
       <td >{{value.id}}</td>
       <td><input type="text" ng-change="postProduct()" ng-model="value.allergeneName"/></td>
-      <td><input type="number" ng-change="postProduct()" ng-model="value.amount"/></td>
-      <td><a ng-click="deleteValue(value.id)"><i class="material-icons">delete_forever</i></a></td>
+      <td><a ng-click="deleteValue(value)"><i class="material-icons">delete_forever</i></a></td>
     </tr>
 
   </tbody>

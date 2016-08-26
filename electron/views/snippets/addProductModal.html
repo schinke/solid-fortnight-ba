@@ -1,4 +1,4 @@
-    <div class="overlay" ng-click="toggleAddItemModal()" ng-show="showProductModal" controller"ProductModalController">
+    <div class="overlay" ng-show="showProductModal">
       <div class="container" style="position:relative">
         <div class="row" style=" background-color: rgba(255,2555,2555,1)">
           <div>
@@ -9,14 +9,16 @@
           <div class="row">
             <div class="col s12">
               <form ng-submit="addProduct(true)">
+                <h5>Product Name:</h5>
                 <input type="text" ng-model="newProductName"/>
+                <h5>Product Specification:</h5>
                 <input type="text" ng-model="newProductSpecification"/>
               </form>
             </div>
           </div>
           <div class="row">
             <div class="col s12">
-              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" ng-click="addProduct(false); toggleAddItemModal()">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat toggleAddItemModal()"; ng-click="addProduct(true)">Save and edit</a>
+              <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat" ng-click="postProduct()">Save</a><a class=" modal-action modal-close waves-effect waves-green btn-flat" ng-click="postProduct(true)">Save and edit</a>
             </div>
           </div>
         </div>

@@ -71,6 +71,7 @@ def post_product():
             spotTaken=Product.query.get(request.json['id'])
         except:
             spotTaken=None
+            print('exception')
         if not spotTaken:
             product.id=request.json['id']
     if not 'name' in request.json:
@@ -148,6 +149,7 @@ def post_value():
             db.session.commit()
             return jsonify(value.toDict())
     return ("must provide product and type")
+
 
 @app.route('/values/<id>', methods = ['PUT'])
 def put_value(id):

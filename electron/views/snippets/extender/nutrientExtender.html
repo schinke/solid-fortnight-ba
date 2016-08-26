@@ -1,0 +1,36 @@
+<div class="row">
+  <div class="col s12">
+    <h4>Nutrients</h4>
+    <h5>
+      Reference: {{editValues[0]['reference']}}
+    </h5>
+  </div>
+</div>
+<div class="row">
+  <a class="col s3"><i class="material-icons">add</i>
+  </a>
+  <a class="col s3"><i class="material-icons">file_upload</i>
+  </a>
+  <a class="col s3"><i class="material-icons">content_copy</i>
+  </a>
+  <a class="col s3"><i class="material-icons">delete_forever</i>
+  </a>
+</div>
+<table class="striped col s12">
+  <thead>
+    <tr>
+      <th data-field="id" ng-click="productSortField='id'">Id</th>
+      <th data-field="name" ng-click="productSortField='name'">Name</th>
+      <th data-field="specification" ng-click="productSortField='specification'">Amount</th>
+      <th ></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="value in editValues">
+      <td >{{value.id}}</td>
+      <td><input type="text" ng-change="postValues()" ng-model="value.nutrientName"/></td>
+      <td><input type="number" ng-change="postValues()" ng-model="value.amount"/></td>
+      <td><a ng-click="addEditValue"><i class="material-icons">delete_forever</i></a></td>
+    </tr>
+  </tbody>
+</table>

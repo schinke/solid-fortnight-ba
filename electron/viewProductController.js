@@ -11,7 +11,6 @@ function httpGetAsync(theUrl, callback) {
     xmlHttp.send(null);
   }
 angular.module('mainWindowApp', [])
-
 .controller('MainWindowController', function($scope) {
   $scope.visibleClass='Product' // set the default table
   $scope.productSortField     = 'id'; // set the default product sort type
@@ -22,11 +21,85 @@ angular.module('mainWindowApp', [])
     ipcRenderer.send('show-prod-form', arg)
     console.log(arg)
   }
+
+  //load prod json files into scope
+  $scope.convertLegacy = function(legacyProducts,legacyProcesses,legacyNutrients,legacyNutritionChanges,legacyFoodWastes){
+
+  }
+  $scope.legacyProductFilesLoaded = function (ele) {
+    console.log("legacy product file load triggered")
+    var files = ele.files;
+    var l = files.length;
+    $scope.l=l;
+    var namesArr = [];
+    $scope.legacyProducts={}
+    var loadFile = function(index){
+      var a = new FileReader();
+      a.onloadend = function () {
+        try{
+          newProd=angular.fromJson(a.result)
+          if($scope.legacyProducts[newProd.id]==null){
+            $scope.legacyProducts[newProd.id]=newProd;
+          }
+          else{
+            console.log(newProd.id+": duplicate product id in file "+files[index].name+" and product "+$scope.legacyProducts[newProd.id].name)
+          }
+        }
+        catch(err){
+          console.log(err.message+" in file "+files[index].name)
+        }
+          $scope.$apply();
+      }
+      a.readAsText(files[index])
+    }
+    
+    for (var i = 0; i < l; i++) {
+      loadFile(i)
+      console.log(JSON.stringify($scope.legacyProducts))
+    }
+    
+  }
+    $scope.legacyProcessFilesLoaded = function (ele) {
+    console.log("legacy process file load triggered")
+    var files = ele.files;
+    var l = files.length;
+    $scope.l=l;
+    var namesArr = [];
+    $scope.legacyProcesses={}
+    var loadFile = function(index){
+      var a = new FileReader();
+      a.onloadend = function () {
+        try{
+          newProc=angular.fromJson(a.result)
+          if($scope.legacyProcesses[newProc.id]==null){
+            $scope.legacyProcesses[newProc.id]=newProc;
+          }
+          else{
+            console.log(newProc.id+": duplicate product id in file "+files[index].name+" and product "+$scope.legacyProcesses[newProc.id].name)
+          }
+        }
+        catch(err){
+          console.log(err.message+" in file "+files[index].name)
+        }
+          $scope.$apply();
+      }
+      a.readAsText(files[index])
+    }
+    
+    for (var i = 0; i < l; i++) {
+      loadFile(i)
+      console.log(JSON.stringify($scope.legacyProducts))
+    }
+    
+  }
   $scope.toggleAddItemModal = function(arg){
     $scope.showProductModal=($scope.visibleClass==="Product"&&!$scope.showProductModal&&!$scope.showValueModal&&!$scope.showReferenceModal);
     $scope.showValueModal=($scope.visibleClass==="Value"&&!$scope.showProductModal&&!$scope.showValueModal&&!$scope.showReferenceModal);
     $scope.showReferenceModal=($scope.visibleClass==="Reference"&&!$scope.showProductModal&&!$scope.showValueModal&&!$scope.showReferenceModal);
     console.log("modal toggled")
+  }
+  $scope.toggleUploadModal = function(arg){
+    $scope.showUploadModal=!$scope.showUploadModal
   }
   $scope.addProduct = function(arg){
     newProduct={'name':$scope.newProductName}
@@ -66,5 +139,10 @@ angular.module('mainWindowApp', [])
 .directive('addReferenceModal', function(){
   return({
     templateUrl:"snippets/addreferenceModal.html",
+  })
+})
+.directive('uploadModal', function(){
+  return({
+    templateUrl:"snippets/uploadModal.html",
   })
 })

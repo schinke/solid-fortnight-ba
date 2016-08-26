@@ -81,8 +81,8 @@ class Value(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = "CASCADE"))
     validCountries = relationship("Location", secondary = "location_scivalue_association")
-    reference_id = db.Column(db.Integer, db.ForeignKey('reference.id'))
-    reference = relationship("Reference")
+    reference_id = db.Column(db.Integer, db.ForeignKey('reference.id', ondelete="SET NULL"))
+    reference = relationship("Reference", uselist=False)
     base_value_id = db.Column(db.Integer, db.ForeignKey('scivalue.id'))
     baseValue = relationship("Value", uselist = False)
     amount = db.Column(db.Integer)
@@ -232,7 +232,7 @@ class ProductAllergeneAssociation(Value):
 
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     #product_id = db.Column(db.Integer, db.ForeignKey('product.id'), primary_key = False)
-    allergene_id =  db.Column(db.Integer, db.ForeignKey('allergene.id'), primary_key = False)
+    allergene_id =  db.Column(db.Integer, db.ForeignKey('allergene.id', ondelete = "CASCADE"), primary_key = False)
     product = relationship("Product", back_populates = "allergenes")
     allergene = relationship("Allergene")
 
@@ -388,29 +388,28 @@ class Product(db.Model):
 
     def toDict(self):
         response = {
-        'allergenes':[{'name':allergene.allergene.name, 'id':allergene.id, 'countries':[country.name for country in allergene.validCountries]} for allergene in self.allergenes],
+        'allergenes':[allergene.toDict() for allergene in self.allergenes],
         'alternatives':[{'name':product.name, 'id':product.id,} for product in self.alternatives],
         'commentsOnDensityAndUnitWeight': self.commentsOnDensityAndUnitWeight,
-        'co2Values': [{'id':value.id, 'amount':value.amount, 'countries':[country.name for country in value.validCountries]} for value in self.co2Values],
-        'densities': [{'derived': not density.id == density.actualValue().id,
-            'id':density.id, 'amount':density.amount}for density in self.densities],
+        'co2Values': [value.toDict() for value in self.co2Values],
+        'densities': [density.toDict() for density in self.densities],
         'endOfLocalSeason':str(self.endOfLocalSeason),
         'englishName': self.englishName,
-        'foodWasteData':[{'id':data.id, 'field':data.field.name, 'amount':data.amount, 'countries':[country.name for country in data.validCountries]} for data in self.foodWasteData],
+        'foodWasteData':[data.toDict() for data in self.foodWasteData],
         'frenchName':self.frenchName,
         'id': self.id,
         'infoTextForCook': self.infoTextForCook,
         'name': self.name,
-        'nutrients':[{'derived': not nutrient.id == nutrient.actualValue().id,'amount':nutrient.amount,'name':nutrient.nutrient.name, 'id':nutrient.id, 'countries':[country.name for country in nutrient.validCountries]} for nutrient in self.nutrients],
-        'nutrientProcesses':[{'derived': not process.id == process.actualValue().id,'id':process.id, 'name':process.process.name, 'nutrient':process.nutrient.name,'amount':process.amount, 'countries':[country.name for country in process.validCountries]} for process in self.processes],
+        'nutrients':[nutrient.toDict() for nutrient in self.nutrients],
+        'nutrientProcesses':[process.toDict() for process in self.processes],
         'possibleOrigins':[origin.name for origin in self.possibleOrigins],
-        'processesCo2':[{'derived': not process.id == process.actualValue().id,'id':process.id, 'name':process.process.name, 'amount':process.amount, 'countries':[country.name for country in process.validCountries]} for process in self.processesCo2],
+        'processesCo2':[process.toDict() for process in self.processesCo2],
         'specification': self.specification,
         'startOfLocalSeason':str(self.startOfLocalSeason),
         'synonyms':[synonym.name for synonym in self.synonyms],
         'tags':[tag.name for tag in self.tags],
         'texture':self.texture,
-        'unitWeights':[{'derived': not unitWeight.id == unitWeight.actualValue().id,'id':unitWeight.id, 'amount':unitWeight.amount} for unitWeight in self.unitWeights]
+        'unitWeights':[unitWeight.toDict() for unitWeight in self.unitWeights]
         }
         if self.standardOrigin:
             response['standardOrigin'] = self.standardOrigin.name

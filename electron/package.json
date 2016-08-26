@@ -4,7 +4,9 @@
   "main": "main.js",
   "dependencies": {
     "electron-prebuilt": "*",
+    "hammer": "0.0.5",
     "ipc": "0.0.1",
+    "jquery": "^3.1.0",
     "request-promise": "*"
   }
 }

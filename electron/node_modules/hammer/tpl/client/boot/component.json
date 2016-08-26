@@ -1,0 +1,7 @@
+{
+	"name": "boot",
+	"description": "Boot component",
+	"dependencies": {
+	},
+	"scripts": ["index.js"]
+}

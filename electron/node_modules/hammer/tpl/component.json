@@ -1,0 +1,7 @@
+{
+	"name": "application",
+	"description": "application description",
+	"versiont": "0.0.1",
+	"local": ["boot"],
+	"paths": ["client"]
+}

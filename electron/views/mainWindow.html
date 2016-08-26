@@ -21,24 +21,28 @@
     <div class="navbar-fixed">
       <nav>
         <div class="nav-wrapper">
-          <a href="#" class="brand-logo right">Logo</a>
           <ul id="nav-mobile" class="left">
             <li><a ng-class="visibleClass==='Product'?'teal':''" alt="show products table" href="#" ng-click="visibleClass='Product'">Products</a></li>
             <li><a ng-class="visibleClass==='Value'?'teal':''" alt="show values table" ng-click="visibleClass='Value'">Values</a></li>
             <li><a ng-class="visibleClass==='Reference'?'teal':''" alt="show references table" ng-click="visibleClass='Reference'">References</a></li>
+          </ul>
+          <ul id="nav-mobile" class="right">
+            <li>
+              <a ng-click="toggleUploadModal()"><i class="material-icons">file_upload</i></a>
+            </li>
           </ul>
         </div>
       </nav>
     </div>
 
     <div class="container">
-
       <!-- products tab -->
       <div class="row" ng-class="visibleClass==='Product'?'':'hide'">
         <div class="col s12">
           <div>
             <input type="text" class="form-control" placeholder="Search term" ng-model="productSearchTerm" autofocus>
           </div>
+          <h1>{{fileContent}}</h1>
           <table class="striped">
             <thead>
               <tr>
@@ -130,6 +134,9 @@
     <!-- add reference modal -->
     <div add-reference-modal>
     </div>
+
+    <div upload-modal>
+    </div>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
     <style media="screen" type="text/css">
@@ -144,7 +151,7 @@
       text-align:center;
       z-index: 999;
     }
-
+    a{ cursor: pointer; }
     </style>
   </div>
 </body>

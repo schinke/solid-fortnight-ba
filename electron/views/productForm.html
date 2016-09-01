@@ -2,6 +2,7 @@
 <html style="overflow:hidden">
 <head>
   <title>Product Details</title>
+  <script>window.$ = window.jQuery = require('jquery');</script>
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="../static/angular.min.js"></script>
@@ -9,6 +10,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
   <!-- Compiled and minified JavaScript -->
 </head>
+<link rel="stylesheet" href="../allmighty-autocomplete/style/autocomplete.css">
+<script type="text/javascript" src="../allmighty-autocomplete/script/autocomplete.js"></script>
 <script src="../productFormController.js"></script>
 <body>
  <div class="navbar-fixed">
@@ -20,7 +23,7 @@
 <div  ng-app="productFormApp" ng-controller="ProductFormController">
   <div class="row" style="height:100vh">
     <div class="col" style="height:100vh; overflow:scroll" ng-class="extenderVisible?'s7':'s12'">
-      <div class="container" style="padding-bottom: 50px;overflow:visible">
+      <div class="container" style="padding-bottom: 80px;overflow:visible">
         <div class="row">
           <div class="col s12 card-panel">
             Name:
@@ -48,9 +51,10 @@
                   <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
                   <td>{{allergenesGrouped[allergeneGroup].length}}</td>
                   <td>
-                    <a class="" ng-click="toggleExtender(allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
+                    <a class="" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
                   </div>
                 </tr>
+                <tr><td><a ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' attr-input-class="input-field" ng-model="newAllRefName" data="serverReferences"></td></tr>
                 <tr>
                 </tr>
               </tbody>
@@ -71,7 +75,7 @@
                   <td>{{nutrientsGrouped[nutrientGroup][0].reference}}</td>
                   <td>{{nutrientsGrouped[nutrientGroup].length}}</td>
                   <td>
-                    <a class="" ng-click="toggleExtender(nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
+                    <a class="" ng-click="toggleGroupExtender(nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
                   </div>
                 </tr>
                 <tr>
@@ -182,13 +186,12 @@
       </div>
     </div>
     <div style="height:100vh; overflow:scroll; word-wrap:break-word" ng-show="extenderVisible" class="col s5">
-      <div class="">
+      <div class="container" style="padding-bottom: 80px;overflow:visible">
         <div class="card cyan lighten-4 row" extender>
         </div>
       </div>
     </div>
   </div>
-     <script>window.$ = window.jQuery = require('jquery');</script>
      <script>window.Hammer = require('hammer');</script>
 <script src="../static/materialize.js"></script>
     <style media="screen" type="text/css">

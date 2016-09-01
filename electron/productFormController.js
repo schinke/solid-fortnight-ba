@@ -48,7 +48,7 @@ function httpPostAsync(theUrl, jsonData, callback) {
   xmlHttp.send(jsonData);
 }
 
-angular.module('productFormApp', [])
+angular.module('productFormApp', ['autocomplete'])
 
 .controller('ProductFormController',function($scope) {
 
@@ -57,9 +57,9 @@ angular.module('productFormApp', [])
     $scope.valueId=null
     $scope.productURL=baseURL.concat('/products/'.concat(id))
     // store product in scope
+    $scope.references=['apple','banana']
     $scope.updateAllFromServer()
-
-    })
+  });
 
 $scope.updateAllFromServer=function(){
       httpGetAsync($scope.productURL, function(response){
@@ -69,6 +69,7 @@ $scope.updateAllFromServer=function(){
       $scope.updateNutrientGroups()
       $scope.updateServerNutrients()
       $scope.updateServerAllergenes()
+      $scope.updateServerReferences()
       $scope.$apply()
 
     })
@@ -86,6 +87,11 @@ $scope.updateServerAllergenes = function(){
   })
 }
 
+$scope.updateServerReferences = function(){
+   httpGetAsync(baseURL.concat('/references'), function(response){
+    $scope.serverReferences=angular.fromJson(response)
+  })
+}
 $scope.updateAllergeneGroups = function(){     
   $scope.allergenesGrouped={}
   $scope.allergeneGroupKeys=[] 
@@ -169,10 +175,11 @@ $scope.postValue = function(value){
     console.log("postValueRespone: "+response)
     $scope.updateAllFromServer()
   })
+  $scope.showPostField=false
 }
 
 
-$scope.toggleExtender = function(values, extenderSwitch){
+$scope.toggleGroupExtender = function(reference,editValuesType,editValues,extenderSwitch){
   extenderSwitches.forEach(function(o){
     //make sure only one extender is visible
     if(o===extenderSwitch){
@@ -182,9 +189,10 @@ $scope.toggleExtender = function(values, extenderSwitch){
       $scope[o]=false
     }
   },extenderSwitch)
-  $scope.extenderVisible=!$scope.extenderVisible||values!=$scope.editValues;
-  $scope.editValues=values
-  
+  $scope.extenderVisible=!$scope.extenderVisible||editValues!=$scope.editValues;
+  $scope.editValues=editValues
+  $scope.editValuesReference=reference
+  $scope.editValuesType=editValuesType
   console.log("show extender");
 }
 

@@ -2,11 +2,42 @@
       <div class="container" style="position:relative">
         <div class="row" style=" background-color: rgba(255,2555,2555,1)">
           <div>
-            <div id="addUploadModal" class="col s12">
+            <div id="addUploadModal" class="col s11">
               <h4>Upload legacy files</h4>
             </div>
+            <a class="right col s1" ng-click="toggleUploadModal()"><i class="material-icons">close</i></a>
           </div>
-          <div class="row">
+          <div class="row" ng-class="legacyNutritionChangesReady? 'lime lighten-1':''">
+            <div class="col s12" >
+              <h4>Nutr-Change files</h4>
+            </div>
+            <div class="col s12" >
+                <label class="import-file">
+                  <input type="file" accept="application/json" multiple onchange="angular.element(this).scope().legacyNutritionChangeFilesLoaded(this)">
+              </label>
+            </div>
+          </div>
+          <div class="row" ng-class="legacyNutrientsReady? 'lime lighten-1':''">
+            <div class="col s12" >
+              <h4>Nutr files</h4>
+            </div>
+            <div class="col s12">
+                <label class="import-file">
+                  <input type="file" accept="application/json" multiple onchange="angular.element(this).scope().legacyNutrientFilesLoaded(this)">
+              </label>
+            </div>
+          </div>
+          <div class="row" ng-class="legacyProcessesReady? 'lime lighten-1':''">
+            <div class="col s12" >
+              <h4>Proc files</h4>
+            </div>
+            <div class="col s12">
+                <label class="import-file">
+                  <input type="file" accept="application/json" multiple onchange="angular.element(this).scope().legacyProcessFilesLoaded(this)">
+              </label>
+            </div>
+          </div>
+          <div class="row" ng-class="legacyProductsReady? 'lime lighten-1':''">
             <div class="col s12">
               <h4>Prod files</h4>
               <label class="import-file">
@@ -14,14 +45,15 @@
               </label>
             </div>
           </div>
-          <div class="row">
-            <h4>Proc files</h4>
+          <div class="row" ng-class="legacyFoodWastesReady? 'lime lighten-1':''">
+            <h4>Waste files</h4>
             <div class="col s12">
                 <label class="import-file">
-                  <input type="file" accept="application/json" multiple onchange="angular.element(this).scope().legacyProcessFilesLoaded(this)">
+                  <input type="file" accept="application/json" multiple onchange="angular.element(this).scope().legacyFoodWasteFilesLoaded(this)">
               </label>
             </div>
           </div>
+          <a ng-show="(legacyNutritionChangesReady&&legacyNutrientsReady&&legacyProcessesReady&&legacyProductsReady&&legacyFoodWastesReady)" ng-click="convertLegacy(legacyProducts,legacyProcesses,legacyNutrients,legacyNutritionChanges,legacyFoodWastes)">upload</a>
           </div>
         </div>
       </div>

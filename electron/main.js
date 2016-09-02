@@ -17,7 +17,7 @@ app.on('ready', function() {
 
   var subpy = require('child_process').spawn('./../flask/venv/bin/python', ['../flask/app.py']);
   var rq = require('request-promise');
-  var mainAddr = 'http://localhost:5000/products';
+  var mainAddr = 'http://localhost:5000/';
 
   let willQuitApp = false;
   app.on('before-quit', () => willQuitApp = true);

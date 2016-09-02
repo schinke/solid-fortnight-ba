@@ -54,7 +54,7 @@
                     <a class="" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
                   </div>
                 </tr>
-                <tr><td><a ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' attr-input-class="input-field" ng-model="newAllRefName" data="serverReferences"></td></tr>
+                <tr><td><a ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="serverReferences"></autocomplete></td></tr>
                 <tr>
                 </tr>
               </tbody>
@@ -75,9 +75,10 @@
                   <td>{{nutrientsGrouped[nutrientGroup][0].reference}}</td>
                   <td>{{nutrientsGrouped[nutrientGroup].length}}</td>
                   <td>
-                    <a class="" ng-click="toggleGroupExtender(nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
+                    <a class="" ng-click="toggleGroupExtender(nutrientsGrouped[nutrientGroup][0].reference,nutrientsGrouped[nutrientGroup][0].type,nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
                   </div>
                 </tr>
+                <tr><td><a ng-click="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newNutrientRefName" data="serverReferences"></autocomplete></td></tr>
                 <tr>
                 </tr>
               </tbody>

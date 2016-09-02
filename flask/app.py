@@ -15,6 +15,9 @@ db = SQLAlchemy(app)
 from models import *
 
 value_types=None
+@app.route('/', methods = ['GET'])
+def home():
+    return("server up")
 
 @app.route('/rollback', methods = ['GET'])
 def rollback():
@@ -30,7 +33,7 @@ def rollback():
     try:
         db.session.rollback()
     except Exception as e:
-        responseString.append(e.args)
+        return responseString.append(e.args), 500
     return  str(responseString)
 @app.route('/products', methods = ['GET'])
 def get_products():
@@ -49,10 +52,10 @@ def get_product(id):
     db.session.commit()
     try:
         product = Product.query.get(id)
-    except:
+    except Exception as e:
         product = None
-    if not product:
-        return "resource "+str(id)+" not found"#TODO: add appropriate status code
+    if not product or product is None:
+        return "resource "+str(id)+" not found", 404
     else:
         return jsonify(product.toDict())
 
@@ -66,16 +69,23 @@ def post_product():
             product = TemplateProduct()
     else:
         product = TemplateProduct()
-    if 'id' in request.json and isinstance(request.json['id'], int):
-        try:
-            spotTaken=Product.query.get(request.json['id'])
-        except:
-            spotTaken=None
-            print('exception')
-        if not spotTaken:
-            product.id=request.json['id']
+
+    # # give product requested id if possible: requires rewrite of unique key distribution
+    # if 'id' in request.json and isinstance(request.json['id'], int):
+    #     try:
+    #         spotTaken=Product.query.get(request.json['id'])
+    #         print("spotTaken"+str(spotTaken))
+    #     except Exception as e:
+    #         print("manual error output: "+str(e.args))
+    #         return None,500
+    #     if spotTaken is not None:
+    #         pass
+    #     else:
+    #         if spotTaken:
+    #             raise Exception("spotTaken is None but exists")
+    #         product.id=request.json['id']
     if not 'name' in request.json:
-        return "name missing"#TODO: add appropriate status code
+        return "name missing", 400
     else:
         product.name = request.json['name']
     db.session.add(product)
@@ -90,7 +100,7 @@ def put_product(id):
     except:
         product = None
     if not product:
-        return "resource "+str(id)+" not found"#TODO: add appropriate status code
+        return "resource "+str(id)+" not found", 404
     else:
         editProduct(id,request.json)
         
@@ -103,7 +113,7 @@ def delete_product(id):
     except:
         product = None
     if not product:
-        return "resource "+str(id)+" not found"#TODO: add appropriate status code
+        return "resource "+str(id)+" not found", 404
     else:
         db.session.delete(product)
         db.session.commit()
@@ -116,7 +126,7 @@ def get_value(id):
     except:
         value = None
     if not value:
-        return "resource "+str(id)+" not found"#TODO: add appropriate status code
+        return "resource "+str(id)+" not found", 404
     else:
         return jsonify(value.toDict())
 
@@ -137,7 +147,8 @@ def post_value():
         except:
             product=None
         if not product:
-            return "product "+str(request.json['product'])+" not found"#TODO: add appropriate status code
+            print("product "+str(request.json['product'])+" not found")
+            return "product "+str(request.json['product'])+" not found", 404
         elif request.json['type'] in value_types:
             value=value_types[request.json['type']]()
             value.product=product
@@ -158,7 +169,7 @@ def put_value(id):
     except:
         value = None
     if not value:
-        return "resource "+str(id)+" not found"#TODO: add appropriate status code
+        return "resource "+str(id)+" not found", 404
     else:
         editValue(value,request.json)
         db.session.add(value)
@@ -171,7 +182,7 @@ def delete_value(id):
     except:
         value = None
     if not value:
-        return "resource "+str(id)+" not found"#TODO: add appropriate status code
+        return "resource "+str(id)+" not found", 404
     else:
         db.session.delete(value)
         db.session.commit()
@@ -205,7 +216,7 @@ def put_reference(id):
     except:
         reference = None
     if not reference:
-        return "resource "+str(id)+" not found"#TODO: add appropriate status code
+        return "resource "+str(id)+" not found", 404
     else:
         editReference(reference.id,request.json)
         return jsonify(reference.toDict())
@@ -401,7 +412,7 @@ def editValue(value,valueDict):
         value.reference = reference
         db.session.add(reference)
     if 'validCountries' in valueDict:
-        for countryName in valueDict['validCountries']:
+        for countryName in [cn for cn in valueDict['validCountries'] if cn is not None]:
             try:
                 location=Location.query.filter(Location.name==countryName).get[0]
             except:
@@ -412,7 +423,10 @@ def editValue(value,valueDict):
                 db.session.add(location)
             value.validCountries.append(location)
     if 'baseValue' in valueDict:
-        value.baseValue = Value.query.get(valueDict['baseValue'])
+        baseValue = Value.query.get(valueDict['baseValue'])
+        if not baseValue==value:
+            value.baseValue=baseValue
+            print (value.toDict())
     #type specific fields
     if not 'type' in valueDict:
         raise TypeError
@@ -485,6 +499,8 @@ def editValue(value,valueDict):
     elif valueDict['type']=='ProductUnitWeight' and type(value)==ProductUnitWeight:
         # no additonal fields
         pass
+    else:
+        raise TypeError('missing arguments for type '+value.type)
     db.session.commit()
     return value.id
 

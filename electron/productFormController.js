@@ -59,6 +59,10 @@ angular.module('productFormApp', ['autocomplete'])
     // store product in scope
     $scope.references=['apple','banana']
     $scope.updateAllFromServer()
+    $scope.extenderVisible=false
+    for(extenderSwitch in extenderSwitches){
+      $scope[extenderSwitches[extenderSwitch]]=false
+    }
   });
 
 $scope.updateAllFromServer=function(){

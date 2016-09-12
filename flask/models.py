@@ -51,7 +51,7 @@ class Value(db.Model):
         if 'baseValue' in data:
             value.baseValue = Value.query.get(data['baseValue'])
 
-    def toDict(self):
+    def toDict(self,fields=None):
         output = {
         'id':self.id,
         'validCountries':[location.name for location in self.validCountries],
@@ -85,7 +85,7 @@ class Value(db.Model):
     reference = relationship("Reference", uselist=False)
     base_value_id = db.Column(db.Integer, db.ForeignKey('scivalue.id'))
     baseValue = relationship("Value", uselist = False)
-    amount = db.Column(db.Integer)
+    amount = db.Column(db.Float)
     unit = db.Column(db.String)
     comment = db.Column(db.String)
     def actualValue(self, id=None):
@@ -386,33 +386,55 @@ class Product(db.Model):
         product.frenchName = request.json['frenchName']
         product.frenchName = request.json['frenchName']
 
-    def toDict(self):
-        response = {
-        'allergenes':[allergene.toDict() for allergene in self.allergenes],
-        'alternatives':[{'name':product.name, 'id':product.id,} for product in self.alternatives],
-        'commentsOnDensityAndUnitWeight': self.commentsOnDensityAndUnitWeight,
-        'co2Values': [value.toDict() for value in self.co2Values],
-        'densities': [density.toDict() for density in self.densities],
-        'endOfLocalSeason':str(self.endOfLocalSeason),
-        'englishName': self.englishName,
-        'foodWasteData':[data.toDict() for data in self.foodWasteData],
-        'frenchName':self.frenchName,
-        'id': self.id,
-        'infoTextForCook': self.infoTextForCook,
-        'name': self.name,
-        'nutrients':[nutrient.toDict() for nutrient in self.nutrients],
-        'nutrientProcesses':[process.toDict() for process in self.processes],
-        'possibleOrigins':[origin.name for origin in self.possibleOrigins],
-        'processesCo2':[process.toDict() for process in self.processesCo2],
-        'specification': self.specification,
-        'startOfLocalSeason':str(self.startOfLocalSeason),
-        'synonyms':[synonym.name for synonym in self.synonyms],
-        'tags':[tag.name for tag in self.tags],
-        'texture':self.texture,
-        'unitWeights':[unitWeight.toDict() for unitWeight in self.unitWeights]
-        }
-        if self.standardOrigin:
+    def toDict(self, fields=None):
+        response = {}
+        if not fields or (fields and 'allergenes' in fields):
+            response['allergenes'] = [allergene.toDict() for allergene in self.allergenes]
+        if not fields or (fields and 'alternatives' in fields):
+            response['alternatives'] = [{'name':product.name, 'id':product.id,} for product in self.alternatives]
+        if not fields or (fields and 'commentsOnDensityAndUnitWeight' in fields):
+            response['commentsOnDensityAndUnitWeight'] = self.commentsOnDensityAndUnitWeight
+        if not fields or (fields and 'co2Values' in fields):
+            response['co2Values'] = [value.toDict() for value in self.co2Values]
+        if not fields or (fields and 'densities' in fields):
+            response['densities'] = [density.toDict() for density in self.densities]
+        if not fields or (fields and 'endOfLocalSeason' in fields):
+            response['endOfLocalSeason'] = str(self.endOfLocalSeason)
+        if not fields or (fields and 'englishName' in fields):
+            response['englishName'] = self.englishName
+        if not fields or (fields and 'foodWasteData' in fields):
+            response['foodWasteData'] = [data.toDict() for data in self.foodWasteData]
+        if not fields or (fields and 'frenchName' in fields):
+            response['frenchName'] = self.frenchName
+        if not fields or (fields and 'id' in fields):
+            response['id'] = self.id
+        if not fields or (fields and 'infoTextForCook' in fields):
+            response['infoTextForCook'] = self.infoTextForCook
+        if not fields or (fields and 'name' in fields):
+            response['name'] = self.name
+        if not fields or (fields and 'nutrients' in fields):
+            response['nutrients'] = [nutrient.toDict() for nutrient in self.nutrients]
+        if not fields or (fields and 'nutrientProcesses' in fields):
+            response['nutrientProcesses'] = [process.toDict() for process in self.processes]
+        if not fields or (fields and 'possibleOrigins' in fields):
+            response['possibleOrigins'] = [origin.name for origin in self.possibleOrigins]
+        if not fields or (fields and 'processesCo2' in fields):
+            response['processesCo2'] = [process.toDict() for process in self.processesCo2]
+        if not fields or (fields and 'specification' in fields):
+            response['specification'] = self.specification
+        if not fields or (fields and 'startOfLocalSeason' in fields):
+            response['startOfLocalSeason'] = str(self.startOfLocalSeason)
+        if not fields or (fields and 'synonyms' in fields):
+            response['synonyms'] = [synonym.name for synonym in self.synonyms]
+        if not fields or (fields and 'tags' in fields):
+            response['tags'] = [tag.name for tag in self.tags]
+        if not fields or (fields and 'texture' in fields):
+            response['texture'] = self.texture
+        if not fields or (fields and 'unitWeights' in fields):
+            response['unitWeights'] = [unitWeight.toDict() for unitWeight in self.unitWeights]
+        if (not fields or (fields and 'standardOrigin' in fields)) and self.standardOrigin:
             response['standardOrigin'] = self.standardOrigin.name
+        fields=[]
         return response
 
     id = db.Column(db.Integer, primary_key = True)
@@ -465,8 +487,8 @@ class EdbProduct(Product):
     __mapper_args__ = {
         'polymorphic_identity':'edb_product',
     }
-    def toDict(self):
-        output = super(EdbProduct, self).toDict()
+    def toDict(self, fields=None):
+        output = super(EdbProduct, self).toDict(fields=fields)
         output['edb'] = True
         return output
     id = Column(db.Integer, ForeignKey('product.id', ondelete = "CASCADE"), primary_key = True)
@@ -478,8 +500,8 @@ class TemplateProduct(Product):
         'polymorphic_identity':'template',
         
     }
-    def toDict(self):
-        output = super(TemplateProduct, self).toDict()
+    def toDict(self, fields=None):
+        output = super(TemplateProduct, self).toDict(fields=fields)
         output['edb'] = False
         return output
     id = Column(db.Integer, ForeignKey('product.id', ondelete = "CASCADE"), primary_key = True)

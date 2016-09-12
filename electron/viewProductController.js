@@ -3,6 +3,7 @@
 const {ipcRenderer} = require('electron')
 const baseURL = 'http://localhost:5000'
 const debug=false
+const myStorage=localStorage;
 function httpGetAsync(theUrl, callback) {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function() { 
@@ -63,11 +64,12 @@ angular.module('mainWindowApp', [])
     var productProcessCO2AssociationsToPost=[]
     var productUnitWeightsToPost=[]
 
+    for (nutrientDataId in legacyNutrients){
+      nutrientDataSet=legacyNutrients[nutrientDataId]
+    }
+
     for (productId in legacyProducts){
-      // if(legacyProducts[productId]==null){
-      // }
-      // else 
-      {
+      try{
         var legacyProduct=legacyProducts[productId]
         var allergenes=[]
         var alternatives=[]
@@ -96,11 +98,13 @@ angular.module('mainWindowApp', [])
           "texture": null,
           "unitWeights": []
         }
+
         // store for later use
         prodsToPost.push(prodToPost)
         legacyProduct['prodToPost']=prodToPost
-        // sync to make sure the server is not overwhelmed:
-        httpPostSync(baseURL+'/products',JSON.stringify(prodToPost),function(response){
+
+        // post this product, sync to make sure the server is not overwhelmed:
+        httpPostSync(baseURL+'/products', JSON.stringify(prodToPost),function(response){
           if(debug==true){
             console.log("posted product: "+JSON.stringify(prodToPost))
             console.log("response: "+response)
@@ -108,6 +112,7 @@ angular.module('mainWindowApp', [])
           prodToPost['newProd']=angular.fromJson(response)
         })
 
+        //convert nutrition data set to values
         if(legacyProduct['nutrition-id']){
           nutritionData=legacyNutrients[legacyProduct['nutrition-id']]
 
@@ -130,7 +135,6 @@ angular.module('mainWindowApp', [])
             })
           }
 
-
           for(counter in nutritionData['nutr-vals']){
             val=nutritionData['nutr-vals'][counter]
             productNutrientAssociationToPost={
@@ -149,8 +153,9 @@ angular.module('mainWindowApp', [])
             }
             nutritionData['productNutrientAssociationsToPost'].push(productNutrientAssociationToPost)
             productNutrientAssociationsToPost.push(productNutrientAssociationToPost)
+
             // post Product Nutrient Association to server
-            httpPostAsync(baseURL+'/values',JSON.stringify(productNutrientAssociationToPost),function(response){
+            httpPostSync(baseURL+'/values',JSON.stringify(productNutrientAssociationToPost),function(response){
               if(debug==true){
                 console.log("posted productNutrientAssociation: "+JSON.stringify(productNutrientAssociationToPost))
                 console.log("response: "+response)
@@ -158,21 +163,20 @@ angular.module('mainWindowApp', [])
               productNutrientAssociationToPost['newValue']=angular.fromJson(response)
             })
           }
-        }
 
 
-        co2ValueToPost={
-          type:"Co2Value",
-          product:prodToPost['newProd']['id'],
-          amount:legacyProduct['co2-value']||null,
-          unit:"kg CO2&Auml;q/kg",
-          referenceName:legacyProduct['references'],
-          comment:"co2-calculation: ".concat(legacyProduct['co2-calculation']||"-").concat(" calculation-process-documentation: ").concat(legacyProduct['calculation-process-documentation']||"-")
-        }
+          co2ValueToPost={
+            type:"Co2Value",
+            product:prodToPost['newProd']['id'],
+            amount:legacyProduct['co2-value']||null,
+            unit:"kg CO2 Äq/kg",
+            referenceName:legacyProduct['references'],
+            comment:"co2-calculation: ".concat(legacyProduct['co2-calculation']||"-").concat(" calculation-process-documentation: ").concat(legacyProduct['calculation-process-documentation']||"-")
+          }
         // store for later use
         legacyProduct['co2ValueToPost']=co2ValueToPost
 
-        //products with only basic co2 value
+        //products with only basic co2 value get their value put immediately
         if(legacyProduct['linked-id']==null){
           httpPostSync(baseURL+'/values',JSON.stringify(co2ValueToPost),function(response){
             if(debug==true){
@@ -182,8 +186,9 @@ angular.module('mainWindowApp', [])
           })
         }
 
-        // products with linked co2 value
+        // products with linked co2 value are stored, so they can later be linked and put
         else{
+          //store the old id of the base value product
           co2ValueToPost['legacyBaseValueId']=legacyProduct['linked-id']
           co2ValuesLinkedToPost.push(co2ValueToPost)
           if(debug==true){
@@ -192,34 +197,31 @@ angular.module('mainWindowApp', [])
         }
       }
     }
-    // link and post linked co2Values
-    console.log("viewProductController line 192 reached")
-    for(counter in co2ValuesLinkedToPost){
-      console.log("linked co2 counter: "+counter)
-      // co2ValueLinkedToPost=co2ValuesLinkedToPost[counter]
-
-      // // new id of the linked product's posted co2 value
-      // try{
-      //   co2ValueLinkedToPost['baseValue']=legacyProducts[co2ValueLinkedToPost['legacyBaseValueId']]['co2ValueToPost']['newValue']['id']
-      // }
-      // catch(err){
-      //   console.error(err.message+" for newValue "+co2ValueLinkedToPost['legacyBaseValueId'])
-      // }
-      // if (co2ValueLinkedToPost['baseValue']==null){
-      //   console.error("no baseValueId")
-      // }
-      // else{
-      //   console.log("added basevalue "+co2ValueLinkedToPost['baseValue'])
-      // }
-      // httpPostAsync(baseURL+'/values',JSON.stringify(co2ValueLinkedToPost),function(response){
-      //   if(debug==true){
-      //     console.log("posted Co2Value: "+JSON.stringify(co2ValueLinkedToPost))
-      //     console.log("response: "+response)
-      //   }
-      //   co2ValueLinkedToPost['newValue']=angular.fromJson(response)
-      // })
+    catch(err){
+      console.error(err.message+" for product: "+productId)
     }
   }
+
+  // link and post linked co2Values
+  for(counter in co2ValuesLinkedToPost){
+    co2ValueLinkedToPost=co2ValuesLinkedToPost[counter]
+    baseProduct=legacyProducts[co2ValueLinkedToPost['legacyBaseValueId']]
+    try{
+      co2ValueLinkedToPost['baseValue']=baseProduct['co2ValueToPost']['newValue']['id']
+      httpPostSync(baseURL+'/values',JSON.stringify(co2ValueLinkedToPost),function(response){
+              if(debug==true){
+                console.log("posted Co2Value: "+JSON.stringify(co2ValueLinkedToPost))
+                console.log("response: "+response)
+              }co2ValueLinkedToPost['newValue']=angular.fromJson(response)
+            })
+    }
+    catch(err){
+      console.error(JSON.stringify(baseProduct))
+      console.error(err)
+    }
+    console.log("linked co2 counter: "+counter)
+  }
+}
 
   //take files from html element and read them into scope's legacyNutritionChanges
   $scope.legacyNutritionChangeFilesLoaded = function (ele) {
@@ -416,6 +418,7 @@ angular.module('mainWindowApp', [])
     $scope.showReferenceModal=($scope.visibleClass==="Reference"&&!$scope.showProductModal&&!$scope.showValueModal&&!$scope.showReferenceModal);
     console.log("modal toggled")
   }
+
   $scope.toggleUploadModal = function(arg){
     $scope.showUploadModal=!$scope.showUploadModal
   }
@@ -423,7 +426,7 @@ angular.module('mainWindowApp', [])
   $scope.postProduct = function(arg){
     console.log("posting")
     newProduct={name:$scope.newProductName, specification:$scope.newProductSpecification}
-    httpPostAsync('http://localhost:5000/products', JSON.stringify(newProduct),function(response){
+    httpPostSync('http://localhost:5000/products', JSON.stringify(newProduct),function(response){
       $scope.updateProducts()
       if(arg){
         item=angular.fromJson(response)
@@ -434,26 +437,32 @@ angular.module('mainWindowApp', [])
     })
     $scope.toggleAddItemModal()
   }
+
   $scope.updateProducts = function(){
     console.log("attempting product list update")
-    httpGetAsync('http://localhost:5000/products', function(response){
+    httpGetAsync(baseURL.concat("/products?fields=name,id,specification"), function(response){
       $scope.productsFromServer=angular.fromJson(response);
+      myStorage.setItem("products",JSON.stringify($scope.productsFromServer))
+      console.log("storage: "+JSON.stringify(myStorage.getItem("products")))
       $scope.$apply();
     });
   }
 
   $scope.updateProducts()
 
-  // httpGetAsync('http://localhost:5000/values', function(response){
-  //   $scope.valuesFromServer=angular.fromJson(response);
-  //   $scope.$apply();
-  // });
+  $scope.updateReferences = function(){
+    console.log("attempting product list update")
+    httpGetAsync('http://localhost:5000/references', function(response){
+      $scope.referencesFromServer=angular.fromJson(response);
+      myStorage.setItem("references",JSON.stringify($scope.referencesFromServer))
+      console.log("storage: "+JSON.stringify(myStorage.getItem("references")))
+      $scope.$apply();
+    });
+  }
 
-httpGetAsync('http://localhost:5000/references', function(response){
-  $scope.referencesFromServer=angular.fromJson(response);
-  $scope.$apply();
-});
+  $scope.updateReferences()
 })
+
 .controller('ProductModalController', function($scope){
 })
 

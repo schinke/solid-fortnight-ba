@@ -2,6 +2,7 @@
 from flask import jsonify, Flask, request, Response
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.httpauth import HTTPBasicAuth
+import time
 import json
 
 auth = HTTPBasicAuth()
@@ -38,11 +39,17 @@ def rollback():
 @app.route('/products', methods = ['GET'])
 def get_products():
 
+    start = time.time()
     #TODO: log visits automatically
     visit = Visits("/products")
     db.session.add(visit)
     db.session.commit()
-    return jsonify([a.toDict() for a in Product.query.all()])
+    result=[]
+    allProducts=Product.query.all()
+    result = [a.toDict(fields=request.args.get('fields').split(",")) for a in allProducts]
+    end = time.time()
+    print (end-start)
+    return jsonify(result)
 
 
 @app.route('/products/<id>', methods = ['GET'])
@@ -55,6 +62,7 @@ def get_product(id):
     except Exception as e:
         product = None
     if not product or product is None:
+        db.session.rollback()
         return "resource "+str(id)+" not found", 404
     else:
         return jsonify(product.toDict())
@@ -423,10 +431,13 @@ def editValue(value,valueDict):
                 db.session.add(location)
             value.validCountries.append(location)
     if 'baseValue' in valueDict:
-        baseValue = Value.query.get(valueDict['baseValue'])
-        if not baseValue==value:
-            value.baseValue=baseValue
-            print (value.toDict())
+        try:
+            baseValue = Value.query.get(valueDict['baseValue'])
+            if not baseValue==value:
+                value.baseValue=baseValue
+        except:
+            pass
+
     #type specific fields
     if not 'type' in valueDict:
         raise TypeError

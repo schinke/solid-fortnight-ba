@@ -3,7 +3,6 @@
 <head>
   <title>Product Details</title>
   <script>window.$ = window.jQuery = require('jquery');</script>
-
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="../static/angular.min.js"></script>
   <!-- Compiled and minified CSS -->
@@ -26,188 +25,256 @@
       <div class="container" style="padding-bottom: 80px;overflow:visible">
         <div class="row">
           <div class="col s12 card-panel">
+
             Name:
-            <input ng-class="localProduct.name===fromServer.name?'':'red'" type="text" ng-change="putProduct()()" ng-model="localProduct.name" required /><br />
+            <input ng-class="localProduct.name===fromServer.name?'':'red'" type="text" ng-change="delayedPut()" ng-model="localProduct.name" required /><br />
+
             English name:
-            <input ng-class="localProduct.englishName===fromServer.englishName?'':'red'" type="text" ng-change="putProduct()()" ng-model="localProduct.englishName"  /><br />
+            <input ng-class="localProduct.englishName===fromServer.englishName?'':'red'" type="text" ng-change="delayedPut()" ng-model="localProduct.englishName"  /><br />
+
             French name:
-            <input ng-class="localProduct.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="putProduct()()" ng-model="localProduct.frenchName"  /><br />
+            <input ng-class="localProduct.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="delayedPut()" ng-model="localProduct.frenchName"  /><br />
 
             Specification:
-            <input ng-class="localProduct.specification===fromServer.specification?'':'red'" type="text" ng-change="putProduct()()"ng-model="localProduct.specification"/><br />
+            <input ng-class="localProduct.specification===fromServer.specification?'':'red'" type="text" ng-change="delayedPut()"ng-model="localProduct.specification"/><br />
           </div>
+        </div>
+        <div class="row">
           <div class="col s12 card-panel">
-            Allergenes:
-            <table>
-              <thead>
-                <tr>
-                  <th data-field="reference" ng-click="allergeneSortField='reference'">Reference</th>
-                  <th data-field="Number of allergenes" ng-click="allergeneSortField='complete'">No. Of Allergenes</th>
-                  <th><!-- for edit button --></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat="allergeneGroup in allergeneGroupKeys|orderBy:allergeneSortField" >
-                  <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
-                  <td>{{allergenesGrouped[allergeneGroup].length}}</td>
-                  <td>
-                    <a class="" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
-                  </div>
-                </tr>
-                <tr><td><a ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="serverReferences"></autocomplete></td></tr>
-                <tr>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="col s12 card-panel">
-            Nutrients:
-            <table>
-              <thead>
-                <tr>
-                  <th data-field="reference" ng-click="nutrientSortField='reference'">Reference</th>
-                  <th data-field="Number of nutrients" ng-click="nutrientSortField='complete'">No. Of Nutrients</th>
-                  <th><!-- for edit button --></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat="nutrientGroup in nutrientGroupKeys|orderBy:nutrientSortField" >
-                  <td>{{nutrientsGrouped[nutrientGroup][0].reference}}</td>
-                  <td>{{nutrientsGrouped[nutrientGroup].length}}</td>
-                  <td>
-                    <a class="" ng-click="toggleGroupExtender(nutrientsGrouped[nutrientGroup][0].reference,nutrientsGrouped[nutrientGroup][0].type,nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
-                  </div>
-                </tr>
-                <tr><td><a ng-click="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newNutrientRefName" data="serverReferences"></autocomplete></td></tr>
-                <tr>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="col s12 card-panel">
-            Density:
-            <table>
-              <thead>
-                <tr>
-                  <th data-field="product" ng-click="densitySortField='product'">Product</th>
-                  <th data-field="amount" ng-click="densitySortField='amount'">Amount</th>
-                  <th data-field="reference" ng-click="densitySortField='nutrient'">Nutrient</th>
-                  <th data-field="id" ng-click="densitySortField='valueId'">Value Id</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat="density in fromServer.densities|orderBy:densitySortField|filter:densitySearchTerm" ng-click="toggleExtender(density.id, 'showDensityExtender')">
-                  <td>{{density.product}}</td>
-                  <td>{{density.amount}}</td>
-                  <td>{{density.id}}</td>
-                </tr>
-                <tr>
-                </tr>
-              </tbody>
-            </table>
-            Comments on density and unit weight:<input ng-class="localProduct.commentsOnDensityAndUnitWeight===fromServer.commentsOnDensityAndUnitWeight?'':'red'" type="text" ng-change="putProduct()()"ng-model="localProduct.commentsOnDensityAndUnitWeight"/>
-          </div>
-          <div class="col s12 card-panel">
-            Info text for cook:
-            <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="putProduct()()"ng-model="localProduct.infoTextForCook"/><br />
-          </div>
-          <div class="col s12 card-panel">
-            Tags:
-            <div ng-repeat="tag in fromServer.tags">
-              {{tag}}<br />
-            </div><br />
-            Synonyms:
-            <div ng-repeat="synonym in fromServer.synonyms">
-              {{synonym}}<br />
-            </div><br />
-          </div>
-          <div class="col s12 card-panel">
-            Alternatives:
-            <div ng-repeat="alternative in fromServer.alternatives">
-              {{alternative.name}}<br />
-            </div><br />
-          </div>
-          <div class="col s12 card-panel">
-            Nutrient processes:
-            <table>
-              <thead>
-                <tr>
-                  <th data-field="type" ng-click="valueSortField='name'">Name</th>
-                  <th data-field="product" ng-click="valueSortField='amount'">Amount</th>
-                  <th data-field="reference" ng-click="valueSortField='nutrient'">Nutrient</th>
 
-                  <th data-field="id" ng-click="valueSortField='valueId'">Value Id</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr ng-repeat="process in fromServer.nutrientProcesses|orderBy:valueSortField|filter:valueSearchTerm">
-
-                  <td>{{process.name}}</td>
-                  <td>{{process.amount}}</td>
-                  <td>{{process.nutrient}}</td>
-                  <td>{{process.valueId}}</td>
-                </tr>
-                <form ng-submit="addNutrientProcess()">
-                  <td><input type="text" ng-model="newProcessName"/></td>
-                  <td><input type="number" ng-model="newProcessAmount"/></td>
-                  <td><input type="text" ng-model="newNutrientName"/></td>
-                  <td><div class="btn" ng-click="addNutrientProcess()">add</div></td>
-                </form>
-              </tbody>
-            </table>
-          </div>
-          <div class="col s12 card-panel">
-            Foodwaste Data:
+            CO<sub>2</sub> Equivalent:
             <table>
               <thead>
                 <tr>
-                  <th data-field="field" ng-click="foodWasteSortField='name'">Name</th>
-                  <th data-field="amount" ng-click="foodWasteSortField='amount'">Amount</th>
-                  <th data-field="id" ng-click="foodWasteSortField='valueId'">Value Id</th>
+                  <th data-field="reference" ng-click="co2SortField='reference'">Reference</th>
+                  <th data-field="amount" ng-click="co2SortField='amount'">
+                    Value
+                  </th>
+                  <th>
+                    Derived
+                  </th>
+                  <th>
+                    <!-- for edit button -->
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                <tr ng-repeat="data in fromServer.foodWasteData|orderBy:foodWasteSortField|filter:foodWasteSearchTerm">
-
-                  <td>{{data.field}}</td>
-                  <td>{{data.amount}}</td>
-                  <td>{{data.id}}</td>
-                </tr>
-                <form ng-submit="addNutrientProcess()">
-                  <td><input type="text" ng-model="newFoodWasteField"/></td>
-                  <td><input type="number" ng-model="newFoodWasteAmount"/></td>
-                  <td><div class="btn" ng-click="addFoodWasteData()" ng-mouseenter="addButtonHover = true" ng-mouseleave="addButtonHover = false">add</div></td>
-                </form>
                 <tr>
-                </tr>
-              </tbody>
-            </table>
+                  <td>{{localProduct['co2Values'][0].reference||"-"}}</td>
+                  <td>{{localProduct['co2Values'][0].amount}}</td>
+                  <td>{{localProduct['co2Values'][0].derived?"Yes":"No"}}
+                    <td>
+                      <a class="" ng-click="toggleValueExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons">input</i></a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <a ng-click="toggleGroupExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons" >add</i></a>
+                    </td>
+                  </tr>
+                  <tr>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s12 card-panel">
+              Allergenes:
+              <table>
+                <thead>
+                  <tr>
+                    <th data-field="reference" ng-click="allergeneSortField='reference'">Reference</th>
+                    <th data-field="Number of allergenes" ng-click="allergeneSortField='complete'">No. Of Allergenes</th>
+                    <th><!-- for edit button --></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="allergeneGroup in allergeneGroupKeys|orderBy:allergeneSortField" >
+                    <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
+                    <td>{{allergenesGrouped[allergeneGroup].length}}</td>
+                    <td>
+                      <a class="" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
+                    </div>
+                  </tr>
+                  <tr>
+                    <td><a ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
+                    </td>
+                    <td>
+                      <autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
+                      </autocomplete>
+                    </td>
+                  </tr>
+                  <tr>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col s12 card-panel">
+              Nutrients:
+              <table>
+                <thead>
+                  <tr>
+                    <th data-field="reference" ng-click="nutrientSortField='reference'">Reference</th>
+                    <th data-field="Number of nutrients" ng-click="nutrientSortField='complete'">No. Of Nutrients</th>
+                    <th><!-- for edit button --></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="nutrientGroup in nutrientGroupKeys|orderBy:nutrientSortField" >
+                    <td>{{nutrientsGrouped[nutrientGroup][0].reference}}</td>
+                    <td>{{nutrientsGrouped[nutrientGroup].length}}</td>
+                    <td>
+                      <a class="" ng-click="toggleGroupExtender(nutrientsGrouped[nutrientGroup][0].reference,nutrientsGrouped[nutrientGroup][0].type,nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
+                    </div>
+                  </tr>
+                  <tr><td><a ng-click="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newNutrientRefName" data="references"></autocomplete></td></tr>
+                  <tr>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col s12 card-panel">
+
+              Density:
+              <table>
+                <thead>
+                  <tr>
+                    <th data-field="reference" ng-click="densitySortField='reference'">Reference</th>
+                    <th data-field="amount" ng-click="densitySortField='amount'">
+                      Value
+                    </th>
+                    <th>
+                      Derived
+                    </th>
+                    <th>
+                      <!-- for edit button -->
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{localProduct['densities'][0].reference||"-"}}</td>
+                    <td>{{localProduct['densities'][0].amount}}</td>
+                    <td>{{localProduct['densities'][0].derived?"Yes":"No"}}
+                      <td>
+                        <a class="" ng-click="toggleValueExtender(localProduct['densities'][0],'showDensityExtender')"><i class="material-icons">input</i></a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <a ng-click="toggleGroupExtender(localProduct['densities'][0],'showCoValueExtender')"><i class="material-icons" >add</i></a>
+                      </td>
+                    </tr>
+                    <tr>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12 card-panel">
+                Info text for cook:
+                <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="delayedPut()"ng-model="localProduct.infoTextForCook"/><br />
+              </div>
+              <div class="col s12 card-panel">
+                Tags:
+                <div ng-repeat="tag in fromServer.tags">
+                  {{tag}}<br />
+                </div><br />
+                Synonyms:
+                <div ng-repeat="synonym in fromServer.synonyms">
+                  {{synonym}}<br />
+                </div><br />
+              </div>
+              <div class="col s12 card-panel">
+                Alternatives:
+                <div ng-repeat="alternative in fromServer.alternatives">
+                  {{alternative.name}}<br />
+                </div><br />
+              </div>
+              <div class="col s12 card-panel">
+                Nutrient processes:
+                <table>
+                  <thead>
+                    <tr>
+                      <th data-field="type" ng-click="valueSortField='name'">Name</th>
+                      <th data-field="product" ng-click="valueSortField='amount'">Amount</th>
+                      <th data-field="reference" ng-click="valueSortField='nutrient'">Nutrient</th>
+
+                      <th data-field="id" ng-click="valueSortField='valueId'">Value Id</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="process in fromServer.nutrientProcesses|orderBy:valueSortField|filter:valueSearchTerm">
+
+                      <td>{{process.name}}</td>
+                      <td>{{process.amount}}</td>
+                      <td>{{process.nutrient}}</td>
+                      <td>{{process.valueId}}</td>
+                    </tr>
+                    <form ng-submit="addNutrientProcess()">
+                      <td><input type="text" ng-model="newProcessName"/></td>
+                      <td><input type="number" ng-model="newProcessAmount"/></td>
+                      <td><input type="text" ng-model="newNutrientName"/></td>
+                      <td><div class="btn" ng-click="addNutrientProcess()">add</div></td>
+                    </form>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col s12 card-panel">
+                Foodwaste Data:
+                <table>
+                  <thead>
+                    <tr>
+                      <th data-field="field" ng-click="foodWasteSortField='name'">Name</th>
+                      <th data-field="amount" ng-click="foodWasteSortField='amount'">Amount</th>
+                      <th data-field="id" ng-click="foodWasteSortField='valueId'">Value Id</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="data in fromServer.foodWasteData|orderBy:foodWasteSortField|filter:foodWasteSearchTerm">
+
+                      <td>{{data.field}}</td>
+                      <td>{{data.amount}}</td>
+                      <td>{{data.id}}</td>
+                    </tr>
+                    <form ng-submit="addNutrientProcess()">
+                      <td><input type="text" ng-model="newFoodWasteField"/></td>
+                      <td><input type="number" ng-model="newFoodWasteAmount"/></td>
+                      <td><div class="btn" ng-click="addFoodWasteData()" ng-mouseenter="addButtonHover = true" ng-mouseleave="addButtonHover = false">add</div></td>
+                    </form>
+                    <tr>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="height:100vh; overflow:scroll; word-wrap:break-word" ng-show="extenderVisible" class="col s5">
+          <div class="container" style="padding-bottom: 80px;overflow:visible">
+            <div class="card cyan lighten-4 row" extender>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div style="height:100vh; overflow:scroll; word-wrap:break-word" ng-show="extenderVisible" class="col s5">
-      <div class="container" style="padding-bottom: 80px;overflow:visible">
-        <div class="card cyan lighten-4 row" extender>
-        </div>
-      </div>
-    </div>
-  </div>
-     <script>window.Hammer = require('hammer');</script>
-<script src="../static/materialize.js"></script>
-    <style media="screen" type="text/css">
+      <script src="../static/materialize.js"></script>
+      <style media="screen" type="text/css">
 
-    .overlay {
-      background-color: rgba(120,120,120,0.6);
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      top: 0px;
-      left: 0px;
-      text-align:center;
-      z-index: 999;
-    }
-    a{ cursor: pointer; }
-    </style>
-</body>
-</html>
+      .overlay {
+        background-color: rgba(120,120,120,0.6);
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+        text-align:center;
+        z-index: 999;
+      }
+      a{ cursor: pointer; }
+      </style>
+    </body>
+    </html>

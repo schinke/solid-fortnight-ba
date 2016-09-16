@@ -64,12 +64,12 @@
                   <td>{{localProduct['co2Values'][0].amount}}</td>
                   <td>{{localProduct['co2Values'][0].derived?"Yes":"No"}}
                     <td>
-                      <a class="" ng-click="toggleValueExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons">input</i></a>
+                      <a title="display value details" class="" ng-click="toggleValueExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons">input</i></a>
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <a ng-click="toggleGroupExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons" >add</i></a>
+                      <a title="add new value" ng-click="toggleGroupExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons" >add</i></a>
                     </td>
                   </tr>
                   <tr>
@@ -94,15 +94,18 @@
                     <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
                     <td>{{allergenesGrouped[allergeneGroup].length}}</td>
                     <td>
-                      <a class="" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
+                      <a title="display values" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
                     </div>
                   </tr>
                   <tr>
-                    <td><a ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
-                    </td>
                     <td>
-                      <autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
-                      </autocomplete>
+                      <form ng-submit="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')">
+                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
+                        </autocomplete>
+                      </form>
+                    </td>
+                    <td></td>
+                    <td><a title="add additional reference" ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
                     </td>
                   </tr>
                   <tr>
@@ -128,7 +131,18 @@
                       <a class="" ng-click="toggleGroupExtender(nutrientsGrouped[nutrientGroup][0].reference,nutrientsGrouped[nutrientGroup][0].type,nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
                     </div>
                   </tr>
-                  <tr><td><a ng-click="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')"><i class="material-icons" >add</i></a></td><td><autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newNutrientRefName" data="references"></autocomplete></td></tr>
+                  <tr>
+
+                    <td>
+                      <form ng-submit="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')">
+                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newNutrientRefName" data="references"></autocomplete>
+                      </form>
+                    </td>
+                    <td></td>
+                    <td>
+                      <a title="add additional reference" ng-click="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')"><i class="material-icons" >add</i></a>
+                    </td>
+                  </tr>
                   <tr>
                   </tr>
                 </tbody>
@@ -160,7 +174,7 @@
                     <td>{{localProduct['densities'][0].amount}}</td>
                     <td>{{localProduct['densities'][0].derived?"Yes":"No"}}
                       <td>
-                        <a class="" ng-click="toggleValueExtender(localProduct['densities'][0],'showDensityExtender')"><i class="material-icons">input</i></a>
+                        <a title="display values" class="" ng-click="toggleValueExtender(localProduct['densities'][0],'showDensityExtender')"><i class="material-icons">input</i></a>
                       </td>
                     </tr>
                     <tr>
@@ -200,27 +214,32 @@
                 <table>
                   <thead>
                     <tr>
-                      <th data-field="type" ng-click="valueSortField='name'">Name</th>
-                      <th data-field="product" ng-click="valueSortField='amount'">Amount</th>
-                      <th data-field="reference" ng-click="valueSortField='nutrient'">Nutrient</th>
-
-                      <th data-field="id" ng-click="valueSortField='valueId'">Value Id</th>
+                      <th data-field="reference" ng-click="allergeneSortField='reference'">Reference</th>
+                      <th data-field="Number of allergenes" ng-click="allergeneSortField='complete'">No. Of Allergenes</th>
+                      <th><!-- for edit button --></th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr ng-repeat="process in fromServer.nutrientProcesses|orderBy:valueSortField|filter:valueSearchTerm">
-
-                      <td>{{process.name}}</td>
-                      <td>{{process.amount}}</td>
-                      <td>{{process.nutrient}}</td>
-                      <td>{{process.valueId}}</td>
+                    <tr ng-repeat="allergeneGroup in allergeneGroupKeys|orderBy:allergeneSortField" >
+                      <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
+                      <td>{{allergenesGrouped[allergeneGroup].length}}</td>
+                      <td>
+                        <a title="display values" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
+                      </div>
                     </tr>
-                    <form ng-submit="addNutrientProcess()">
-                      <td><input type="text" ng-model="newProcessName"/></td>
-                      <td><input type="number" ng-model="newProcessAmount"/></td>
-                      <td><input type="text" ng-model="newNutrientName"/></td>
-                      <td><div class="btn" ng-click="addNutrientProcess()">add</div></td>
-                    </form>
+                    <tr>
+                      <td>
+                        <form ng-submit="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')">
+                          <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
+                          </autocomplete>
+                        </form>
+                      </td>
+                      <td></td>
+                      <td><a title="add additional reference" ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
+                      </td>
+                    </tr>
+                    <tr>
+                    </tr>
                   </tbody>
                 </table>
               </div>

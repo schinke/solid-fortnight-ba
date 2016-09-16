@@ -112,10 +112,12 @@ angular.module('productFormApp', ['autocomplete'])
   $scope.updateAllFromServer=function(){
 
     $scope.updateProductData()
-    $scope.updateServerNutrients()
-    $scope.updateServerAllergenes()
-    $scope.updateAllergeneGroups()
-    $scope.updateNutrientGroups()
+    setTimeout(function(){
+      $scope.updateServerNutrients()
+      $scope.updateServerAllergenes()
+      $scope.updateAllergeneGroups()
+      $scope.updateNutrientGroups()
+    },100)
   }
 
   $scope.updateProductData = function(){
@@ -294,7 +296,7 @@ angular.module('productFormApp', ['autocomplete'])
         })
       }
     }
-    else{
+    if($scope.baseValueProductId!==null){
       httpGetAsync(baseURL.concat('/products/').concat($scope.baseValueProductId), function(response){
         $scope.baseProduct=angular.fromJson(response)
       })
@@ -312,8 +314,9 @@ angular.module('productFormApp', ['autocomplete'])
     }, 3000)
   }
 
-  //this is triggered by the derived/not derived switch in the Co2ValueExtender
+  //this is triggered by the derived/not derived switch
   $scope.toggleBaseValue = function(value){
+
     if ($scope.baseValueBackup && $scope.withBaseValue){
       value.baseValue=$scope.baseValueBackup
     }
@@ -321,9 +324,8 @@ angular.module('productFormApp', ['autocomplete'])
       $scope.baseValueBackup=value.baseValue
       delete value.baseValue
     }
-    console.log(JSON.stringify(value))
-    console.log("baseValueBackup: "+$scope.baseValueBackup)
     $scope.putValue(value)
+
   }
   $scope.$apply()
 })

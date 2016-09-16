@@ -63,12 +63,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="value in baseProduct.co2Values" ng-class="value.id===editValues[0].baseValue?'teal lighten-2':'white'">
+            <tr ng-repeat="value in baseProduct.co2Values">
               <td>{{value.amount}}</td>
               <td>{{value.unit}}</td>
               <td>{{value.reference}}</td>
               <td>
-                <a class="" ng-click="editValues[0].baseValue=value.id; putValue(editValues[0])"><i class="material-icons">input</i></a>
+                <a class="" ng-click="editValues[0].baseValue=value.id; putValue(editValues[0])"><i class="material-icons">{{value.id===editValues[0].baseValue?"radio_button_checked":"radio_button_unchecked"}}</i></a>
               </tr>
               <tr>
               </tr>

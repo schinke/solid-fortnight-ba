@@ -4,6 +4,11 @@ const {ipcRenderer} = require('electron')
 const baseURL = 'http://localhost:5000'
 const debug=false
 const myStorage=localStorage;
+const path=require("path")
+const fs=require("fs")
+var exportPath=path.join(__dirname,"..","..","export")
+
+
 function httpGetAsync(theUrl, callback) {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function() { 
@@ -48,7 +53,45 @@ angular.module('mainWindowApp', [])
     ipcRenderer.send('show-prod-form', arg)
     console.log(arg)
   }
+  $scope.dumpJson =function(){
+    try{
+      fs.mkdirSync(exportPath)
+    }
+    catch(err){
+      console.error(err.message)
+    }
+    console.log("attempting JSON dump")
+    httpGetAsync(baseURL.concat("/products"),function(response){
+      var products=angular.fromJson(response)
+      for(i in products){
+        (function(productIndex){
+          var product=products[productIndex]
+          var fileName=String(product.id).concat(product.name).concat(".json")
+          var absFileName=path.normalize(path.join(exportPath,fileName))
+          fs.exists(absFileName, function(exists) {
+            if (exists) {
+              fs.stat(absFileName, function(error, stats) {
+                fs.open(absFileName, "r", function(error, fd) {
+                  var buffer = new Buffer(stats.size);
 
+                  fs.read(fd, buffer, 0, buffer.length, null, function(error, bytesRead, buffer) {
+                    var data = buffer.toString("utf8", 0, buffer.length);
+
+                    console.log(data);
+                    fs.close(fd);
+                  });
+                });
+              });
+            }
+            else{
+              fs.writeFile(absFileName, JSON.stringify(product))
+              console.log("wrote file: "+absFileName)
+            }
+          });
+        })(i)
+      }
+    })
+  }
   //generate and post data from loaded legacy data
   $scope.convertLegacy = function(legacyProducts,legacyProcesses,legacyNutrients,legacyNutritionChanges,legacyFoodWastes){
     // Post all products and store their new representation
@@ -443,7 +486,9 @@ angular.module('mainWindowApp', [])
     httpGetAsync(baseURL.concat("/products?fields=name,id,specification"), function(response){
       $scope.productsFromServer=angular.fromJson(response);
       myStorage.setItem("products",JSON.stringify($scope.productsFromServer))
-      console.log("storage: "+JSON.stringify(myStorage.getItem("products")))
+      if(debug){
+        console.log("storage: "+JSON.stringify(myStorage.getItem("products")))
+      }
       $scope.$apply();
     });
   }
@@ -451,15 +496,17 @@ angular.module('mainWindowApp', [])
   $scope.updateProducts()
 
   $scope.updateReferences = function(){
-    console.log("attempting product list update")
+    console.log("attempting reference list update")
     httpGetAsync('http://localhost:5000/references', function(response){
       $scope.referencesFromServer=angular.fromJson(response);
       myStorage.setItem("references",JSON.stringify($scope.referencesFromServer))
-      console.log("storage: "+JSON.stringify(myStorage.getItem("references")))
+      if(debug){
+       console.log("storage: "+JSON.stringify(myStorage.getItem("references")))
+     }
       $scope.$apply();
     });
   }
-
+  $scope.dumpJson()
   $scope.updateReferences()
 })
 

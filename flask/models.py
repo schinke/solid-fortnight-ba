@@ -236,11 +236,30 @@ class ProductAllergeneAssociation(Value):
     product = relationship("Product", back_populates = "allergenes")
     allergene = relationship("Allergene")
 
-#Store how much one process changes one nutrient for one product
-class ProductProcessNutrientAssociation(Value):
+#Store if a process is applicable on a product
+class ProductProcessAssociation(Value):
     __tablename__ = 'prod_process_association'
     __mapper_args__ = {
         'polymorphic_identity':'prod_process_association',
+        
+    }
+
+    def toDict(self):
+        output = super(ProductProcessAssociation, self).toDict()
+        output['processId'] = self.process.id
+        output['processName'] = self.process.name
+        return output
+
+    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
+    process_id =  db.Column(db.Integer, db.ForeignKey('process.id'))
+    process = relationship("Process")
+    product = relationship("Product", back_populates = "processes")
+
+#Store how much one process changes one nutrient for one product
+class ProductProcessNutrientAssociation(Value):
+    __tablename__ = 'prod_process_nutrient_association'
+    __mapper_args__ = {
+        'polymorphic_identity':'prod_process_nutrient_association',
         
     }
 
@@ -258,7 +277,7 @@ class ProductProcessNutrientAssociation(Value):
     nutrient_id = db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     nutrient = relationship("Nutrient")
     process = relationship("Process")
-    product = relationship("Product", back_populates = "processes")
+    product = relationship("Product", back_populates = "processesNutrients")
 
 #Store how much one process changes one product's CO2 Value
 class ProductProcessCO2Association(Value):
@@ -415,9 +434,11 @@ class Product(db.Model):
         if not fields or (fields and 'nutrients' in fields):
             response['nutrients'] = [nutrient.toDict() for nutrient in self.nutrients]
         if not fields or (fields and 'nutrientProcesses' in fields):
-            response['nutrientProcesses'] = [process.toDict() for process in self.processes]
+            response['nutrientProcesses'] = [process.toDict() for process in self.processesNutrients]
         if not fields or (fields and 'possibleOrigins' in fields):
             response['possibleOrigins'] = [origin.name for origin in self.possibleOrigins]
+        if not fields or (fields and 'processes' in fields):
+            response['processes'] = [process.toDict() for process in self.processes]
         if not fields or (fields and 'processesCo2' in fields):
             response['processesCo2'] = [process.toDict() for process in self.processesCo2]
         if not fields or (fields and 'specification' in fields):
@@ -469,7 +490,8 @@ class Product(db.Model):
     name = db.Column(db.String())
     nutrients = relationship("ProductNutrientAssociation", back_populates = "product", passive_deletes = True)
     possibleOrigins = relationship("Location", secondary = "location_prod_association", back_populates = "possibleProducts", passive_deletes = True)
-    processes = relationship("ProductProcessNutrientAssociation", back_populates = "product", passive_deletes = True)
+    processes = relationship("Process", secondary="prod_process_association", back_populates="product")
+    processesNutrients = relationship("ProductProcessNutrientAssociation", back_populates = "product", passive_deletes = True)
     processesCo2 = relationship("ProductProcessCO2Association", back_populates = "product", passive_deletes = True)
     specification = db.Column(db.String())
     standardOrigin_id = db.Column(db.Integer, db.ForeignKey('location.id'))

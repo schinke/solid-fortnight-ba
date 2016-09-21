@@ -23,14 +23,6 @@ def home():
 @app.route('/rollback', methods = ['GET'])
 def rollback():
     responseString=[]
-    # try:
-    #     db.session.expire_all()
-    # except Exception as e:
-    #     responseString.append(e.args)
-    # try:
-    #     db.session.commit()
-    # except Exception as e:
-    #     responseString.append(e.args)
     try:
         db.session.rollback()
     except Exception as e:
@@ -82,21 +74,6 @@ def post_product():
             product = TemplateProduct()
     else:
         product = TemplateProduct()
-
-    # # give product requested id if possible: requires rewrite of unique key distribution
-    # if 'id' in request.json and isinstance(request.json['id'], int):
-    #     try:
-    #         spotTaken=Product.query.get(request.json['id'])
-    #         print("spotTaken"+str(spotTaken))
-    #     except Exception as e:
-    #         print("manual error output: "+str(e.args))
-    #         return None,500
-    #     if spotTaken is not None:
-    #         pass
-    #     else:
-    #         if spotTaken:
-    #             raise Exception("spotTaken is None but exists")
-    #         product.id=request.json['id']
     if not 'name' in request.json:
         return "name missing", 400
     else:
@@ -315,8 +292,6 @@ def editProduct(id,jsonData):
                     editValue(value, processDict)
                 except:
                     value=None
-
-
     #add ProductNutrientAssociation (if not existing) and if necessary create respective Nutrient (side effect)
     if 'nutrients' in jsonData:
         for nutrientDict in jsonData['nutrients']:
@@ -359,8 +334,7 @@ def editProduct(id,jsonData):
             db.session.add(location)
             product.standardOrigin = location
     if 'startOfLocalSeason' in jsonData:
-        #TODO: parse date, check, add
-        pass
+        
     if 'synonyms' in jsonData:
         for synonymName in jsonData['synonyms']:
             try:

@@ -134,6 +134,7 @@ class FoodWasteData(Value):
 class Process(db.Model):
     __tablename__ = 'process'
     id = db.Column(db.Integer, primary_key = True)
+    products = relationship("Product", secondary = "prod_process_association", back_populates = "processes")
     name = db.Column(db.String())
     description = db.Column(db.String())
 
@@ -237,23 +238,11 @@ class ProductAllergeneAssociation(Value):
     allergene = relationship("Allergene")
 
 #Store if a process is applicable on a product
-class ProductProcessAssociation(Value):
+class LocationProductAssociation(db.Model):
     __tablename__ = 'prod_process_association'
-    __mapper_args__ = {
-        'polymorphic_identity':'prod_process_association',
-        
-    }
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete = "CASCADE"), primary_key = True)
+    process_id =  db.Column(db.Integer, db.ForeignKey('process.id',ondelete = "CASCADE"), primary_key = True)
 
-    def toDict(self):
-        output = super(ProductProcessAssociation, self).toDict()
-        output['processId'] = self.process.id
-        output['processName'] = self.process.name
-        return output
-
-    id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
-    process_id =  db.Column(db.Integer, db.ForeignKey('process.id'))
-    process = relationship("Process")
-    product = relationship("Product", back_populates = "processes")
 
 #Store how much one process changes one nutrient for one product
 class ProductProcessNutrientAssociation(Value):
@@ -370,34 +359,6 @@ class Product(db.Model):
         
     }
 
-    # def __init__(self, allergenes, alternatives, englishName, frenchName,
-    #     name, nutrients, processes, possibleOrigins, specification,
-    #     synonyms, tags, co2Value, standardOrigin, startOfLocalSeason,
-    #     endOfLocalSeason, density, unitWeight, commentsOnDensityAndUnitWeight,
-    #     texture, foodWasteData, infoTextForCook):
-    #     self.name = name
-    #     self.allergenes = allergenes
-    #     self.alternatives = alternatives
-    #     self.englishName = englishName
-    #     self.frenchName = frenchName
-    #     self.name = name
-    #     self.nutrients = nutrients
-    #     self.processes = processes
-    #     self.possibleOrigins = possibleOrigins
-    #     self.specification = specification
-    #     self.synonyms = synonyms
-    #     self.tags = tags
-    #     self.co2Value = co2Value
-    #     self.standardOrigin = standardOrigin
-    #     self.startOfLocalSeason = startOfLocalSeason
-    #     self.endOfLocalSeason = endOfLocalSeason
-    #     self.density = density
-    #     self.unitWeight = unitWeight
-    #     self.commentsOnDensityAndUnitWeight = commentsOnDensityAndUnitWeight
-    #     self.texture = texture
-    #     self.foodWasteData = foodWasteData
-    #     self.infoTextForCook = infoTextForCook
-        
     def fromJson(jsonObject):
         product.name = request.json['name']
         product.specification = request.json['specification']
@@ -460,23 +421,6 @@ class Product(db.Model):
 
     id = db.Column(db.Integer, primary_key = True)
 
-    # #Documentation
-    # calculationProcessDocumentation
-    # co2CalculationPath
-    # commentsOnFoodwasteCO2CalculationPathForDifferentProductParameters
-    # dataQualityEstimation
-    # degreesOfProcessing
-    # degreesOfProcessingParameters
-    # otherReferences
-    # packaging
-    # packagingMethods
-    # packagingParameters
-    # preservationMethods
-    # productionMethodParameters
-    # productionMethods
-    # referencesForBasicCO2Value
-    ##replace multiple fields with processes list
-    euro4Id = db.Column(db.String)
     allergenes = relationship("ProductAllergeneAssociation", back_populates = "product", passive_deletes = True)
     alternatives = relationship("Product", secondary = "prod_alternatives", primaryjoin = id == ProductAlternative.product_id_1, secondaryjoin = id == ProductAlternative.product_id_2, passive_deletes = True)
     co2Values = relationship("Co2Value", back_populates = "product", passive_deletes = True)
@@ -490,7 +434,7 @@ class Product(db.Model):
     name = db.Column(db.String())
     nutrients = relationship("ProductNutrientAssociation", back_populates = "product", passive_deletes = True)
     possibleOrigins = relationship("Location", secondary = "location_prod_association", back_populates = "possibleProducts", passive_deletes = True)
-    processes = relationship("Process", secondary="prod_process_association", back_populates="product")
+    processes = relationship("Process", secondary="prod_process_association", back_populates="products")
     processesNutrients = relationship("ProductProcessNutrientAssociation", back_populates = "product", passive_deletes = True)
     processesCo2 = relationship("ProductProcessCO2Association", back_populates = "product", passive_deletes = True)
     specification = db.Column(db.String())

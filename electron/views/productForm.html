@@ -61,7 +61,7 @@
               <tbody>
                 <tr>
                   <td>{{localProduct['co2Values'][0].reference||"-"}}</td>
-                  <td>{{localProduct['co2Values'][0].amount}}</td>
+                  <td>{{localProduct['co2Values'][0].amount}} {{localProduct['co2Values'][0].unit}}</td>
                   <td>{{localProduct['co2Values'][0].derived?"Yes":"No"}}
                     <td>
                       <a title="display value details" class="" ng-click="toggleValueExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons">input</i></a>
@@ -113,187 +113,86 @@
                 </tbody>
               </table>
             </div>
+          </div>
+          <div class="row">
             <div class="col s12 card-panel">
-              Nutrients:
+              Info text for cook:
+              <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="delayedPut()"ng-model="localProduct.infoTextForCook"/><br />
+            </div>
+            <div class="col s12 card-panel">
+              Tags:
+              <div ng-repeat="tag in fromServer.tags">
+                {{tag}}<br />
+              </div><br />
+            </div>
+            <div class="col s12 card-panel">
+              Alternatives:
+              <div ng-repeat="alternative in fromServer.alternatives">
+                {{alternative.name}}<br />
+              </div><br />
+            </div>
+            <div class="col s12 card-panel">
+              Nutrient processes:
               <table>
                 <thead>
                   <tr>
-                    <th data-field="reference" ng-click="nutrientSortField='reference'">Reference</th>
-                    <th data-field="Number of nutrients" ng-click="nutrientSortField='complete'">No. Of Nutrients</th>
+                    <th data-field="reference" ng-click="allergeneSortField='reference'">Reference</th>
+                    <th data-field="Number of allergenes" ng-click="allergeneSortField='complete'">No. Of Allergenes</th>
                     <th><!-- for edit button --></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr ng-repeat="nutrientGroup in nutrientGroupKeys|orderBy:nutrientSortField" >
-                    <td>{{nutrientsGrouped[nutrientGroup][0].reference}}</td>
-                    <td>{{nutrientsGrouped[nutrientGroup].length}}</td>
+                  <tr ng-repeat="allergeneGroup in allergeneGroupKeys|orderBy:allergeneSortField" >
+                    <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
+                    <td>{{allergenesGrouped[allergeneGroup].length}}</td>
                     <td>
-                      <a class="" ng-click="toggleGroupExtender(nutrientsGrouped[nutrientGroup][0].reference,nutrientsGrouped[nutrientGroup][0].type,nutrientsGrouped[nutrientGroup],'showNutrientExtender')"><i class="material-icons">input</i></a>
+                      <a title="display values" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
                     </div>
                   </tr>
                   <tr>
-
                     <td>
-                      <form ng-submit="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')">
-                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newNutrientRefName" data="references"></autocomplete>
+                      <form ng-submit="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')">
+                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
+                        </autocomplete>
                       </form>
                     </td>
                     <td></td>
-                    <td>
-                      <a title="add additional reference" ng-click="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')"><i class="material-icons" >add</i></a>
+                    <td><a title="add additional reference" ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
                     </td>
                   </tr>
                   <tr>
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col s12 card-panel">
-
-              Density:
-              <table>
-                <thead>
-                  <tr>
-                    <th data-field="reference" ng-click="densitySortField='reference'">Reference</th>
-                    <th data-field="amount" ng-click="densitySortField='amount'">
-                      Value
-                    </th>
-                    <th>
-                      Derived
-                    </th>
-                    <th>
-                      <!-- for edit button -->
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{{localProduct['densities'][0].reference||"-"}}</td>
-                    <td>{{localProduct['densities'][0].amount}}</td>
-                    <td>{{localProduct['densities'][0].derived?"Yes":"No"}}
-                      <td>
-                        <a title="display values" class="" ng-click="toggleValueExtender(localProduct['densities'][0],'showDensityExtender')"><i class="material-icons">input</i></a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <a ng-click="toggleGroupExtender(localProduct['densities'][0],'showCoValueExtender')"><i class="material-icons" >add</i></a>
-                      </td>
-                    </tr>
-                    <tr>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col s12 card-panel">
-                Info text for cook:
-                <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="delayedPut()"ng-model="localProduct.infoTextForCook"/><br />
-              </div>
-              <div class="col s12 card-panel">
-                Tags:
-                <div ng-repeat="tag in fromServer.tags">
-                  {{tag}}<br />
-                </div><br />
-                Synonyms:
-                <div ng-repeat="synonym in fromServer.synonyms">
-                  {{synonym}}<br />
-                </div><br />
-              </div>
-              <div class="col s12 card-panel">
-                Alternatives:
-                <div ng-repeat="alternative in fromServer.alternatives">
-                  {{alternative.name}}<br />
-                </div><br />
-              </div>
-<!--               <div class="col s12 card-panel">
-                Nutrient processes:
-                <table>
-                  <thead>
-                    <tr>
-                      <th data-field="reference" ng-click="allergeneSortField='reference'">Reference</th>
-                      <th data-field="Number of allergenes" ng-click="allergeneSortField='complete'">No. Of Allergenes</th>
-                      <th><!-- for edit button --></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr ng-repeat="allergeneGroup in allergeneGroupKeys|orderBy:allergeneSortField" >
-                      <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
-                      <td>{{allergenesGrouped[allergeneGroup].length}}</td>
-                      <td>
-                        <a title="display values" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
-                      </div>
-                    </tr>
-                    <tr>
-                      <td>
-                        <form ng-submit="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')">
-                          <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
-                          </autocomplete>
-                        </form>
-                      </td>
-                      <td></td>
-                      <td><a title="add additional reference" ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
-                      </td>
-                    </tr>
-                    <tr>
-                    </tr>
-                  </tbody>
-                </table>
-              </div> -->
-<!--               <div class="col s12 card-panel">
-                Foodwaste Data:
-                <table>
-                  <thead>
-                    <tr>
-                      <th data-field="field" ng-click="foodWasteSortField='name'">Name</th>
-                      <th data-field="amount" ng-click="foodWasteSortField='amount'">Amount</th>
-                      <th data-field="id" ng-click="foodWasteSortField='valueId'">Value Id</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr ng-repeat="data in fromServer.foodWasteData|orderBy:foodWasteSortField|filter:foodWasteSearchTerm">
-
-                      <td>{{data.field}}</td>
-                      <td>{{data.amount}}</td>
-                      <td>{{data.id}}</td>
-                    </tr>
-                    <form ng-submit="addNutrientProcess()">
-                      <td><input type="text" ng-model="newFoodWasteField"/></td>
-                      <td><input type="number" ng-model="newFoodWasteAmount"/></td>
-                      <td><div class="btn" ng-click="addFoodWasteData()" ng-mouseenter="addButtonHover = true" ng-mouseleave="addButtonHover = false">add</div></td>
-                    </form>
-                    <tr>
-                    </tr>
-                  </tbody>
-                </table>
-              </div> -->
-            </div>
-          </div>
-        </div>
-        <div style="height:100vh; overflow:scroll; word-wrap:break-word" ng-show="extenderVisible" class="col s5">
-          <div class="container" style="padding-bottom: 80px;overflow:visible">
-            <div class="card cyan lighten-4 row" extender>
-            </div>
+            </div> 
           </div>
         </div>
       </div>
-      <script src="../static/materialize.js"></script>
-      <style media="screen" type="text/css">
+      <div style="height:100vh; overflow:scroll; word-wrap:break-word" ng-show="extenderVisible" class="col s5">
+        <div class="container" style="padding-bottom: 80px;overflow:visible">
+          <div class="card cyan lighten-4 row" extender>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../static/materialize.js"></script>
+    <style type="text/css">
 
-      .overlay {
-        background-color: rgba(120,120,120,0.6);
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        top: 0px;
-        left: 0px;
-        text-align:center;
-        z-index: 999;
-      }
-      a{ cursor: pointer; }
-      </style>
-    </body>
-    </html>
+    .overlay {
+      background-color: rgba(120,120,120,0.6);
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0px;
+      left: 0px;
+      text-align:center;
+      z-index: 999;
+    }
+
+    .nav-wrapper{
+      background-color: #11586c;
+    }
+    a{ cursor: pointer; }
+    </style>
+  </body>
+  </html>

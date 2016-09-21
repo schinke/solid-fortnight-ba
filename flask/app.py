@@ -228,6 +228,10 @@ def get_allergenes():
 def get_nutrients():
     return jsonify([a.toDict() for a in Nutrient.query.all()])
 
+@app.route('/processes', methods = ['GET'])
+def get_processes():
+    return jsonify([a.toDict() for a in Process.query.all()])
+
 def editProduct(id,jsonData):
     product = Product.query.get(id)
     if 'allergenes' in jsonData:
@@ -334,7 +338,7 @@ def editProduct(id,jsonData):
             db.session.add(location)
             product.standardOrigin = location
     if 'startOfLocalSeason' in jsonData:
-        
+        product.startOfLocalSeason = jsonData['startOfLocalSeason']
     if 'synonyms' in jsonData:
         for synonymName in jsonData['synonyms']:
             try:

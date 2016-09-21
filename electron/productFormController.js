@@ -276,9 +276,14 @@ angular.module('productFormApp', ['autocomplete'])
         $scope.co2BaseValueProductId=angular.fromJson(response)['product']
       })
     }
+    else{
+      //not sure if $scope.withBaseValue=editValue.derived would work because of order
+      $scope.withBaseValue=false
+    }
     $scope.extenderVisible=!$scope.extenderVisible||JSON.stringify(editValues)!==JSON.stringify($scope.editValues);
     $scope.editValues=editValues
     $scope.editValuesType=editValue['type']
+    $scope.baseValueBackup=null
   }
 
   $scope.togglePostField = function(){

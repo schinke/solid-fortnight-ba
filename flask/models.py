@@ -138,6 +138,9 @@ class Process(db.Model):
     name = db.Column(db.String())
     description = db.Column(db.String())
 
+    def toDict(self):
+        return {'id':self.id, 'name':self.name, 'description':self.description}
+
 #An allergene not tied to a product
 class Allergene(db.Model):#single allergene, not multiple allergenes
     __tablename__ = 'allergene'
@@ -426,7 +429,7 @@ class Product(db.Model):
     co2Values = relationship("Co2Value", back_populates = "product", passive_deletes = True)
     commentsOnDensityAndUnitWeight = db.Column(db.String())
     densities = relationship("ProductDensity", back_populates = "product", passive_deletes = True)
-    endOfLocalSeason = db.Column(db.Date())
+    endOfLocalSeason = db.Column(db.String())
     englishName = db.Column(db.String())
     foodWasteData = relationship("FoodWasteData", back_populates = "product", passive_deletes = True)
     frenchName = db.Column(db.String())
@@ -440,7 +443,7 @@ class Product(db.Model):
     specification = db.Column(db.String())
     standardOrigin_id = db.Column(db.Integer, db.ForeignKey('location.id'))
     standardOrigin = relationship(Location, foreign_keys = standardOrigin_id)
-    startOfLocalSeason = db.Column(db.Date())
+    startOfLocalSeason = db.Column(db.String())
     synonyms = relationship("Synonym", secondary = "synonym_prod_association", passive_deletes = True)
     tags = relationship("Tag", secondary = "tag_prod_association", passive_deletes = True)
     texture = db.Column(db.String)

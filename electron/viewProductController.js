@@ -92,6 +92,22 @@ angular.module('mainWindowApp', [])
       }
     })
   }
+
+  $scope.importFromJson = function(products, values, references){
+    for(i in products){
+      (function(productIndex){
+        var product=products[productIndex]
+        try{
+          httpGetAsync(baseURL.concat(String(product.id)), function(response){
+            
+          })
+        }catch(err){
+
+        }
+      }
+      )(i)
+    }
+  }
   //generate and post data from loaded legacy data
   $scope.convertLegacy = function(legacyProducts,legacyProcesses,legacyNutrients,legacyNutritionChanges,legacyFoodWastes){
     // Post all products and store their new representation
@@ -111,6 +127,7 @@ angular.module('mainWindowApp', [])
       nutrientDataSet=legacyNutrients[nutrientDataId]
     }
 
+    // create Product from a Product-File
     for (productId in legacyProducts){
       try{
         var legacyProduct=legacyProducts[productId]
@@ -135,7 +152,7 @@ angular.module('mainWindowApp', [])
           "possibleOrigins": [],
           "processesCo2": [],
           "specification": legacyProduct["specification"],
-          "startOfLocalSeason": "None",
+          "startOfLocalSeason": legacyProduct[""],
           "synonyms": [],
           "tags": [],
           "texture": null,
@@ -152,15 +169,15 @@ angular.module('mainWindowApp', [])
             console.log("posted product: "+JSON.stringify(prodToPost))
             console.log("response: "+response)
           }
+          // store the server representation with the local product object 
           prodToPost['newProd']=angular.fromJson(response)
         })
 
         //convert nutrition data set to values
         if(legacyProduct['nutrition-id']){
           nutritionData=legacyNutrients[legacyProduct['nutrition-id']]
-
           referenceToPost={
-            name: "Euro4 "+nutritionData['id']+" "+nutritionData['name'],
+            name: "EuroFIR"+nutritionData['id']+" "+nutritionData['name'],
             comment: "generated at legacy import"
           }
           // check if there is a reference for this file
@@ -190,7 +207,7 @@ angular.module('mainWindowApp', [])
               product:prodToPost['newProd']['id']
             }
 
-            // store for later use
+            // store the Nutrition Value with the nutrition file for later use
             if(nutritionData['productNutrientAssociationsToPost']==null){
               nutritionData['productNutrientAssociationsToPost']=[]
             }
@@ -203,6 +220,7 @@ angular.module('mainWindowApp', [])
                 console.log("posted productNutrientAssociation: "+JSON.stringify(productNutrientAssociationToPost))
                 console.log("response: "+response)
               }
+              //save the server representation with the value
               productNutrientAssociationToPost['newValue']=angular.fromJson(response)
             })
           }
@@ -240,6 +258,8 @@ angular.module('mainWindowApp', [])
         }
       }
     }
+
+
     catch(err){
       console.error(err.message+" for product: "+productId)
     }
@@ -264,6 +284,19 @@ angular.module('mainWindowApp', [])
     }
     console.log("linked co2 counter: "+counter)
   }
+
+
+  //add allergenes
+  //add alternatives
+  //add synonyms
+  //add tags
+  //add processes
+  //add co2Processes
+  //add nutritionchanges
+  //add unitWeight
+  //add density
+  //add 
+
 }
 
   //take files from html element and read them into scope's legacyNutritionChanges
@@ -468,8 +501,9 @@ angular.module('mainWindowApp', [])
 
   $scope.postProduct = function(arg){
     console.log("posting")
-    newProduct={name:$scope.newProductName, specification:$scope.newProductSpecification}
-    httpPostSync('http://localhost:5000/products', JSON.stringify(newProduct),function(response){
+    var newProduct={name:$scope.newProductName, specification:$scope.newProductSpecification}
+    httpPostAsync('http://localhost:5000/products', JSON.stringify(newProduct),function(response){
+      console.log("response")
       $scope.updateProducts()
       if(arg){
         item=angular.fromJson(response)
@@ -518,22 +552,8 @@ angular.module('mainWindowApp', [])
     templateUrl:"snippets/addProductModal.html",
   })
 })
-.controller('ValueModalController', function($scope){
-})
-.directive('addValueModal', function(){
+.directive(('uploadModal'), function(){
   return({
-    templateUrl:"snippets/addValueModal.html",
-  })
-})
-.controller('ReferenceModalController', function($scope){
-})
-.directive('addReferenceModal', function(){
-  return({
-    templateUrl:"snippets/addreferenceModal.html",
-  })
-})
-.directive('uploadModal', function(){
-  return({
-    templateUrl:"snippets/uploadModal.html",
+    templateUrl:"snippets/uploadModal.html"
   })
 })

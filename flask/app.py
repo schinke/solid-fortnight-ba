@@ -273,8 +273,9 @@ def editProduct(id,jsonData):
                     association = ProductAllergeneAssociation.query.get(allergeneDict['id'])
                     editValue(association, allergeneDict)
                 except:
-                    raise TypeError('no allergene with'+str(allergeneDict['id']))
+                    raise TypeError('no allergene association with id '+str(allergeneDict['id']))
     if 'alternatives' in jsonData:
+        product.alternatives=[]
         for alternative in jsonData['alternatives']:
             try:
                 alternative = Product.query.get(alternative['id'])

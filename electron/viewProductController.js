@@ -264,6 +264,7 @@ angular.module('mainWindowApp', [])
 
   }
 
+  //update db from json dump
   $scope.importFromJson = function(products, values, references){
     for(i in products){
       (function(productIndex){
@@ -281,6 +282,30 @@ angular.module('mainWindowApp', [])
   }
   //generate and post data from loaded legacy data
   $scope.convertLegacy = function(legacyProducts,legacyProcesses,legacyNutrients,legacyNutritionChanges,legacyFoodWastes){
+    var createUniqueFile = function(index,basePath,baseName){
+
+      var tryPath=path.join(basePath,baseName.concat(String(index)))
+      try{
+        var pathStat=fs.statSync(tryPath)
+        if (pathStat.isFile() || pathStat.isDirectory()){
+          return(createUniqueFile(index+1,basePath,baseName))
+        }
+        else{
+          return(tryPath)
+        }
+      }catch(err){
+        return(tryPath)
+      }
+    }
+
+    var logtToFile = function(text,path){
+      fs.appendFile(path,text)
+    }
+
+    var legacyLogBasePath = path.join(__dirname,"..")
+    var logPath=createUniqueFile(0,legacyLogBasePath,"legacyLog")
+    
+
     // Post all products and store their new representation
     var prodsToPost=[]
     var referencesToPost=[]
@@ -326,7 +351,7 @@ angular.module('mainWindowApp', [])
           "startOfLocalSeason": legacyProduct[""],
           "synonyms": [],
           "tags": [],
-          "texture": null,
+          "texture": legacyProduct["consistency"],
           "unitWeights": []
         }
 
@@ -342,11 +367,16 @@ angular.module('mainWindowApp', [])
           }
           // store the server representation with the local product object 
           prodToPost['newProd']=angular.fromJson(response)
+          if(prodToPost.id!==prodToPost['newProd']['id']){
+            logtToFile(logPath,JSON.stringify({"oldProductId":prodToPost.id, "newProductId": prodToPost['newProd']['id']}))
+          }
         })
 
-        //convert nutrition data set to values
+
+        //convert nutrition data set to multiple ProductNutrientAssociations and a single Reference
         if(legacyProduct['nutrition-id']){
           nutritionData=legacyNutrients[legacyProduct['nutrition-id']]
+
           referenceToPost={
             name: "EuroFIR"+nutritionData['id']+" "+nutritionData['name'],
             comment: "generated at legacy import"
@@ -359,6 +389,7 @@ angular.module('mainWindowApp', [])
 
             // post reference to server
             httpPostSync(baseURL+'/references',JSON.stringify(referenceToPost),function(response){
+              referenceToPost['newRef']=angular.fromJson(response)
               if(debug==true){
                 console.log("posted reference: "+JSON.stringify(referenceToPost))
                 console.log("response: "+response)
@@ -427,12 +458,59 @@ angular.module('mainWindowApp', [])
             console.log("linked co2-value detected. Id: "+legacyProduct['id'])
           }
         }
+
+        //post quantityReference, post it and add density and unit weight in callback
+        if (legacyProduct['unit-weight']||legacyProduct['density']){
+          quantityReferenceToPost={
+            name: legacyProduct['quantity-references'],
+            comment: "generated at legacy import"
+          }
+
+          httpPostAsync(baseURL+'/references',JSON.stringify(quantityReferenceToPost),function(response){
+            quantityReferenceToPost['newRef']=angular.fromJson(response)
+            // unitWeight
+            try{
+              productUnitWeightToPost={
+                type:"ProductUnitWeight",
+                comment:legacyProduct["quantity-comments"],
+                product:legacyProduct.id,
+                amount: legacyProduct['unit-weight'],
+                referenceId:quantityReferenceToPost['newRef'][id]
+              }
+              httpPostSync(baseURL+'/values',JSON.stringify(productUnitWeightToPost),function(response){
+                if(debug==true){
+                  console.log("posted UnitWeight: "+JSON.stringify(productUnitWeightToPost))
+                  console.log("response: "+response)
+                }productUnitWeightToPost['newValue']=angular.fromJson(response)
+              })
+            }catch(err){logtToFile(logPath,err.message+" for unit weight in product: "+productId)}
+            // density
+            try{
+              productDensityToPost={
+                type:"ProductDensity",
+                comment:legacyProduct["quantity-comments"],
+                product:legacyProduct.id,
+                amount: legacyProduct['unit-weight'],
+                referenceId:quantityReferenceToPost['newRef'][id]
+              }
+              httpPostSync(baseURL+'/values',JSON.stringify(productDensityToPost),function(response){
+                if(debug==true){
+                  console.log("posted density: "+JSON.stringify(productDensityToPost))
+                  console.log("response: "+response)
+                }productDensityToPost['newValue']=angular.fromJson(response)
+              })
+            }catch(err){logtToFile(logPath,err.message+" for density in product: "+productId)}
+
+            if(debug==true){
+              console.log("posted quantity reference: "+JSON.stringify(quantityReferenceToPost))
+              console.log("response: "+response)
+            }
+          })
+        }
       }
     }
-
-
     catch(err){
-      console.error(err.message+" for product: "+productId)
+      logtToFile(logPath,err.message+" for product: "+productId)
     }
   }
 
@@ -712,7 +790,6 @@ angular.module('mainWindowApp', [])
       $scope.$apply();
     });
   }
-  $scope.dumpJson()
   $scope.updateReferences()
 })
 

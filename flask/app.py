@@ -28,6 +28,7 @@ def rollback():
     except Exception as e:
         return responseString.append(e.args), 500
     return  str(responseString)
+
 @app.route('/products', methods = ['GET'])
 def get_products():
 
@@ -37,7 +38,16 @@ def get_products():
     db.session.add(visit)
     db.session.commit()
     result=[]
-    allProducts=Product.query.all()
+    edbString=request.args.get('edb')
+    if not edbString:
+        allProducts=Product.query.all()
+    if edbString:
+        if edbString == "true":
+            allProducts=EdbProduct.query.all()
+        elif edbString == "false":
+            allProducts=TemplateProduct.query.all()
+        else:
+            allProducts=Product.query.all()
     fieldsString=request.args.get('fields')
     if fieldsString:
         fields=fieldsString.split(",")
@@ -74,6 +84,8 @@ def post_product():
             product = TemplateProduct()
     else:
         product = TemplateProduct()
+    # if 'id' in request.json and Product.query.get(request.json['id']) is None:
+    #     product.id=request.json['id']
     if not 'name' in request.json:
         return "name missing", 400
     else:
@@ -81,7 +93,7 @@ def post_product():
     db.session.add(product)
     db.session.commit()
     id = editProduct(product.id,request.json)
-    return jsonify(product.toDict())
+    return jsonify(product.toDict()),201
 
 @app.route('/products/<id>', methods = ['PUT'])
 def put_product(id):
@@ -107,7 +119,7 @@ def delete_product(id):
     else:
         db.session.delete(product)
         db.session.commit()
-        return "ok"
+        return "",204
 
 @app.route('/values/<id>', methods = ['GET'])
 def get_value(id):
@@ -146,10 +158,10 @@ def post_value():
             try:
                 editValue(value, request.json)
             except TypeError as e:
-                return e.args;
+                return str(e.args),400;
             db.session.commit()
-            return jsonify(value.toDict())
-    return ("must provide product and type")
+            return jsonify(value.toDict()), 201
+    return "must provide product and type",400
 
 
 @app.route('/values/<id>', methods = ['PUT'])
@@ -176,7 +188,7 @@ def delete_value(id):
     else:
         db.session.delete(value)
         db.session.commit()
-        return "ok"
+        return "",204
 
 @app.route('/values', methods = ['GET'])
 def get_values():
@@ -184,7 +196,12 @@ def get_values():
 
 @app.route('/references', methods = ['GET'])
 def get_references():
-    return jsonify([a.toDict() for a in Reference.query.all()])
+    fieldsString=request.args.get('fields')
+    if fieldsString:
+        fields=fieldsString.split(",")
+    else:
+        fields=None
+    return jsonify([a.toDict(fields=fields) for a in Reference.query.all()])
 
 @app.route('/references', methods = ['POST'])
 def post_reference():
@@ -195,9 +212,9 @@ def post_reference():
             reference.comment=request.json['comment']
         db.session.add(reference)
         db.session.commit()
-        return jsonify(reference.toDict())
+        return jsonify(reference.toDict()), 201
     else:
-        return ("name required")
+        return ("name required"), 400
 
 @app.route('/references/<id>', methods = ['PUT'])
 def put_reference(id):
@@ -231,6 +248,21 @@ def get_nutrients():
 @app.route('/processes', methods = ['GET'])
 def get_processes():
     return jsonify([a.toDict() for a in Process.query.all()])
+
+@app.route('/processes', methods = ['POST'])
+def post_process():
+    if 'name' in request.json:
+        process=Process()
+        process.name=request.json['name']
+        if 'type' in request.json:
+            process.type=request.json['type']
+        if 'description' in request.json:
+            process.description=request.json['description']
+        db.session.add(reference)
+        db.session.commit()
+        return jsonify(reference.toDict()), 201
+    else:
+        return "name required", 400
 
 def editProduct(id,jsonData):
     product = Product.query.get(id)
@@ -317,6 +349,18 @@ def editProduct(id,jsonData):
                 db.session.add(location)
             if not location in product.possibleOrigins:
                 product.possibleOrigins.append(location)
+
+    if 'processes' in jsonData:
+        product.processes=[]
+        for processDict in jsonData['processes']:
+            if 'id' in processDict:
+                try:
+                    process = Process.query.get(processDict['id'])
+                except:
+                    process = None
+                if process:
+                    product.processes.append(process)
+
     if 'processesCo2' in jsonData:
         for processDict in jsonData['processesCo2']:
              if 'id'  in processDict:
@@ -403,7 +447,8 @@ def editValue(value,valueDict):
         value.reference = reference
         db.session.add(reference)
     if 'validCountries' in valueDict:
-        for countryName in [cn for cn in valueDict['validCountries'] if cn is not None]:
+        value.validCountries=[]
+        for countryName in valueDict['validCountries']:
             try:
                 location=Location.query.filter(Location.name==countryName).get[0]
             except:
@@ -509,4 +554,4 @@ def editReference(id, jsonData):
     return reference.id
 
 if __name__ == '__main__':
-    app.run()
+    app.run(threaded=True)

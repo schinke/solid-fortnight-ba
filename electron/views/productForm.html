@@ -12,14 +12,19 @@
 <link rel="stylesheet" href="../allmighty-autocomplete/style/autocomplete.css">
 <script type="text/javascript" src="../allmighty-autocomplete/script/autocomplete.js"></script>
 <script src="../productFormController.js"></script>
-<body>
+<body ng-app="productFormApp" ng-controller="ProductFormController">
  <div class="navbar-fixed">
    <nav>
     <div class="nav-wrapper">
+      <ul id="nav-mobile" class="right">
+            <li ng-class="productMustBePut?'red':''">
+              <a ng-click="putProduct()"><i class="material-icons">save</i></a>
+            </li>
+          </ul>
     </div>
   </nav>
 </div>
-<div  ng-app="productFormApp" ng-controller="ProductFormController">
+<div>
   <div class="row" style="height:100vh">
     <div class="col" style="height:100vh; overflow:scroll" ng-class="extenderVisible?'s7':'s12'">
       <div class="container" style="padding-bottom: 80px;overflow:visible">
@@ -27,16 +32,16 @@
           <div class="col s12 card-panel">
 
             Name:
-            <input ng-class="localProduct.name===fromServer.name?'':'red'" type="text" ng-change="delayedPut()" ng-model="localProduct.name" required /><br />
+            <input type="text" ng-change="productMustBePut=true" ng-model="localProduct.name" required /><br />
 
             English name:
-            <input ng-class="localProduct.englishName===fromServer.englishName?'':'red'" type="text" ng-change="delayedPut()" ng-model="localProduct.englishName"  /><br />
+            <input type="text" ng-change="productMustBePut=true" ng-model="localProduct.englishName"  /><br />
 
             French name:
-            <input ng-class="localProduct.frenchName===fromServer.frenchName?'':'red'" type="text" ng-change="delayedPut()" ng-model="localProduct.frenchName"  /><br />
+            <input type="text" ng-change="productMustBePut=true" ng-model="localProduct.frenchName"  /><br />
 
             Specification:
-            <input ng-class="localProduct.specification===fromServer.specification?'':'red'" type="text" ng-change="delayedPut()"ng-model="localProduct.specification"/><br />
+            <input type="text" ng-change="productMustBePut=true"ng-model="localProduct.specification"/><br />
           </div>
         </div>
         <div class="row">
@@ -59,17 +64,17 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>{{localProduct['co2Values'][0].reference||"-"}}</td>
-                  <td>{{localProduct['co2Values'][0].amount}} {{localProduct['co2Values'][0].unit}}</td>
-                  <td>{{localProduct['co2Values'][0].derived?"Yes":"No"}}
+                <tr ng-repeat="co2Value in co2Values">
+                  <td>{{co2Value.reference||"-"}}</td>
+                  <td>{{co2Value.amount}} {{co2Value.unit}}</td>
+                  <td>{{co2Value.derived?"Yes":"No"}}
                     <td>
-                      <a title="display value details" class="" ng-click="toggleValueExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons">input</i></a>
+                      <a title="display value details" class="" ng-click="toggleValueExtender(co2Value,'showCoValueExtender')"><i class="material-icons">input</i></a>
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <a title="add new value" ng-click="toggleGroupExtender(localProduct['co2Values'][0],'showCoValueExtender')"><i class="material-icons" >add</i></a>
+                      <a title="add new value" ng-click="addValue('Co2Value')"><i class="material-icons" >add</i></a>
                     </td>
                   </tr>
                   <tr>
@@ -80,32 +85,33 @@
           </div>
           <div class="row">
             <div class="col s12 card-panel">
-              Allergenes:
+              Nutrients:
               <table>
                 <thead>
                   <tr>
-                    <th data-field="reference" ng-click="allergeneSortField='reference'">Reference</th>
-                    <th data-field="Number of allergenes" ng-click="allergeneSortField='complete'">No. Of Allergenes</th>
+                    <th data-field="reference" ng-click="nutrientSortField='reference'">Reference</th>
+                    <th data-field="Number of nutrients" ng-click="nutrientSortField='complete'">No. Of Nutrients</th>
                     <th><!-- for edit button --></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr ng-repeat="allergeneGroup in allergeneGroupKeys|orderBy:allergeneSortField" >
-                    <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
-                    <td>{{allergenesGrouped[allergeneGroup].length}}</td>
+                  <tr ng-repeat="nutrientGroup in nutrientGroupKeys|orderBy:nutrientSortField" >
+                    <td>{{nutrientsGrouped[nutrientGroup][0].reference}}</td>
+                    <td>{{nutrientsGrouped[nutrientGroup].length}}</td>
                     <td>
-                      <a title="display values" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
+                      <a class="" ng-click="toggleGroupExtender(nutrientsGrouped,nutrientGroup,'showNutrientExtender')"><i class="material-icons">input</i></a>
                     </div>
                   </tr>
                   <tr>
+
                     <td>
-                      <form ng-submit="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')">
-                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
-                        </autocomplete>
+                      <form ng-submit="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')">
+                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newNutrientRefName" data="serverReferences"></autocomplete>
                       </form>
                     </td>
                     <td></td>
-                    <td><a title="add additional reference" ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
+                    <td>
+                      <a title="add additional reference" ng-click="toggleGroupExtender(newNutrientRefName,'ProductNutrientAssociation',null,'showNutrientExtender')"><i class="material-icons" >add</i></a>
                     </td>
                   </tr>
                   <tr>
@@ -117,7 +123,7 @@
           <div class="row">
             <div class="col s12 card-panel">
               Info text for cook:
-              <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="delayedPut()"ng-model="localProduct.infoTextForCook"/><br />
+              <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="productMustBePut=true"ng-model="localProduct.infoTextForCook"/><br />
             </div>
             <div class="col s12 card-panel">
               Tags:
@@ -152,7 +158,7 @@
                   <tr>
                     <td>
                       <form ng-submit="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')">
-                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="references">
+                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="serverReferences">
                         </autocomplete>
                       </form>
                     </td>

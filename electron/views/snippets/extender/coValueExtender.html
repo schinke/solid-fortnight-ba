@@ -12,11 +12,11 @@
       Derived
     </label>
   </div>
-  <a class="col s3"><i class="material-icons">delete_forever</i>
+  <a class="col s3" ng-click="deleteSingleValue();"><i class="material-icons">delete_forever</i>
   </a>
 </div>
 
-<!-- this part is needed if the value is based on another value -->
+<!-- this part is needed if the value is NOT based on another value -->
 <div ng-show="!withBaseValue">
   <div class="row">
     <div class="col s12">
@@ -25,7 +25,7 @@
   </div>
   <div class="row">
     <div class="col s12">
-      <autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="editValues[0].reference" data="references" attr-ng-change="putValue(editValues[0])"\>
+      <autocomplete autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="editValues[0].reference" data="serverReferences" attr-ng-change="putValue(editValues[0])"\>
       </div>
     </div>
     <div class="row">
@@ -43,12 +43,19 @@
 
   </div>
 
-  <!-- this part is needed if the value is NOT based on another value -->
+  <!-- this part is needed if the value is  based on another value -->
   <div ng-show="withBaseValue">
     <div class="row">
       <div class="col s12">
         Product to derive from:
-        <autocomplete autosearchfield='"id"' autoshowfields="['name', coValueExtract]" attr-input-class="input-field" ng-model="baseValueProductId" data="products"></autocomplete>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12">
+        <autocomplete autosearchfield='"id"' autoshowfields="['name', 'specification']" attr-input-class="input-field" ng-model="baseValueProductId" data="serverProducts"></autocomplete>
+      </div>
+      <div ng-show="baseProduct"class="col s12">
+        ({{baseProduct.name}})
       </div>
     </div>
     <div class="row">
@@ -63,7 +70,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="value in baseProduct.co2Values">
+            <tr ng-repeat="value in baseProcuctCo2Values">
               <td>{{value.amount}}</td>
               <td>{{value.unit}}</td>
               <td>{{value.reference}}</td>

@@ -7,6 +7,40 @@
   </div>
 </div>
 <div class="row">
+  <div class="col s12">
+    <a ng-click="showCountries=!showCountries">
+      valid Countries
+    </a>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <table ng-show="showCountries" class="striped col s10 push-s1">
+      <tbody>
+        <tr>
+          <td>
+            <autocomplete autosearchfield='"name"' attr-input-class="input-field" ng-model="newCountry" data="serverLocations">
+            </autocomplete>
+          </td>
+          <td>
+            <a ng-click="addCountryToEditValues(newCountry)">
+              <i class="material-icons">add</i>
+            </a>
+          </td>
+        </tr>
+        <tr ng-repeat="country in editValuesCountries">
+          <td >{{country}}</td>
+          <td>
+            <a ng-click="editValuesCountries.split(editValues.indexOf(value))">
+            <i class="material-icons">remove</i>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+     </div>
+</div>
+<div class="row">
   <a class="col s3" ng-click="togglePostField(); newValue={product:localProduct.id, reference:editValuesReference, type:editValuesType}"><i class="material-icons">add</i>
   </a>
   <a class="col s3"><i class="material-icons">file_upload</i>
@@ -16,41 +50,50 @@
   <a class="col s3"><i class="material-icons">delete_forever</i>
   </a>
 </div>
+
 <table class="striped col s12">
   <thead>
     <tr>
-      <th data-field="id" ng-click="valueSortField='id'">Id</th>
-      <th data-field="name" ng-click="valueSortField='name'">Name</th>
-      <th data-field="amount" ng-click="valueSortField"="amount"></th>
+      <th data-field="id" ng-click="extenderValueSortField='id'">Id</th>
+      <th data-field="name" ng-click="extenderValueSortField='nutrientName'">Name</th>
+      <th data-field="amount" ng-click="extenderValueSortField='amount'">Value</th>
+      <th data-field="unit" ng-click="extenderValueSortField='unit'">Unit</th>
       <th ></th>
     </tr>
   </thead>
   <tbody>
     <tr ng-show="showPostField">
       <td><a ng-click="togglePostField()"><i class="material-icons">remove</i></a></td>
-      <form ng-submit="postValue(newValue)">
+      <form ng-submit="postValue(newValue,editValues)">
         <td>
           <autocomplete autosearchfield='"name"' attr-input-class="input-field" ng-model="newValue.nutrientName" data="serverNutrients">
           </autocomplete>
         </td>
         <td>
           <input type="number" ng-model="newValue.amount">
+        </input>
+        </td>
+        <td>
+          <input type="text" ng-model="newValue.unit">
           </input>
         </td>
       </form>
-      <td><a ng-click="postValue(newValue)"><i class="material-icons">add</i></a></td>
+      <td><a ng-click="postValue(newValue, editValues)"><i class="material-icons">add</i></a></td>
     </tr>
-    <tr ng-repeat="value in editValues">
+    <tr ng-repeat="value in editValues|orderBy:extenderValueSortField">
       <td >{{value.id}}</td>
       <td>
         <autocomplete autosearchfield='"name"' attr-input-class="input-field" ng-model="value.nutrientName" data="serverAllergenes"></autocomplete>
       </td>
       <td>
-          <input type="number" ng-model="value.amount">
-          </input>
-        </td>
+        <input type="number" ng-model="value.amount">
+        </input>
+      </td>
+      <td>
+        <input type="text" ng-model="value.unit">
+        </input>
+      </td>
       <td><a ng-click="deleteValue(value)"><i class="material-icons">delete_forever</i></a></td>
     </tr>
-
   </tbody>
 </table>

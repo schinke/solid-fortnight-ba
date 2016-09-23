@@ -67,9 +67,9 @@ class Value(db.Model):
             output['baseValue'] = self.baseValue.id
         else:
             output['derived'] = False
-            if self.reference:
-                output['referenceId'] = self.reference.id
-                output['reference'] = self.reference.name
+        if self.reference:
+            output['referenceId'] = self.reference.id
+            output['reference'] = self.reference.name
         return output
     type = Column(db.String(50))
     __mapper_args__ = {
@@ -136,10 +136,12 @@ class Process(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     products = relationship("Product", secondary = "prod_process_association", back_populates = "processes")
     name = db.Column(db.String())
+    type=db.Column(db.String())
     description = db.Column(db.String())
 
     def toDict(self):
-        return {'id':self.id, 'name':self.name, 'description':self.description}
+        return {'id':self.id, 'name':self.name, 'type':self.type, 'description':self.description}
+
 
 #An allergene not tied to a product
 class Allergene(db.Model):#single allergene, not multiple allergenes
@@ -189,9 +191,15 @@ class Co2Value(Value):
 class Reference(db.Model):
     __tablename__ = 'reference'
 
-    def toDict(self):
-        output = {'id':self.id, 'name':self.name, 'comment':self.comment, 'values':[value.id for value in self.scivalues]}
-        return output
+    def toDict(self, fields=None):
+        response = {'id':self.id,}
+        if not fields or (fields and 'name' in fields):
+            response['name'] = self.name
+        if not fields or (fields and 'comment' in fields):
+            response['comment'] = self.comment
+        if not fields or (fields and 'values' in fields):
+            response['values']=[value.id for value in self.scivalues]
+        return response
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String)
     comment = db.Column(db.String)
@@ -304,7 +312,7 @@ class ProductNutrientAssociation(Value):
         return output
     id = Column(db.Integer, ForeignKey('scivalue.id', ondelete = "CASCADE"), primary_key = True)
     #product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete = "CASCADE"))
-    product = relationship("Product", cascade = "all", back_populates = "nutrients")
+    product = relationship("Product", back_populates = "nutrients")
     nutrient_id =  db.Column(db.Integer, db.ForeignKey('nutrient.id'))
     nutrient = relationship("Nutrient")
 
@@ -370,7 +378,7 @@ class Product(db.Model):
         product.frenchName = request.json['frenchName']
 
     def toDict(self, fields=None):
-        response = {}
+        response = {'id':self.id}
         if not fields or (fields and 'allergenes' in fields):
             response['allergenes'] = [allergene.toDict() for allergene in self.allergenes]
         if not fields or (fields and 'alternatives' in fields):
@@ -389,8 +397,6 @@ class Product(db.Model):
             response['foodWasteData'] = [data.toDict() for data in self.foodWasteData]
         if not fields or (fields and 'frenchName' in fields):
             response['frenchName'] = self.frenchName
-        if not fields or (fields and 'id' in fields):
-            response['id'] = self.id
         if not fields or (fields and 'infoTextForCook' in fields):
             response['infoTextForCook'] = self.infoTextForCook
         if not fields or (fields and 'name' in fields):

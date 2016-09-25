@@ -526,7 +526,7 @@ def editValue(value,valueDict):
             process = Process()
             process.name = valueDict['processName']
             db.session.add(process)
-        value.Process=process
+        value.process=process
         try:
             nutrient = Nutrient.query.filter(Nutrient.name == valueDict['nutrientName']).all()[0]
         except:

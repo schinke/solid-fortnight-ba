@@ -31,7 +31,7 @@
         <tr ng-repeat="country in editValuesCountries">
           <td >{{country}}</td>
           <td>
-            <a ng-click="editValuesCountries.split(editValues.indexOf(value))">
+            <a ng-click="deleteCountryFromEditValues(country)">
             <i class="material-icons">remove</i>
             </a>
           </td>
@@ -83,7 +83,7 @@
     <tr ng-repeat="value in editValues|orderBy:extenderValueSortField">
       <td >{{value.id}}</td>
       <td>
-        <autocomplete autosearchfield='"name"' attr-input-class="input-field" ng-model="value.nutrientName" data="serverAllergenes"></autocomplete>
+        <autocomplete autosearchfield='"name"' attr-input-class="input-field" ng-model="value.nutrientName" data="serverNutrients"></autocomplete>
       </td>
       <td>
         <input type="number" ng-model="value.amount">

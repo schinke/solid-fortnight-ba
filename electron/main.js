@@ -22,7 +22,7 @@ app.on('ready', function() {
   let willQuitApp = false;
   app.on('before-quit', () => willQuitApp = true);
 
-  productForm = new BrowserWindow({minWidth: 600, height:800, show:false, title:"Product details"});
+  var productForm = new BrowserWindow({minWidth: 600, height:800, show:false, title:"Product details"});
   productForm.loadURL(`file://${__dirname}/views/productForm.html`)
   productForm.on('close', (e) => { //   <---- Catch close event
     if(willQuitApp){
@@ -35,23 +35,9 @@ app.on('ready', function() {
     }
   });
 
-  valueForm = new BrowserWindow({minWidth: 600, height:800, show:false, title:"Value details"});
-  valueForm.loadURL(`file://${__dirname}/views/valueForm.html`)
-  valueForm.on('close', (e) => { //   <---- Catch close event
-    if(willQuitApp){
-      valueForm=null
-    }
-    else{
-      e.preventDefault();
-      valueForm.hide();
-      console.log("valueForm hidden")
-    }
-  });
-
   var openWindow = function(){
     mainWindow = new BrowserWindow({width: 1024, minWidth: 800, height: 578});
     mainWindow.loadURL(`file://${__dirname}/views/mainWindow.html`)
-    mainWindow.webContents.openDevTools();
     mainWindow.on('closed', function() {
       mainWindow = null;
       subpy.kill('SIGINT');
@@ -74,7 +60,6 @@ app.on('ready', function() {
   };
 
   var showProductForm = function(arg){
-    productForm.webContents.openDevTools();
     console.log('sent id to window')
     //productForm.on('ready-to-show',function(){
     productForm.webContents.send('prodFormId',arg)
@@ -86,18 +71,6 @@ app.on('ready', function() {
     console.log(arg);
   })
 
-  var showValueForm = function(arg){
-    valueForm.webContents.openDevTools();
-    console.log('sent id to window')
-    //productForm.on('ready-to-show',function(){
-    valueForm.webContents.send('valueFormId',arg)
-    valueForm.show()
-  }
-
-  ipcMain.on('show-val-form', (event, arg) => {
-    showValueForm(arg);
-    console.log(arg);
-  })
   // fire!
   startUp();
 });

@@ -64,7 +64,7 @@ function httpPostAsync(theUrl, jsonData, callback) {
 angular.module('productFormApp', ['autocomplete'])
 
 .controller('ProductFormController',function($scope) {
-
+  var productURL=""
   ipcRenderer.on('prodFormId' , function(event, productId){
     id=productId
 
@@ -99,7 +99,7 @@ angular.module('productFormApp', ['autocomplete'])
 
   var init = function(){
     $scope.id=id;
-    $scope.productURL=baseURL.concat('/products/'.concat(id))
+    productURL=baseURL.concat('/products/'.concat(id))
     $scope.updateAllFromServer()
   }
 
@@ -113,52 +113,52 @@ angular.module('productFormApp', ['autocomplete'])
 
   $scope.updateAllFromServer=function(){
     console.log("update all from server")
-    $scope.updateProductData(function(){
-      $scope.updateServerNutrients()
-      $scope.updateNutrientGroups()
-      $scope.updateCo2Values()
-      $scope.updateServerReferences()
-      $scope.updateServerProducts()
+    updateProductData(function(){
+      updateServerNutrients()
+      updateNutrientGroups()
+      updateCo2Values()
+      updateServerReferences()
+      updateServerProducts()
     })
   }
 
-  $scope.updateProductData = function(callback){
-    httpGetAsync($scope.productURL, function(response){
+  updateProductData = function(callback){
+    httpGetAsync(productURL, function(response){
       $scope.fromServer=angular.fromJson(response);
       $scope.localProduct=$scope.fromServer
-      $scope.$apply()
       callback()
+      $scope.$apply()
     })
   }
 
-  $scope.updateCo2Values = function(){
+  updateCo2Values = function(){
     $scope.co2Values=$scope.localProduct.co2Values
     $scope.$apply()
   }
-
-  $scope.updateServerNutrients = function(){
+    
+  updateServerNutrients = function(){
     httpGetAsync(baseURL.concat('/nutrients'), function(response){
       $scope.serverNutrients=angular.fromJson(response)
       $scope.$apply()
     })
   }
 
-  $scope.updateServerReferences = function(){
+  updateServerReferences = function(){
     httpGetAsync(baseURL.concat('/references?fields=name,comment'), function(response){
       $scope.serverReferences=angular.fromJson(response)
       $scope.$apply()
     })
   }
 
-  $scope.updateServerProducts = function(){
+  updateServerProducts = function(){
     console.log("attempting product list update")
     httpGetAsync(baseURL.concat("/products?fields=name,id,specification"), function(response){
       $scope.serverProducts=angular.fromJson(response);
-      $scope.$apply();
+      $scope.$apply()
     });
   }
 
-  $scope.updateNutrientGroups = function(){
+  updateNutrientGroups = function(){
     console.log("update nutrient groups")
     $scope.nutrientsGrouped={}
     $scope.nutrientGroupKeys=[]
@@ -168,11 +168,11 @@ angular.module('productFormApp', ['autocomplete'])
         $scope.nutrientsGrouped[group]=[]; $scope.nutrientGroupKeys.push(group)
       }
       $scope.nutrientsGrouped[group].push(nutrient);
-      $scope.$apply()
     })
+    $scope.$apply()
   }
 
-  $scope.updateNutrientProcessGroups = function(){
+  updateNutrientProcessGroups = function(){
     $scope.nutrientProcessesGrouped={}
     $scope.nutrientProcessGroupedKeys=[]
     $scope.localProduct.nutrientProcesses.forEach(function(nutrient){
@@ -182,7 +182,7 @@ angular.module('productFormApp', ['autocomplete'])
   //to save text data of the product
   $scope.putProduct = function(){
     sendingData=angular.fromJson(JSON.stringify($scope.localProduct))
-    httpPutAsync($scope.productURL, JSON.stringify(sendingData), function(response){
+    httpPutAsync(productURL, JSON.stringify(sendingData), function(response){
       $scope.productMustBePut=false
       $scope.updateAllFromServer()
     })
@@ -224,9 +224,11 @@ angular.module('productFormApp', ['autocomplete'])
 
   }
 
-  $scope.putValue = function(value){
+  $scope.putValue = function(value,update){
     httpPutAsync(baseURL.concat('/values/').concat(value.id), JSON.stringify(value), function(response){
-      $scope.updateAllFromServer()
+      if (update==null || update==true){
+        $scope.updateAllFromServer()
+      }
       value=angular.fromJson(response)
     })
     $scope.showPostField=false
@@ -289,7 +291,7 @@ angular.module('productFormApp', ['autocomplete'])
           $scope[o]=false
         }
       },extenderSwitch)
-
+    delete editValue.referenceId
     editValues=[editValue]
     if(editValue.derived){
       $scope.withBaseValue=true
@@ -316,7 +318,7 @@ angular.module('productFormApp', ['autocomplete'])
 
   //store the values of the chosen baseValueProduct
   $scope.$watch('baseValueProductId', function() {
-    if($scope.baseValueProductId===null){
+    if($scope.baseValueProductId===undefined){
       //if co2 value has base value but base value product isnt set
       if($scope.editValues[0]['baseValue']!==null){
           httpGetSync(baseURL.concat('/values/').concat($scope.editValues[0]['baseValue']), function(response){
@@ -325,7 +327,7 @@ angular.module('productFormApp', ['autocomplete'])
         })
       }
     }
-    if($scope.baseValueProductId!==null){
+    if($scope.baseValueProductId!==undefined){
       httpGetAsync(baseURL.concat('/products/').concat($scope.baseValueProductId), function(response){
         $scope.baseProduct=angular.fromJson(response)
         $scope.baseProcuctCo2Values=$scope.baseProduct.co2Values
@@ -341,14 +343,19 @@ angular.module('productFormApp', ['autocomplete'])
     else{
       $scope.editValuesCountries.push(newCountry)
       for(valueIndex in editValues){
-        $scope.putValue(editValues[valueIndex])
+        $scope.putValue(editValues[valueIndex],false)
       }
+      $scope.updateAllFromServer()
       newCountry=""
     }
   }
 
   $scope.deleteCountryFromEditValues = function(country){
-    $scope.editValuesCountries.splice($scope.editValuesCountries.indexOf(country))
+    $scope.editValuesCountries.splice($scope.editValuesCountries.indexOf(country),1)
+    for(valueIndex in editValues){
+      $scope.putValue(editValues[valueIndex],false)
+    }
+    $scope.updateAllFromServer()
   }
 
   //this is triggered by the derived/not derived switch

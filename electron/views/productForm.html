@@ -120,58 +120,6 @@
               </table>
             </div>
           </div>
-          <div class="row">
-            <div class="col s12 card-panel">
-              Info text for cook:
-              <input ng-class="localProduct.infoTextForCook===fromServer.infoTextForCook?'':'red'" type="text" ng-change="productMustBePut=true"ng-model="localProduct.infoTextForCook"/><br />
-            </div>
-            <div class="col s12 card-panel">
-              Tags:
-              <div ng-repeat="tag in fromServer.tags">
-                {{tag}}<br />
-              </div><br />
-            </div>
-            <div class="col s12 card-panel">
-              Alternatives:
-              <div ng-repeat="alternative in fromServer.alternatives">
-                {{alternative.name}}<br />
-              </div><br />
-            </div>
-            <div class="col s12 card-panel">
-              Nutrient processes:
-              <table>
-                <thead>
-                  <tr>
-                    <th data-field="reference" ng-click="allergeneSortField='reference'">Reference</th>
-                    <th data-field="Number of allergenes" ng-click="allergeneSortField='complete'">No. Of Allergenes</th>
-                    <th><!-- for edit button --></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr ng-repeat="allergeneGroup in allergeneGroupKeys|orderBy:allergeneSortField" >
-                    <td>{{allergenesGrouped[allergeneGroup][0].reference}}</td>
-                    <td>{{allergenesGrouped[allergeneGroup].length}}</td>
-                    <td>
-                      <a title="display values" ng-click="toggleGroupExtender(allergenesGrouped[allergeneGroup][0].reference,allergenesGrouped[allergeneGroup][0].type,allergenesGrouped[allergeneGroup],'showAllergeneExtender')"><i class="material-icons">input</i></a>
-                    </div>
-                  </tr>
-                  <tr>
-                    <td>
-                      <form ng-submit="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')">
-                        <autocomplete attr-placeholder="additional reference..." autosearchfield='"name"' autoshowfields="['comment']" attr-input-class="input-field" ng-model="newAllRefName" data="serverReferences">
-                        </autocomplete>
-                      </form>
-                    </td>
-                    <td></td>
-                    <td><a title="add additional reference" ng-click="toggleGroupExtender(newAllRefName,'ProductAllergeneAssociation',null,'showAllergeneExtender')"><i class="material-icons" >add</i></a>
-                    </td>
-                  </tr>
-                  <tr>
-                  </tr>
-                </tbody>
-              </table>
-            </div> 
-          </div>
         </div>
       </div>
       <div style="height:100vh; overflow:scroll; word-wrap:break-word" ng-show="extenderVisible" class="col s5">

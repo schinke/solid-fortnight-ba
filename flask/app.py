@@ -158,6 +158,7 @@ def post_value():
             try:
                 editValue(value, request.json)
             except TypeError as e:
+                db.session.rollback()
                 return str(e.args),400;
             db.session.commit()
             return jsonify(value.toDict()), 201
@@ -227,15 +228,6 @@ def put_reference(id):
     else:
         editReference(reference.id,request.json)
         return jsonify(reference.toDict())
-# # authentication example
-# @app.route('/<name>')
-# @auth.login_required
-# def hello_name(name):
-#     print(name)
-
-# @auth.verify_password
-# def verify_password(username, password):
-#     return True
 
 @app.route('/allergenes', methods = ['GET'])
 def get_allergenes():
@@ -354,13 +346,18 @@ def editProduct(id,jsonData):
     if 'processes' in jsonData:
         product.processes=[]
         for processDict in jsonData['processes']:
-            if 'id' in processDict:
+            try:
+                process = Process.query.filter(Process.name == processDict['name']).all()[0]
+            except:
                 try:
                     process = Process.query.get(processDict['id'])
                 except:
                     process = None
-                if process:
-                    product.processes.append(process)
+            if not process:
+                process = Process()
+                process.name = processDict['name']
+                db.session.add(process)
+            product.processes.append(process)
 
     if 'processesCo2' in jsonData:
         for processDict in jsonData['processesCo2']:
@@ -506,7 +503,7 @@ def editValue(value,valueDict):
             process = Process()
             process.name = valueDict['processName']
             db.session.add(process)
-        value.Process=process
+        value.process=process
     elif valueDict['type']=='ProductNutrientAssociation' and type(value)==ProductNutrientAssociation and 'nutrientName' in valueDict:
         try:
             nutrient = Nutrient.query.filter(Nutrient.name == valueDict['nutrientName']).all()[0]

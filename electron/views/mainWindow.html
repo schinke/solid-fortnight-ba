@@ -23,7 +23,6 @@
         <div class="nav-wrapper">
           <ul id="nav-mobile" class="left">
             <li><a ng-class="visibleClass==='Product'?'teal':''" alt="show products table" href="#" ng-click="visibleClass='Product'">Products</a></li>
-            <li><a ng-class="visibleClass==='Value'?'teal':''" alt="show values table" ng-click="visibleClass='Value'">Values</a></li>
             <li><a ng-class="visibleClass==='Reference'?'teal':''" alt="show references table" ng-click="visibleClass='Reference'">References</a></li>
           </ul>
           <ul id="nav-mobile" class="right">
@@ -42,7 +41,6 @@
           <div>
             <input type="text" class="form-control" placeholder="Search term" ng-model="productSearchTerm" autofocus>
           </div>
-          <h1>{{fileContent}}</h1>
           <table class="striped">
             <thead>
               <tr>
@@ -64,34 +62,6 @@
           </table>
         </div>
       </div>
-
-      <!-- values tab -->
-      <div class="row" ng-class="visibleClass==='Value'?'':'hide'">
-        <div class="col s12">
-          <div>
-            <input type="text" class="form-control" placeholder="Search term" ng-model="valueSearchTerm">
-          </div>
-          <table class="striped">
-            <thead>
-              <tr>
-                <th data-field="id" ng-click="valueSortField='id'">Id</th>
-                <th data-field="type" ng-click="valueSortField='type'">Typ</th>
-                <th data-field="reference" ng-click="valueSortField='reference'">Reference</th>
-                <th data-field="product" ng-click="valueSortField='product'">Product</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr ng-repeat="element in valuesFromServer|orderBy:valueSortField|filter:valueSearchTerm" ng-click="showPopup(element.id)">
-                <td >{{element.id}}</td>
-                <td>{{element.type}}</td>
-                <td>{{element.reference}}</td>
-                <td>{{element.product}}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
       <!-- references tab -->
       <div class="row" ng-class="visibleClass==='Reference'?'':'hide'">
         <div class="col s12">
@@ -107,9 +77,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="element in referencesFromServer|orderBy:referenceSortField|filter:referenceSearchTerm" ng-click="showPopup(element.id)">
+              <tr ng-repeat="element in referencesFromServer|orderBy:referenceSortField|filter:referenceSearchTerm">
                 <td >{{element.id}}</td>
-                <td>{{element.name}}</td>
+                <td>{{element.name.substring(0,20)}}</td>
                 <td>{{element.comment}}</td>
               </tr>
             </tbody>

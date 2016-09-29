@@ -328,12 +328,13 @@ CODE documentation AngularJS
 
 - electron/viewProductController.js is Angular controller for electron/views/mainWindow.html
 - electron/productFormController.js is Angular controller for electron/views/productForm.html
-- electron/legacyImporter.js is extracted function of electron/viewProductController.js to convert JSON data and post to Server:
+- electron/legacyImporter.js is extracted function of electron/viewProductController.js to convert JSON data in the format of the old EDB solution and post to the server:
   1.Product files are converted to API Product entities, posted on server and id changes are logged to legacyLog.txt
   2.Nutrient files are parsed and for each entry a ProductNutrientAssociation entity is posted on server and the new value is saved to the old file object. Reference names are generated from name and id of the nutrient data objects as <id><name>. A comment "generated at legacy import" is added. References are posted if not yet done for previous.
   3.If a co2-value is saved with a product, CO2Values are extracted from product files and posted to server. A reference is generated if the attribue "references" of the product has a value.
   4.If a co2-value is only a link to another product the product is posted without CO2-Value and marked for later to make sure the linked product is posted first.
   5.after all products are posted, the missing co2-values are created, linked to their base values and posted
+  6. A log file called ../legacylog is created to protocol the inevitable changes of ids and incorrect JSON data which might cause products no to be updated.
 - electron/backUpService.js is an extracted function of electron/viewProductController.js to save JSON data to local file system:
   1.creates a folder at ../../export<id> where <id> is an increasing number to avoid overwriting
   2.creates subfolders "processes", "allergenes", "nutrients", "references", "products"
@@ -347,6 +348,6 @@ CODE documentation AngularJS
 
 - electron/views contains .html for frontend
 
-- electron/allmighty-autocomplete contains a modified version of JustGoscha's allmighty-autocomplete. Instead of taking a list of literals, it takes a list of any objects in the ng-data attribute of the html tag. The autosearchfield attribute takes the name of the objects' field which should be put into the input field. The attribute autoshowfields takes an array of strings or functions for additional information to be shown in the dropdown list of the auto-complete.
+- electron/allmighty-autocomplete contains a modified version of JustGoscha's allmighty-autocomplete directive. Instead of taking a list of literals, it takes a list of any objects in the ng-data attribute of the html tag. The autosearchfield attribute takes the name of the objects' field which should be put into the input field. The attribute autoshowfields takes an array of strings or function objects for additional information to be shown in the dropdown list of the auto-complete. The function objects get the single objects of the array as argument and must return one value to be shown next to the autosearchfield.
 
 

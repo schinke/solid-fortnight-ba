@@ -1,4 +1,5 @@
 SOLID_FORTNIGHT_BA documentation
+this software is also available under https://github.com/schinke/solid-fortnight-ba
 BACHELOR THESIS PROJECT
 JENS HINKELMANN - KAPPEL SO, SWITZERLAND
 
@@ -10,12 +11,14 @@ _______________________________________
 Requirements:
 - PostgreSQL: http://www.enterprisedb.com/products-services-training/pgdownload
 - Python 2.7.9+: https://www.python.org/downloads/
+- Virtualenv: pip install virtualenv
 - Electron: http://electron.atom.io/releases/
-
+The project is runnable on microsoft platforms, the install procedure varies slightly.
 _______________________________________
 Install procedure:
 - Start PostgreSQL and create database 'edbdev'
 - In the folder 'flask' of this project execute:
+- - venv/bin/activate
 - - pip install -r requirements.txt
 - - python manage.py db init
 - - python manage.py db migrate

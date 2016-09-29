@@ -14,6 +14,7 @@ Requirements:
 - Virtualenv: pip install virtualenv
 - Electron: http://electron.atom.io/releases/
 The project is runnable on microsoft platforms, the install procedure varies slightly.
+
 _______________________________________
 Install procedure:
 - Start PostgreSQL and create database 'edbdev'
